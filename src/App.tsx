@@ -161,6 +161,7 @@ function AnimatedRoutes() {
             </PageWrapper>
           }
         />
+        <Route path="/auth" element={<Navigate to="/login" replace />} />
 
         {/* Dedicated Admin Portal for Rudrant Joshi */}
         <Route

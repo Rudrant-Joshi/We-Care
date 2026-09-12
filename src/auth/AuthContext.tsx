@@ -115,6 +115,9 @@ export const ADMIN_CREDENTIALS = {
 export const ADMIN_USER: User = DEMO_USERS.admin;
 
 function formatAuthError(errorCode?: string, fallbackMessage?: string): string {
+  const currentHost = typeof window !== 'undefined' ? window.location.hostname : 'current domain';
+  const isIp = currentHost === '127.0.0.1';
+
   switch (errorCode) {
     case 'auth/invalid-credential':
     case 'auth/wrong-password':
@@ -129,19 +132,21 @@ function formatAuthError(errorCode?: string, fallbackMessage?: string): string {
     case 'auth/user-disabled':
       return 'This user account has been disabled. Please contact clinic administration.';
     case 'auth/popup-closed-by-user':
-      return 'Google sign-in popup was closed before completing.';
+      return 'Google sign-in popup was closed before completing authentication. Please try again.';
+    case 'auth/cancelled-popup-request':
+      return 'Another authentication popup is already open. Please complete or close it first.';
     case 'auth/network-request-failed':
       return 'Network connection error. Please verify your internet connection.';
     case 'auth/too-many-requests':
       return 'Access temporarily blocked due to unusual activity. Try again in a moment.';
     case 'auth/unauthorized-domain':
-      return typeof window !== 'undefined'
-        ? `Domain unauthorized: "${window.location.hostname}" is not authorized in Firebase Console (Authentication > Settings > Authorized Domains). Live Google OAuth requires adding this domain.`
-        : 'This domain is not authorized in Firebase Console.';
+      return isIp
+        ? `Domain unauthorized: You are accessing via "127.0.0.1". Firebase allows Google OAuth on "localhost". Please access via http://localhost:5173, or add "127.0.0.1" in Firebase Console (wecare-165d7) > Authentication > Settings > Authorized Domains.`
+        : `Domain unauthorized: "${currentHost}" is not in your Firebase Console authorized domains. Please add "${currentHost}" in Firebase Console (wecare-165d7) > Authentication > Settings > Authorized Domains to enable Google Sign-In.`;
     case 'auth/popup-blocked':
-      return 'Sign-in popup was blocked by your browser. Please allow popups for this site.';
+      return `Sign-in popup was blocked by your browser. Please allow popups for ${currentHost} to sign in with Google.`;
     case 'auth/operation-not-allowed':
-      return 'This sign-in provider is currently not enabled in Firebase Console. Please use Email/Password or Demo login.';
+      return 'Google sign-in provider is not enabled in your Firebase Project. Please enable Google in Firebase Console (wecare-165d7) > Authentication > Sign-in method.';
     default:
       return fallbackMessage || 'Authentication failed. Please try again.';
   }
@@ -423,26 +428,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: true };
     } catch (err: any) {
       console.error('Firebase registration error:', err);
-      // If email already in use, inform user
       if (err.code === 'auth/email-already-in-use') {
         return { success: false, error: 'An account with this email address already exists. Please sign in instead.' };
       }
-      // If Firebase Auth is restricted or encounters network issues, log the user in locally so registration never fails!
-      const fallbackUser: User = {
-        id: localId,
-        uid: localId,
-        name: cleanName,
-        email: cleanEmail,
-        phone: userData.phone,
-        role: role,
-        specialty: userData.specialty,
-        badgeNumber: `WC-${localId.slice(0, 4).toUpperCase()}-PT`,
-        memberSince: new Date().getFullYear().toString(),
-        avatar: DEMO_USERS[role].avatar,
-        isFirebase: false,
-      };
-      persistUser(fallbackUser);
-      return { success: true };
+      return { success: false, error: formatAuthError(err.code, err.message) };
     }
   };
 
@@ -481,29 +470,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: true };
     } catch (err: any) {
       console.error('Firebase Google sign-in error:', err);
-      // If Firebase Google OAuth is blocked due to domain authorization or popup restrictions,
-      // provide instant Google Verified clinical fallback so patient is never blocked!
-      if (
-        err.code === 'auth/unauthorized-domain' ||
-        err.code === 'auth/operation-not-allowed' ||
-        err.code === 'auth/popup-blocked'
-      ) {
-        console.warn(`[Firebase Auth] ${err.code} detected on domain "${typeof window !== 'undefined' ? window.location.hostname : ''}". Falling back to instant verified Google patient session.`);
-        
-        const fallbackUser: User = {
-          id: `usr-google-${Date.now()}`,
-          uid: `usr-google-${Date.now()}`,
-          name: 'Verified Patient (Google)',
-          email: 'patient.google@wecare.health',
-          role: 'patient',
-          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-          badgeNumber: `WC-GOOG-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
-          memberSince: new Date().getFullYear().toString(),
-          isFirebase: false,
-        };
-        persistUser(fallbackUser);
-        return { success: true };
-      }
       return { success: false, error: formatAuthError(err.code, err.message) };
     }
   };

@@ -18,7 +18,7 @@ export function LoginForm({
   onSwitchToRegister,
   onSuccess,
 }: LoginFormProps) {
-  const { login, demoLogin } = useAuth();
+  const { login, demoLogin, loginWithGoogle } = useAuth();
   const config = ROLE_CONFIGS[activeRole];
 
   const [email, setEmail] = useState('');
@@ -51,6 +51,23 @@ export function LoginForm({
       onSuccess();
     } else {
       setErrorMessage(result.error || 'Authentication failed. Please verify your credentials.');
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setErrorMessage(null);
+    setIsLoading(true);
+    try {
+      const res = await loginWithGoogle();
+      if (res.success) {
+        onSuccess();
+      } else {
+        setErrorMessage(res.error || 'Google sign-in could not be completed.');
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Google sign-in failed.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -243,8 +260,9 @@ export function LoginForm({
         <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
-            onClick={() => handleQuickDemo('patient')}
-            className="py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-slate-200 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+            className="py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-slate-200 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
@@ -264,16 +282,17 @@ export function LoginForm({
                 d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z"
               />
             </svg>
-            <span>Google Health</span>
+            <span>Google Sign-In</span>
           </button>
 
           <button
             type="button"
-            onClick={() => handleQuickDemo('doctor')}
-            className="py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-slate-200 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            onClick={() => handleQuickDemo('patient')}
+            disabled={isLoading}
+            className="py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-slate-200 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <ShieldAlert className="w-4 h-4 text-emerald-400" />
-            <span>Govt / NHS Pass</span>
+            <span>Demo Patient</span>
           </button>
         </div>
       </div>
