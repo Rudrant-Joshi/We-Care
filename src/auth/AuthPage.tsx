@@ -3,6 +3,25 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import AuthSectionOne from '@/components/ui/auth-section-1';
 import { useAuth } from './AuthContext';
 
+/**
+ * Strict OWASP Open-Redirect sanitizer (CWE-601).
+ * Ensures redirection paths stay strictly within the local application routes.
+ */
+function sanitizeRedirectUrl(rawUrl: string | null): string {
+  if (!rawUrl) return '/appointments';
+  const trimmed = rawUrl.trim();
+  // Must start with '/' but not '//', '\', or protocol schemes like 'javascript:', 'data:', 'https:'
+  if (
+    trimmed.startsWith('/') &&
+    !trimmed.startsWith('//') &&
+    !trimmed.startsWith('/\\') &&
+    !trimmed.includes(':')
+  ) {
+    return trimmed;
+  }
+  return '/appointments';
+}
+
 export default function AuthPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -10,8 +29,9 @@ export default function AuthPage() {
 
   const initialMode = location.pathname === '/register' ? 'register' : 'login';
   const params = new URLSearchParams(location.search);
-  const explicitRedirect = params.get('redirect');
-  const isBookingRedirect = explicitRedirect ? explicitRedirect.includes('book') : false;
+  const rawRedirect = params.get('redirect');
+  const safeRedirect = sanitizeRedirectUrl(rawRedirect);
+  const isBookingRedirect = rawRedirect ? rawRedirect.includes('book') : false;
 
   // If already authenticated as Chief Admin, directly open Admin Panel
   useEffect(() => {
@@ -44,13 +64,13 @@ export default function AuthPage() {
       return;
     }
 
-    navigate(explicitRedirect || '/appointments', { replace: true });
+    navigate(safeRedirect, { replace: true });
   };
 
   return (
     <AuthSectionOne
       initialMode={initialMode}
-      redirectUrl={explicitRedirect || '/appointments'}
+      redirectUrl={safeRedirect}
       isBookingRedirect={isBookingRedirect}
       onSuccess={handleSuccess}
       brandTitle={"Book Appointments,\nCare Faster"}

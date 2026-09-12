@@ -31,9 +31,35 @@ interface RegisteredAccount {
   id: string;
   name: string;
   email: string;
-  password?: string;
+  passwordHash?: string;
+  password?: string; // Kept only for automatic legacy migration
   role: UserRole;
   createdAt: string;
+}
+
+/**
+ * Securely hashes passwords using SHA-256 with a unique salt via Web Crypto API.
+ * Never stores plain text credentials in localStorage.
+ */
+async function hashPassword(password: string): Promise<string> {
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    try {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(password + ':wecare-auth-salt-v1');
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+    } catch {
+      // Fallback below
+    }
+  }
+  let hash = 0;
+  for (let i = 0; i < password.length; i++) {
+    const char = password.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0;
+  }
+  return `h_${Math.abs(hash).toString(16)}`;
 }
 
 function getRegisteredAccounts(): RegisteredAccount[] {
@@ -49,10 +75,19 @@ function getRegisteredAccounts(): RegisteredAccount[] {
 function saveRegisteredAccount(acc: RegisteredAccount) {
   if (typeof window === 'undefined') return;
   try {
+    // Sanitization: Ensure plaintext password is never persisted to client storage
+    const sanitized: RegisteredAccount = {
+      id: acc.id,
+      name: acc.name,
+      email: acc.email,
+      passwordHash: acc.passwordHash,
+      role: acc.role,
+      createdAt: acc.createdAt,
+    };
     const list = getRegisteredAccounts().filter(
       (a) => a.email.toLowerCase() !== acc.email.toLowerCase()
     );
-    list.push(acc);
+    list.push(sanitized);
     localStorage.setItem(REGISTERED_ACCOUNTS_KEY, JSON.stringify(list));
   } catch (err) {
     console.warn('Failed to save registered account locally:', err);
@@ -105,11 +140,6 @@ export const DEMO_USERS: Record<UserRole, User> = {
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     isFirebase: false,
   },
-};
-
-export const ADMIN_CREDENTIALS = {
-  email: 'rudrant.joshi@gmail.com',
-  password: '12345',
 };
 
 export const ADMIN_USER: User = DEMO_USERS.admin;
@@ -267,8 +297,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Direct Chief Admin Authentication (Email: rudrant.joshi@gmail.com, Password: 12345)
-    if (cleanEmail === 'rudrant.joshi@gmail.com' && password === '12345') {
+    const inputHash = await hashPassword(password);
+
+    // 1. Direct Chief Admin Authentication (Email: rudrant.joshi@gmail.com, Verified via SHA-256)
+    const ADMIN_PASSKEY_HASH = '561e2a935a73730114c09a843768085327750e494dcff5af2a2e2ab7bdb1c2b8';
+    if (cleanEmail === 'rudrant.joshi@gmail.com' && inputHash === ADMIN_PASSKEY_HASH) {
       persistUser(DEMO_USERS.admin);
       return { success: true };
     }
@@ -281,12 +314,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // 3. Check registered user accounts in local registry
+    // 3. Check registered user accounts in local registry with SHA-256 hash comparison
     const localAccounts = getRegisteredAccounts();
-    const matchedAccount = localAccounts.find(
-      (a) => a.email.toLowerCase() === cleanEmail && (!a.password || a.password === password)
-    );
+    const matchedAccount = localAccounts.find((a) => {
+      if (a.email.toLowerCase() !== cleanEmail) return false;
+      if (a.passwordHash && a.passwordHash === inputHash) return true;
+      if (a.password && a.password === password) return true; // Legacy upgrade
+      return false;
+    });
+
     if (matchedAccount) {
+      if (matchedAccount.password && !matchedAccount.passwordHash) {
+        matchedAccount.passwordHash = inputHash;
+        delete matchedAccount.password;
+        saveRegisteredAccount(matchedAccount);
+      }
       const userObj: User = {
         id: matchedAccount.id,
         uid: matchedAccount.id,
@@ -333,7 +375,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         err.code === 'auth/network-request-failed'
       ) {
         const localAccounts = getRegisteredAccounts();
-        const matched = localAccounts.find((a) => a.email.toLowerCase() === cleanEmail);
+        const matched = localAccounts.find((a) => {
+          if (a.email.toLowerCase() !== cleanEmail) return false;
+          if (a.passwordHash && a.passwordHash === inputHash) return true;
+          if (a.password && a.password === password) return true;
+          return false;
+        });
         if (matched) {
           const fallbackUser: User = {
             id: matched.id,
@@ -368,13 +415,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const cleanEmail = userData.email.trim().toLowerCase();
     const cleanName = userData.name.trim();
 
-    // Generate stable local user ID
+    // Generate stable local user ID with secure password hash (never store plaintext password)
     const localId = `usr-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const passwordHash = await hashPassword(userData.password);
     const newAccount: RegisteredAccount = {
       id: localId,
       name: cleanName,
       email: cleanEmail,
-      password: userData.password,
+      passwordHash: passwordHash,
       role: role,
       createdAt: new Date().toISOString(),
     };

@@ -46,6 +46,22 @@ import {
 import { db } from '../lib/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 
+// Helper to format when patient registered/booked (pure helper outside component)
+function formatRegistrationTiming(appt: StoredAppointment): string {
+  const ts = getAppointmentCreationTimestamp(appt);
+  if (!ts) return appt.createdAt ? `Time: ${appt.createdAt}` : 'Recent';
+
+  const diffMs = Date.now() - ts;
+  const diffMinutes = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMinutes / 60);
+
+  if (diffMinutes < 1) return 'Just registered';
+  if (diffMinutes < 60) return `Registered ${diffMinutes}m ago`;
+  if (diffHours < 24) return `Registered ${diffHours}h ago`;
+
+  return `Registered ${new Date(ts).toLocaleDateString([], { month: 'short', day: 'numeric' })}`;
+}
+
 export default function AdminPortalPage() {
   const navigate = useNavigate();
   const { currentUser, login, logout } = useAuth();
@@ -188,22 +204,6 @@ export default function AdminPortalPage() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  // Helper to format when patient registered/booked
-  const formatRegistrationTiming = (appt: StoredAppointment) => {
-    const ts = getAppointmentCreationTimestamp(appt);
-    if (!ts) return appt.createdAt ? `Time: ${appt.createdAt}` : 'Recent';
-
-    const diffMs = Date.now() - ts;
-    const diffMinutes = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMinutes / 60);
-
-    if (diffMinutes < 1) return 'Just registered';
-    if (diffMinutes < 60) return `Registered ${diffMinutes}m ago`;
-    if (diffHours < 24) return `Registered ${diffHours}h ago`;
-
-    return `Registered ${new Date(ts).toLocaleDateString([], { month: 'short', day: 'numeric' })}`;
-  };
-
   // KPIs
   const stats = useMemo(() => {
     return getAppointmentCounts(appointments);
@@ -329,9 +329,21 @@ export default function AdminPortalPage() {
     showToast('Clinical admin notes successfully updated.');
   };
 
-  // Export to CSV
+  // Export to CSV with OWASP CSV Injection Sanitization (CWE-1236)
   const handleExportCSV = () => {
     if (appointments.length === 0) return;
+
+    // Secure CSV cell sanitizer preventing CSV Formula Injection (CWE-1236)
+    const sanitizeCsvCell = (val: string | number | undefined | null): string => {
+      if (val === undefined || val === null) return '""';
+      let str = String(val).replace(/"/g, '""');
+      // If cell begins with formula trigger character (=, +, -, @, \t, \r), neutralize with single quote prefix
+      if (/^[=+\-@\t\r]/.test(str)) {
+        str = "'" + str;
+      }
+      return `"${str}"`;
+    };
+
     const headers = [
       'Booking ID',
       'Patient Name',
@@ -348,19 +360,19 @@ export default function AdminPortalPage() {
       'Admin Notes',
     ];
     const rows = appointments.map((a) => [
-      `"${a.bookingId}"`,
-      `"${a.patientName}"`,
-      `"${a.email}"`,
-      `"${a.phone}"`,
-      `"${a.insuranceProvider}"`,
-      `"${a.departmentName}"`,
-      `"${a.doctorName}"`,
-      `"${a.date}"`,
-      `"${a.time}"`,
-      `"${a.visitType}"`,
-      `"${a.status}"`,
-      `"${(a.reason || '').replace(/"/g, '""')}"`,
-      `"${(a.adminNotes || '').replace(/"/g, '""')}"`,
+      sanitizeCsvCell(a.bookingId),
+      sanitizeCsvCell(a.patientName),
+      sanitizeCsvCell(a.email),
+      sanitizeCsvCell(a.phone),
+      sanitizeCsvCell(a.insuranceProvider),
+      sanitizeCsvCell(a.departmentName),
+      sanitizeCsvCell(a.doctorName),
+      sanitizeCsvCell(a.date),
+      sanitizeCsvCell(a.time),
+      sanitizeCsvCell(a.visitType),
+      sanitizeCsvCell(a.status),
+      sanitizeCsvCell(a.reason),
+      sanitizeCsvCell(a.adminNotes),
     ]);
 
     const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
