@@ -67,7 +67,20 @@ export default function AdminPortalPage() {
   const [editingNotes, setEditingNotes] = useState('');
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'list' | 'table'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'table'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('wecare_admin_view_mode');
+      if (saved === 'list' || saved === 'table') return saved;
+    }
+    return 'table';
+  });
+
+  const handleSetViewMode = (mode: 'list' | 'table') => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem('wecare_admin_view_mode', mode);
+    } catch {}
+  };
   const [isNewBookingModalOpen, setIsNewBookingModalOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -791,27 +804,27 @@ export default function AdminPortalPage() {
               </button>
             </div>
 
-            {/* Simple List / Table View Switcher */}
-            <div className="flex items-center bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs">
+            {/* Table View / Simple List Switcher */}
+            <div className="flex items-center bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs shadow-xs">
               <button
                 type="button"
-                onClick={() => setViewMode('list')}
+                onClick={() => handleSetViewMode('table')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  viewMode === 'table' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+                title="Table View (Default)"
+              >
+                Table View
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetViewMode('list')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   viewMode === 'list' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                 }`}
                 title="Simple List View"
               >
                 Simple List
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('table')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  viewMode === 'table' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
-                }`}
-                title="Table View"
-              >
-                Table View
               </button>
             </div>
           </div>

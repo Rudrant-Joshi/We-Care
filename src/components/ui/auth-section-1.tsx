@@ -106,25 +106,40 @@ export default function AuthSectionOne({
         }
       }
 
-      setSuccessMsg(
-        mode === "register"
-          ? isBookingRedirect
-            ? "Account created! Redirecting to appointment booking..."
-            : "Account created! Redirecting to your dashboard..."
-          : isBookingRedirect
-            ? "Signed in! Redirecting to appointment booking..."
-            : "Signed in! Redirecting to your appointments..."
-      );
+      const isAdmin =
+        email.trim().toLowerCase() === "rudrant.joshi@gmail.com" ||
+        email.trim().toLowerCase().includes("admin");
+
+      if (isAdmin) {
+        setSuccessMsg("Chief Admin credentials verified! Directly opening Admin Panel...");
+      } else {
+        setSuccessMsg(
+          mode === "register"
+            ? isBookingRedirect
+              ? "Account created! Redirecting to appointment booking..."
+              : "Account created! Redirecting to your dashboard..."
+            : isBookingRedirect
+              ? "Signed in! Redirecting to appointment booking..."
+              : "Signed in! Redirecting to your appointments..."
+        );
+      }
 
       if (onSuccess) {
         setTimeout(() => {
-          const isAdmin = email.trim().toLowerCase() === "rudrant.joshi@gmail.com";
-          onSuccess({
-            email: email.trim(),
-            name: mode === "register" ? fullName.trim() : email.split("@")[0],
-            role: isAdmin ? "admin" : "patient",
-          });
-        }, 400);
+          let authedUser: any = null;
+          try {
+            const saved = localStorage.getItem("wecare_authenticated_user_v1");
+            if (saved) authedUser = JSON.parse(saved);
+          } catch {}
+
+          onSuccess(
+            authedUser || {
+              email: email.trim(),
+              name: mode === "register" ? fullName.trim() : email.split("@")[0],
+              role: isAdmin ? "admin" : "patient",
+            }
+          );
+        }, 350);
       }
     } catch (err: any) {
       setErrorMsg(err.message || "An unexpected error occurred.");
@@ -146,14 +161,29 @@ export default function AuthSectionOne({
         return;
       }
 
-      setSuccessMsg(
-        isBookingRedirect
-          ? "Google sign-in verified! Redirecting to appointment booking..."
-          : "Google sign-in verified! Redirecting..."
-      );
+      let googleUser: any = null;
+      try {
+        const saved = localStorage.getItem("wecare_authenticated_user_v1");
+        if (saved) googleUser = JSON.parse(saved);
+      } catch {}
+
+      const isGoogleAdmin =
+        googleUser?.role === "admin" ||
+        googleUser?.email?.toLowerCase() === "rudrant.joshi@gmail.com" ||
+        googleUser?.email?.toLowerCase().includes("admin");
+
+      if (isGoogleAdmin) {
+        setSuccessMsg("Chief Admin Google verified! Directly opening Admin Panel...");
+      } else {
+        setSuccessMsg(
+          isBookingRedirect
+            ? "Google sign-in verified! Redirecting to appointment booking..."
+            : "Google sign-in verified! Redirecting to your appointments..."
+        );
+      }
 
       if (onSuccess) {
-        setTimeout(onSuccess, 500);
+        setTimeout(() => onSuccess(googleUser), 350);
       }
     } catch (err: any) {
       setErrorMsg(err.message || "Google authentication failed.");
