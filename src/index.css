@@ -1,0 +1,352 @@
+@import "tailwindcss";
+
+@layer base {
+  html,
+  body {
+    background-color: #f8fafc;
+    color: #0f172a;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Completely remove right-side vertical scrollbar across all browsers */
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Liquid Glass Custom Utilities - Crisp White Transparent Theme */
+.liquid-glass-panel {
+  background: radial-gradient(
+    120% 120% at 20% 20%,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.12) 45%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: none;
+  box-shadow: 
+    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 1.5px 0 rgba(255, 255, 255, 0.2),
+    0 20px 50px -10px rgba(0, 25, 70, 0.18),
+    0 0 25px -5px rgba(255, 255, 255, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 45%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0.06) 55%,
+    transparent 100%
+  );
+  transform: translate3d(-100%, 0, 0) skewX(-25deg);
+  will-change: transform;
+  pointer-events: none;
+  animation: liquid-sweep 9s ease-in-out infinite;
+}
+
+.liquid-glass-pill {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.24) 0%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  border: none;
+  box-shadow: 
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.65),
+    0 8px 24px -4px rgba(0, 25, 70, 0.15);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.liquid-glass-pill:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(0, 140, 255, 0.15) 100%
+  );
+  border-color: transparent;
+  box-shadow: 
+    inset 0 1px 2px 0 rgba(180, 230, 255, 0.6),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.5),
+    0 12px 28px -6px rgba(0, 140, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.liquid-glass-cta {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(235, 235, 235, 0.95) 100%
+  );
+  box-shadow: 
+    0 0 0 1px rgba(255, 255, 255, 0.8),
+    0 10px 30px -5px rgba(0, 140, 255, 0.35),
+    inset 0 -2px 4px 0 rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.liquid-glass-cta:hover {
+  box-shadow: 
+    0 0 0 1px rgba(255, 255, 255, 1),
+    0 15px 40px -5px rgba(0, 140, 255, 0.55),
+    0 0 25px 2px rgba(56, 189, 248, 0.4);
+  transform: translateY(-1px) scale(1.02);
+}
+
+@keyframes liquid-sweep {
+  0%, 15% {
+    transform: translate3d(-100%, 0, 0) skewX(-25deg);
+  }
+  45%, 100% {
+    transform: translate3d(120%, 0, 0) skewX(-25deg);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.8;
+    filter: drop-shadow(0 0 15px rgba(0, 140, 255, 0.6));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 30px rgba(0, 170, 255, 0.9));
+  }
+}
+
+.animate-visor-glow {
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   Ultra-Premium Liquid Glass Navigation (Optimized for Vibrant Blue Backdrop)
+   ========================================================================== */
+
+.navbar-liquid-island {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: none !important;
+  box-shadow: 0 8px 24px -4px rgba(0, 25, 70, 0.12);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.navbar-brand-pill {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: none !important;
+  box-shadow: 0 6px 18px -4px rgba(0, 30, 80, 0.1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.navbar-action-btn {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: none !important;
+  box-shadow: 0 6px 18px -4px rgba(0, 30, 80, 0.1);
+  color: #ffffff;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.navbar-action-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border: none !important;
+  box-shadow: 
+    0 8px 25px -4px rgba(0, 30, 80, 0.2),
+    0 0 15px rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px) scale(1.02);
+}
+
+.nav-active-bubble {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: none;
+  box-shadow: 0 4px 14px rgba(0, 30, 80, 0.15);
+}
+
+@keyframes blob {
+  0%, 100% {
+    transform: translateY(6px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-blob {
+  animation: blob 3s ease-in-out infinite;
+}
+
+.animation-delay-1000 {
+  animation-delay: -1.5s;
+}
+
+/* ==========================================================================
+   Ultra-Rich Holographic & Auth Color-Grading Animations
+   ========================================================================== */
+
+@keyframes aurora-spin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.18);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes ecg-flow {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes orbit-cw {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbit-ccw {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes holographic-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float-particle {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-24px) translateX(12px);
+    opacity: 0.9;
+  }
+}
+
+.animate-aurora-spin {
+  animation: aurora-spin 22s ease-in-out infinite;
+}
+
+.animate-orbit-slow {
+  animation: orbit-cw 34s linear infinite;
+}
+
+.animate-orbit-reverse {
+  animation: orbit-ccw 26s linear infinite;
+}
+
+.animate-orbit-fast {
+  animation: orbit-cw 14s linear infinite;
+}
+
+.animate-ecg-pulse {
+  stroke-dasharray: 1000;
+  animation: ecg-flow 3.5s ease-in-out infinite;
+}
+
+.animate-float-particle {
+  animation: float-particle 6s ease-in-out infinite;
+}
+
+/* Color Grading Aura Meshes */
+.aura-mesh-patient {
+  background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.22) 0%, rgba(37, 99, 235, 0.14) 40%, rgba(79, 70, 229, 0.06) 70%, transparent 100%);
+}
+
+.aura-mesh-doctor {
+  background: radial-gradient(circle at 50% 50%, rgba(52, 211, 153, 0.22) 0%, rgba(16, 185, 129, 0.14) 40%, rgba(14, 165, 233, 0.06) 70%, transparent 100%);
+}
+
+.aura-mesh-caregiver {
+  background: radial-gradient(circle at 50% 50%, rgba(192, 132, 252, 0.24) 0%, rgba(168, 85, 247, 0.15) 40%, rgba(244, 63, 94, 0.08) 70%, transparent 100%);
+}
+
+/* Frosted Hologram Card */
+.holo-glass-card {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 45%,
+    rgba(15, 23, 42, 0.65) 100%
+  );
+  backdrop-filter: blur(32px) saturate(190%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.5),
+    0 30px 60px -15px rgba(0, 0, 0, 0.8),
+    0 0 50px -10px rgba(56, 189, 248, 0.15);
+}
+
+.holo-input {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.holo-input:focus {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 
+    0 0 0 3px rgba(56, 189, 248, 0.2),
+    0 0 20px rgba(56, 189, 248, 0.25),
+    inset 0 1px 2px rgba(255, 255, 255, 0.15);
+}
+
+/* Hide scrollbars cleanly across website */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

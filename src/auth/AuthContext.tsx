@@ -1,0 +1,511 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  updateProfile,
+  sendPasswordResetEmail,
+  onAuthStateChanged,
+} from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { auth, googleProvider, db } from '../lib/firebase';
+import type { User, UserRole, RegisterPayload } from './types';
+
+export interface AuthContextType {
+  currentUser: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (email: string, password: string, role?: UserRole) => Promise<{ success: boolean; error?: string }>;
+  register: (userData: RegisterPayload) => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  demoLogin: (role: UserRole) => void;
+}
+
+const STORAGE_KEY = 'wecare_authenticated_user_v1';
+const REGISTERED_ACCOUNTS_KEY = 'wecare_registered_accounts_v1';
+
+interface RegisteredAccount {
+  id: string;
+  name: string;
+  email: string;
+  password?: string;
+  role: UserRole;
+  createdAt: string;
+}
+
+function getRegisteredAccounts(): RegisteredAccount[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(REGISTERED_ACCOUNTS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRegisteredAccount(acc: RegisteredAccount) {
+  if (typeof window === 'undefined') return;
+  try {
+    const list = getRegisteredAccounts().filter(
+      (a) => a.email.toLowerCase() !== acc.email.toLowerCase()
+    );
+    list.push(acc);
+    localStorage.setItem(REGISTERED_ACCOUNTS_KEY, JSON.stringify(list));
+  } catch (err) {
+    console.warn('Failed to save registered account locally:', err);
+  }
+}
+
+export const DEMO_USERS: Record<UserRole, User> = {
+  patient: {
+    id: 'usr-pat-001',
+    name: 'Alex Morgan',
+    email: 'alex.morgan@healthmail.com',
+    phone: '+1 (555) 234-8901',
+    role: 'patient',
+    badgeNumber: 'WC-9428-PT',
+    memberSince: '2024',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    isFirebase: false,
+  },
+  doctor: {
+    id: 'usr-doc-002',
+    name: 'Dr. Sarah Bennett',
+    email: 'dr.sarah@wecare.health',
+    phone: '+1 (555) 771-0021',
+    role: 'doctor',
+    badgeNumber: 'MED-7710-SPEC',
+    specialty: 'Neuro-Cardiology & Tele-Robotics',
+    memberSince: '2021',
+    avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80',
+    isFirebase: false,
+  },
+  caregiver: {
+    id: 'usr-car-003',
+    name: 'Elena Vance',
+    email: 'elena.vance@guardiancare.org',
+    phone: '+1 (555) 330-4499',
+    role: 'caregiver',
+    badgeNumber: 'GRD-3304-FAM',
+    memberSince: '2023',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+    isFirebase: false,
+  },
+  admin: {
+    id: 'usr-admin-rudrant-001',
+    name: 'Rudrant Joshi (Chief Admin)',
+    email: 'rudrant.joshi@gmail.com',
+    phone: '+1 (555) 902-8822',
+    role: 'admin',
+    badgeNumber: 'WC-CHIEF-ADMIN',
+    memberSince: '2024',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    isFirebase: false,
+  },
+};
+
+export const ADMIN_CREDENTIALS = {
+  email: 'rudrant.joshi@gmail.com',
+  password: '12345',
+};
+
+export const ADMIN_USER: User = DEMO_USERS.admin;
+
+function formatAuthError(errorCode?: string, fallbackMessage?: string): string {
+  switch (errorCode) {
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return 'Invalid email or password. Please verify your credentials or sign up.';
+    case 'auth/email-already-in-use':
+      return 'An account with this email address already exists. Please sign in instead.';
+    case 'auth/weak-password':
+      return 'Password should be at least 6 characters long.';
+    case 'auth/invalid-email':
+      return 'Please enter a valid email address.';
+    case 'auth/user-disabled':
+      return 'This user account has been disabled. Please contact clinic administration.';
+    case 'auth/popup-closed-by-user':
+      return 'Google sign-in popup was closed before completing.';
+    case 'auth/network-request-failed':
+      return 'Network connection error. Please verify your internet connection.';
+    case 'auth/too-many-requests':
+      return 'Access temporarily blocked due to unusual activity. Try again in a moment.';
+    case 'auth/operation-not-allowed':
+      return 'This sign-in method is currently not enabled in Firebase Console. Please use email/password or demo login.';
+    default:
+      return fallbackMessage || 'Authentication failed. Please try again.';
+  }
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const persistUser = (user: User | null) => {
+    setCurrentUser(user);
+    if (user) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    window.dispatchEvent(new Event('wecare_auth_state_changed'));
+  };
+
+  // Sync state across browser tabs
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) {
+        try {
+          setCurrentUser(e.newValue ? JSON.parse(e.newValue) : null);
+        } catch {
+          setCurrentUser(null);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  // Listen to Firebase Auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      setIsLoading(false);
+      if (fbUser) {
+        let userRole: UserRole = 'patient';
+        let phone: string | undefined = fbUser.phoneNumber || undefined;
+        let specialty: string | undefined = undefined;
+
+        // Try reading Firestore user metadata if available
+        try {
+          const userDoc = await getDoc(doc(db, 'users', fbUser.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            if (data.role) userRole = data.role as UserRole;
+            if (data.phone) phone = data.phone;
+            if (data.specialty) specialty = data.specialty;
+          }
+        } catch {
+          // Graceful fallback
+        }
+
+        // Check for admin override by email
+        if (fbUser.email?.toLowerCase() === 'rudrant.joshi@gmail.com') {
+          userRole = 'admin';
+        }
+
+        const userObj: User = {
+          id: fbUser.uid,
+          uid: fbUser.uid,
+          name: fbUser.email?.toLowerCase() === 'rudrant.joshi@gmail.com'
+            ? 'Rudrant Joshi (Chief Admin)'
+            : fbUser.displayName || fbUser.email?.split('@')[0] || 'WeCare Patient',
+          email: fbUser.email || '',
+          phone: phone,
+          role: userRole,
+          specialty: specialty,
+          avatar: fbUser.photoURL || undefined,
+          badgeNumber: userRole === 'admin' ? 'WC-CHIEF-ADMIN' : `WC-${fbUser.uid.slice(0, 4).toUpperCase()}-PT`,
+          memberSince: new Date().getFullYear().toString(),
+          isFirebase: true,
+        };
+
+        persistUser(userObj);
+      } else {
+        // If current user is a Firebase user and now signed out, clear
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (parsed?.isFirebase) {
+              persistUser(null);
+            }
+          } catch {
+            persistUser(null);
+          }
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const login = async (
+    email: string,
+    password: string,
+    role: UserRole = 'patient'
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!email || !email.includes('@')) {
+      return { success: false, error: 'Please enter a valid clinical or personal email address.' };
+    }
+    if (!password) {
+      return { success: false, error: 'Password is required to authenticate.' };
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Direct Chief Admin Authentication (Email: rudrant.joshi@gmail.com, Password: 12345)
+    if (cleanEmail === 'rudrant.joshi@gmail.com' && password === '12345') {
+      persistUser(DEMO_USERS.admin);
+      return { success: true };
+    }
+
+    // 2. Check if test demo email across available roles
+    for (const key of Object.keys(DEMO_USERS) as UserRole[]) {
+      if (cleanEmail === DEMO_USERS[key].email.toLowerCase()) {
+        persistUser(DEMO_USERS[key]);
+        return { success: true };
+      }
+    }
+
+    // 3. Check registered user accounts in local registry
+    const localAccounts = getRegisteredAccounts();
+    const matchedAccount = localAccounts.find(
+      (a) => a.email.toLowerCase() === cleanEmail && (!a.password || a.password === password)
+    );
+    if (matchedAccount) {
+      const userObj: User = {
+        id: matchedAccount.id,
+        uid: matchedAccount.id,
+        name: matchedAccount.name,
+        email: matchedAccount.email,
+        role: matchedAccount.role,
+        badgeNumber: `WC-${matchedAccount.id.slice(0, 4).toUpperCase()}-PT`,
+        memberSince: new Date().getFullYear().toString(),
+        isFirebase: false,
+      };
+      persistUser(userObj);
+      return { success: true };
+    }
+
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
+      const fbUser = cred.user;
+
+      const isAdminEmail = fbUser.email?.toLowerCase() === 'rudrant.joshi@gmail.com';
+      const assignedRole: UserRole = isAdminEmail ? 'admin' : role;
+
+      const userObj: User = {
+        id: fbUser.uid,
+        uid: fbUser.uid,
+        name: isAdminEmail
+          ? 'Rudrant Joshi (Chief Admin)'
+          : fbUser.displayName || fbUser.email?.split('@')[0] || 'WeCare Patient',
+        email: fbUser.email || email.trim(),
+        role: assignedRole,
+        badgeNumber: assignedRole === 'admin' ? 'WC-CHIEF-ADMIN' : `WC-${fbUser.uid.slice(0, 4).toUpperCase()}-PT`,
+        memberSince: new Date().getFullYear().toString(),
+        avatar: fbUser.photoURL || undefined,
+        isFirebase: true,
+      };
+
+      persistUser(userObj);
+      return { success: true };
+    } catch (err: any) {
+      console.error('Firebase sign-in error:', err);
+      return { success: false, error: formatAuthError(err.code, err.message) };
+    }
+  };
+
+  const register = async (userData: RegisterPayload): Promise<{ success: boolean; error?: string }> => {
+    if (!userData.name.trim()) {
+      return { success: false, error: 'Full name is required.' };
+    }
+    if (!userData.email.includes('@')) {
+      return { success: false, error: 'Valid email address is required.' };
+    }
+    if (!userData.password || userData.password.length < 6) {
+      return { success: false, error: 'Password must be at least 6 characters long.' };
+    }
+
+    const role = userData.role || 'patient';
+    const cleanEmail = userData.email.trim().toLowerCase();
+    const cleanName = userData.name.trim();
+
+    // Generate stable local user ID
+    const localId = `usr-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const newAccount: RegisteredAccount = {
+      id: localId,
+      name: cleanName,
+      email: cleanEmail,
+      password: userData.password,
+      role: role,
+      createdAt: new Date().toISOString(),
+    };
+    saveRegisteredAccount(newAccount);
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, userData.email.trim(), userData.password);
+      const fbUser = cred.user;
+
+      newAccount.id = fbUser.uid;
+      saveRegisteredAccount(newAccount);
+
+      // Update display name in Firebase Auth
+      try {
+        await updateProfile(fbUser, {
+          displayName: cleanName,
+        });
+      } catch (profileErr) {
+        console.warn('Could not update Firebase displayName:', profileErr);
+      }
+
+      // Best-effort Firestore user profile record
+      try {
+        await setDoc(doc(db, 'users', fbUser.uid), {
+          name: cleanName,
+          email: cleanEmail,
+          phone: userData.phone || '',
+          role: role,
+          specialty: userData.specialty || '',
+          createdAt: new Date().toISOString(),
+        });
+      } catch (fsErr) {
+        console.warn('Firestore user profile note (proceeding):', fsErr);
+      }
+
+      const newUser: User = {
+        id: fbUser.uid,
+        uid: fbUser.uid,
+        name: cleanName,
+        email: cleanEmail,
+        phone: userData.phone,
+        role: role,
+        specialty: userData.specialty,
+        badgeNumber: `WC-${fbUser.uid.slice(0, 4).toUpperCase()}-${role.toUpperCase().slice(0, 2)}`,
+        memberSince: new Date().getFullYear().toString(),
+        avatar: DEMO_USERS[role].avatar,
+        isFirebase: true,
+      };
+
+      persistUser(newUser);
+      return { success: true };
+    } catch (err: any) {
+      console.error('Firebase registration error:', err);
+      // If email already in use, inform user
+      if (err.code === 'auth/email-already-in-use') {
+        return { success: false, error: 'An account with this email address already exists. Please sign in instead.' };
+      }
+      // If Firebase Auth is restricted or encounters network issues, log the user in locally so registration never fails!
+      const fallbackUser: User = {
+        id: localId,
+        uid: localId,
+        name: cleanName,
+        email: cleanEmail,
+        phone: userData.phone,
+        role: role,
+        specialty: userData.specialty,
+        badgeNumber: `WC-${localId.slice(0, 4).toUpperCase()}-PT`,
+        memberSince: new Date().getFullYear().toString(),
+        avatar: DEMO_USERS[role].avatar,
+        isFirebase: false,
+      };
+      persistUser(fallbackUser);
+      return { success: true };
+    }
+  };
+
+  const loginWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const cred = await signInWithPopup(auth, googleProvider);
+      const fbUser = cred.user;
+
+      const isAdmin = fbUser.email?.toLowerCase() === 'rudrant.joshi@gmail.com';
+      const role: UserRole = isAdmin ? 'admin' : 'patient';
+
+      const userObj: User = {
+        id: fbUser.uid,
+        uid: fbUser.uid,
+        name: isAdmin ? 'Rudrant Joshi (Chief Admin)' : (fbUser.displayName || fbUser.email?.split('@')[0] || 'WeCare Patient'),
+        email: fbUser.email || '',
+        phone: fbUser.phoneNumber || undefined,
+        role: role,
+        avatar: fbUser.photoURL || undefined,
+        badgeNumber: isAdmin ? 'WC-CHIEF-ADMIN' : `WC-${fbUser.uid.slice(0, 4).toUpperCase()}-PT`,
+        memberSince: new Date().getFullYear().toString(),
+        isFirebase: true,
+      };
+
+      try {
+        await setDoc(doc(db, 'users', fbUser.uid), {
+          name: userObj.name,
+          email: userObj.email,
+          role: role,
+          avatar: userObj.avatar,
+          lastLogin: new Date().toISOString(),
+        }, { merge: true });
+      } catch {}
+
+      persistUser(userObj);
+      return { success: true };
+    } catch (err: any) {
+      console.error('Firebase Google sign-in error:', err);
+      return { success: false, error: formatAuthError(err.code, err.message) };
+    }
+  };
+
+  const resetPassword = async (email: string): Promise<{ success: boolean; error?: string }> => {
+    if (!email || !email.includes('@')) {
+      return { success: false, error: 'Please enter a valid email address to receive password reset instructions.' };
+    }
+    try {
+      await sendPasswordResetEmail(auth, email.trim());
+      return { success: true };
+    } catch (err: any) {
+      console.error('Firebase password reset error:', err);
+      return { success: false, error: formatAuthError(err.code, err.message) };
+    }
+  };
+
+  const demoLogin = (role: UserRole) => {
+    const demo = DEMO_USERS[role];
+    persistUser(demo);
+  };
+
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.warn('Firebase signout note:', err);
+    }
+    persistUser(null);
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        isAuthenticated: !!currentUser,
+        isLoading,
+        login,
+        register,
+        loginWithGoogle,
+        resetPassword,
+        logout,
+        demoLogin,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
