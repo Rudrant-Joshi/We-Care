@@ -381,7 +381,7 @@ export const Navbar = ({ onBookDemoClick: _onBookDemoClick }: NavbarProps) => {
                     }}
                     className="w-full text-left px-2 py-2 rounded-xl text-xs text-red-400 hover:bg-red-500/15 transition-colors cursor-pointer flex items-center justify-between mt-1"
                   >
-                    <span>Disconnect Session</span>
+                    <span>Log Out</span>
                     <LogOut className="w-3.5 h-3.5" />
                   </button>
                 </motion.div>
@@ -538,7 +538,7 @@ export const Navbar = ({ onBookDemoClick: _onBookDemoClick }: NavbarProps) => {
                   }}
                   className="text-xs text-red-400 font-medium"
                 >
-                  Sign Out
+                  Log Out
                 </button>
               </div>
             ) : (
