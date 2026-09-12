@@ -131,7 +131,7 @@ export const FeaturePanel: React.FC<FeaturePanelProps> = ({
   };
 
   const handleViewAllDoctors = () => {
-    navigate('/our-doctors');
+    navigate('/doctors');
   };
 
   return (

@@ -5,6 +5,7 @@
 
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence, type Variants } from 'motion/react';
 import HomePage from './pages/HomePage';
 import AboutPage from './about';
 import DepartmentsPage from './departments';
@@ -27,13 +28,52 @@ function ScrollToTop() {
   return null;
 }
 
+const pageTransitionVariants: Variants = {
+  initial: {
+    opacity: 0,
+    y: 10,
+    scale: 0.995,
+  },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.35,
+      ease: [0.22, 1, 0.36, 1] as const,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: -8,
+    scale: 0.995,
+    transition: {
+      duration: 0.2,
+      ease: [0.22, 1, 0.36, 1] as const,
+    },
+  },
+};
+
 function PageWrapper({ children }: { children: React.ReactNode }) {
-  return <div className="w-full min-h-screen">{children}</div>;
+  return (
+    <motion.div
+      variants={pageTransitionVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="w-full min-h-screen transform-gpu will-change-transform"
+    >
+      {children}
+    </motion.div>
+  );
 }
 
 function AnimatedRoutes() {
+  const location = useLocation();
+
   return (
-    <Routes>
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
         {/* Main Home Page */}
         <Route
           path="/"
@@ -73,6 +113,7 @@ function AnimatedRoutes() {
             </PageWrapper>
           }
         />
+        <Route path="/our-doctors" element={<Navigate to="/doctors" replace />} />
 
         {/* Dedicated Appointments Schedule & History */}
         <Route
@@ -120,6 +161,7 @@ function AnimatedRoutes() {
             </PageWrapper>
           }
         />
+
         {/* Dedicated Admin Portal for Rudrant Joshi */}
         <Route
           path="/admin"
@@ -134,8 +176,9 @@ function AnimatedRoutes() {
         {/* Fallback route */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    );
-  }
+    </AnimatePresence>
+  );
+}
 
 export default function App() {
   return (
@@ -148,4 +191,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-

@@ -510,7 +510,7 @@ export default function AdminPortalPage() {
       </AnimatePresence>
 
       {/* TOP EXECUTIVE COMMAND HEADER */}
-      <header className="relative z-20 border-b border-slate-800 bg-slate-900/90 backdrop-blur-xl sticky top-0 px-4 sm:px-8 py-3.5">
+      <header className="relative z-20 border-b border-slate-800 bg-slate-900/90 backdrop-blur-xl px-4 sm:px-8 py-3.5">
         <div className="max-w-[1720px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           
           {/* Brand & Admin ID */}

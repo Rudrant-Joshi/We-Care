@@ -625,7 +625,7 @@ export function AppointmentBento() {
                 id="step-specialty"
                 initial={{ opacity: 0, y: 55, scale: 0.98 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+                viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
                 transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                 className="scroll-mt-28 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm transform-gpu will-change-transform"
               >
@@ -730,7 +730,7 @@ export function AppointmentBento() {
                 id="step-doctor"
                 initial={{ opacity: 0, y: 55, scale: 0.98 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+                viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
                 transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                 className="scroll-mt-28 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm transform-gpu will-change-transform"
               >
@@ -840,7 +840,7 @@ export function AppointmentBento() {
                 id="step-datetime"
                 initial={{ opacity: 0, y: 55, scale: 0.98 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+                viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
                 transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                 className="scroll-mt-28 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm transform-gpu will-change-transform"
               >
@@ -969,7 +969,7 @@ export function AppointmentBento() {
                 id="step-details"
                 initial={{ opacity: 0, y: 55, scale: 0.98 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+                viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
                 transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                 className="scroll-mt-28 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm transform-gpu will-change-transform"
               >
@@ -1134,13 +1134,13 @@ export function AppointmentBento() {
             </div>
 
             {/* RIGHT 5 COLS: Live Interactive Appointment Pass & Info Bento */}
-            <div id="step-pass" className="lg:col-span-5 xl:col-span-4 sticky top-24 space-y-6 scroll-mt-28">
+            <div id="step-pass" className="lg:col-span-5 xl:col-span-4 sticky top-6 space-y-6 scroll-mt-28">
               
               {/* Modern Clinical Pass Card with WeCare Signature Backing Shade & Ambient Glow (GPU Accelerated) */}
               <motion.div
                 initial={{ opacity: 0, y: 55, scale: 0.98 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+                viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
                 transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                 whileHover={{ y: -6, scale: 1.01 }}
                 className="group relative w-full rounded-2xl transition-all duration-300 transform-gpu will-change-transform"

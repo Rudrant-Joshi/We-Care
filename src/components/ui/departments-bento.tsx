@@ -327,7 +327,7 @@ function DepartmentCard({
     <motion.div
       initial={{ opacity: 0, y: 55, scale: 0.96 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+      viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
       transition={{
         delay: (idx % 4) * 0.08,
         duration: 0.5,
@@ -541,13 +541,13 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
           </p>
         </motion.div>
 
-        {/* Sticky Quick-Scroll Section Navigation Pill Bar */}
+        {/* Quick-Scroll Section Navigation Pill Bar */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.12 }}
           transition={{ duration: 0.4 }}
-          className="sticky top-20 z-30 flex items-center justify-center pointer-events-auto"
+          className="relative z-30 flex items-center justify-center pointer-events-auto"
         >
           <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-white/90 backdrop-blur-xl border border-slate-200/90 shadow-md shadow-slate-900/5 overflow-x-auto max-w-full">
             <button
@@ -639,7 +639,7 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
           <motion.div
             initial={{ opacity: 0, y: 50, scale: 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: false, amount: 0.15, margin: "0px 0px -40px 0px" }}
+            viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             className="group/deepdive relative w-full pt-4 pb-2 transform-gpu will-change-transform"
           >
@@ -836,9 +836,10 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
                         key={doc.id}
                         initial={{ opacity: 0, y: 35, scale: 0.96 }}
                         whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                        viewport={{ once: false, amount: 0.2 }}
+                        viewport={{ once: true, amount: 0.15 }}
                         transition={{ delay: 0.08 * idx, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                         whileHover={{ y: -6, scale: 1.02, borderColor: `${activeDept.theme.gradientFrom}90` }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={onBookConsultation}
                         className="p-4 bg-white/60 backdrop-blur-[14px] rounded-2xl border border-slate-200/90 hover:bg-white/85 shadow-[0_4px_18px_rgba(0,0,0,0.03),inset_0_1px_1px_rgba(255,255,255,0.9)] transition-all flex items-center justify-between group cursor-pointer transform-gpu will-change-transform"
                       >
@@ -902,7 +903,7 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
           <motion.div
             initial={{ opacity: 0, y: 55, scale: 0.97 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+            viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             whileHover={{ y: -6, scale: 1.01 }}
             className="relative z-20 rounded-3xl bg-white/60 backdrop-blur-[20px] p-8 sm:p-12 text-slate-900 border border-slate-200/90 shadow-[0_16px_40px_rgba(37,99,235,0.08),inset_0_1.5px_2px_rgba(255,255,255,0.95)] flex flex-col md:flex-row items-center justify-between gap-8 transition-shadow hover:shadow-[0_24px_50px_rgba(37,99,235,0.14)] transform-gpu will-change-transform"

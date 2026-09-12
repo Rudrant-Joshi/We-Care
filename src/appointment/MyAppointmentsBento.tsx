@@ -298,7 +298,7 @@ export function MyAppointmentsBento() {
         <motion.div
           initial={{ opacity: 0, y: 50, scale: 0.96 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+          viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
           whileHover={{ y: -6, scale: 1.02 }}
           transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
           className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-white via-blue-50/50 to-sky-100/30 border border-blue-200/90 shadow-sm relative overflow-hidden group hover:border-blue-400 hover:shadow-lg hover:shadow-blue-500/10 transition-all transform-gpu will-change-transform"
@@ -332,7 +332,7 @@ export function MyAppointmentsBento() {
         <motion.div
           initial={{ opacity: 0, y: 50, scale: 0.96 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+          viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
           whileHover={{ y: -6, scale: 1.02 }}
           transition={{ delay: 0.06, duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
           className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-white via-amber-50/70 to-orange-100/35 border border-amber-300/90 shadow-sm relative overflow-hidden group hover:border-amber-400 hover:shadow-lg hover:shadow-amber-500/15 transition-all transform-gpu will-change-transform"
@@ -369,7 +369,7 @@ export function MyAppointmentsBento() {
         <motion.div
           initial={{ opacity: 0, y: 50, scale: 0.96 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+          viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
           whileHover={{ y: -6, scale: 1.02 }}
           transition={{ delay: 0.12, duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
           className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-white via-emerald-50/70 to-teal-100/35 border border-emerald-300/90 shadow-sm relative overflow-hidden group hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-500/15 transition-all transform-gpu will-change-transform"
@@ -404,8 +404,8 @@ export function MyAppointmentsBento() {
 
       </div>
 
-      {/* Filter Tabs Bar with Sliding Layout Pill (Sticky on Scroll) */}
-      <div className="relative sticky top-20 z-30 flex flex-wrap items-center justify-between gap-4 mb-8 p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-md shadow-slate-900/5">
+      {/* Filter Tabs Bar with Sliding Layout Pill */}
+      <div className="relative z-30 flex flex-wrap items-center justify-between gap-4 mb-8 p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-md shadow-slate-900/5">
         {/* Top vibrant accent border */}
         <div className="absolute top-0 left-6 right-6 h-[2px] bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500 rounded-full opacity-80" />
 
@@ -759,7 +759,7 @@ export function MyAppointmentsBento() {
                   key={appt.bookingId}
                   initial={{ opacity: 0, y: 55, scale: 0.96 }}
                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+                  viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
                   transition={{ duration: 0.5, delay: (idx % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
                   whileHover={{ y: -8, scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}

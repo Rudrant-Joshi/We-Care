@@ -20,14 +20,7 @@ export const LiquidGlassFilter: React.FC<LiquidGlassFilterProps> = ({
             numOctaves="3"
             seed="42"
             result="noise"
-          >
-            <animate
-              attributeName="baseFrequency"
-              dur="18s"
-              values={`${turbulenceFreq}; ${turbulenceFreq * 1.6}; ${turbulenceFreq * 0.8}; ${turbulenceFreq}`}
-              repeatCount="indefinite"
-            />
-          </feTurbulence>
+          />
           <feDisplacementMap
             in="SourceGraphic"
             in2="noise"

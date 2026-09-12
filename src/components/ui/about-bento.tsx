@@ -113,6 +113,7 @@ function TiltCard({
   onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const rectRef = useRef<DOMRect | null>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
@@ -125,9 +126,16 @@ function TiltCard({
   const rawMouseX = useMotionValue(-1000);
   const rawMouseY = useMotionValue(-1000);
 
+  function handleMouseEnter() {
+    if (ref.current) {
+      rectRef.current = ref.current.getBoundingClientRect();
+    }
+  }
+
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
+    const rect = rectRef.current || ref.current.getBoundingClientRect();
+    rectRef.current = rect;
     const width = rect.width;
     const height = rect.height;
 
@@ -145,6 +153,7 @@ function TiltCard({
   }
 
   function handleMouseLeave() {
+    rectRef.current = null;
     x.set(0);
     y.set(0);
     rawMouseX.set(-1000);
@@ -154,6 +163,7 @@ function TiltCard({
   return (
     <motion.div
       ref={ref}
+      onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onClick={onClick}
@@ -428,7 +438,7 @@ function ClinicalPillarCard({
     <motion.div
       initial={{ opacity: 0, y: 55, scale: 0.96 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+      viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
       transition={{
         delay: Math.min((idx % 4) * 0.08, 0.24),
         duration: 0.5,
@@ -572,7 +582,7 @@ function DoctorCard({
     <motion.div
       initial={{ opacity: 0, y: 55, scale: 0.96 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+      viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
       transition={{
         delay: Math.min((idx % 3) * 0.08, 0.2),
         duration: 0.5,
@@ -796,7 +806,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
             <motion.div
               initial={{ opacity: 0, y: 55, scale: 0.95 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+              viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
               transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
               className="md:col-span-2 md:row-span-2 h-full transform-gpu will-change-transform"
             >
@@ -880,7 +890,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
             <motion.div
               initial={{ opacity: 0, y: 55, scale: 0.95 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+              viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
               transition={{ delay: 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
               className="h-full transform-gpu will-change-transform"
             >
@@ -924,7 +934,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
             <motion.div
               initial={{ opacity: 0, y: 55, scale: 0.95 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+              viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
               transition={{ delay: 0.16, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
               className="h-full transform-gpu will-change-transform"
             >
@@ -963,7 +973,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
             <motion.div
               initial={{ opacity: 0, y: 55, scale: 0.95 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+              viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
               transition={{ delay: 0.22, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
               className="md:col-span-2 h-full transform-gpu will-change-transform"
             >
@@ -1097,7 +1107,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
                   layout
                   initial={{ opacity: 0, y: 35, scale: 0.96 }}
                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: false, amount: 0.18, margin: "0px 0px -30px 0px" }}
+                  viewport={{ once: true, amount: 0.12, margin: "0px 0px -30px 0px" }}
                   transition={{ delay: 0.08 * pIdx, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                   onClick={() => setOpenProtocol(isOpen ? "" : protocol.id)}
                   className={`p-6 rounded-2xl border transition-all duration-300 cursor-pointer ${
@@ -1179,7 +1189,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
           <motion.div
             initial={{ opacity: 0, y: 55, scale: 0.95 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+            viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             className="lg:col-span-5 h-full transform-gpu will-change-transform"
           >
@@ -1276,7 +1286,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
           <motion.div
             initial={{ opacity: 0, y: 55, scale: 0.95 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+            viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
             transition={{ delay: 0.1, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             className="lg:col-span-7 h-full transform-gpu will-change-transform"
           >
@@ -1309,7 +1319,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
                     key={m.year}
                     initial={{ opacity: 0, y: 30, scale: 0.96 }}
                     whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: false, amount: 0.2 }}
+                    viewport={{ once: true, amount: 0.15 }}
                     transition={{ delay: 0.08 * idx, duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
                     whileHover={{ x: 8, scale: 1.015 }}
                     className="relative flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/90 hover:bg-blue-50/70 hover:border-blue-300 transition-all duration-300 shadow-2xs group cursor-default z-10"

@@ -28,7 +28,7 @@ export default function DoctorsPage() {
       />
 
       {/* Clean White Navbar Header Shell */}
-      <div className="bg-white/95 backdrop-blur-md w-full sticky top-0 z-40 border-b border-slate-200/90 shadow-xs">
+      <div className="bg-white/95 backdrop-blur-md w-full relative z-40 border-b border-slate-200/90 shadow-xs">
         <Navbar onBookDemoClick={handleBookAppointment} />
       </div>
 

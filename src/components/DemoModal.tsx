@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, CheckCircle2, Sparkles, Send } from 'lucide-react';
 
@@ -27,12 +28,14 @@ export const DemoModal: React.FC<DemoModalProps> = ({
     }, 2000);
   };
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div 
           id="demo-modal-backdrop"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-md"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-md"
           onClick={onClose}
         >
           <motion.div
@@ -105,6 +108,7 @@ export const DemoModal: React.FC<DemoModalProps> = ({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };

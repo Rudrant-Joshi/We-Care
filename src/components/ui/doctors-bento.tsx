@@ -1,5 +1,6 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   motion,
   AnimatePresence,
@@ -9,6 +10,7 @@ import {
   Check,
   Calendar,
   ArrowRight,
+  Eye,
   Star,
   Sparkles,
   Clock,
@@ -428,7 +430,7 @@ function DoctorCard({
     <motion.div
       initial={{ opacity: 0, y: 55, scale: 0.96 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+      viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
       transition={{
         delay: (idx % 4) * 0.08,
         duration: 0.5,
@@ -515,17 +517,22 @@ function DoctorCard({
               </span>
             </div>
 
-            <div>
-              <h4 className="text-base font-black text-slate-900 tracking-tight leading-snug line-clamp-1">
-                {doc.name}
-              </h4>
-              <p className="text-[11px] font-semibold text-slate-500 line-clamp-1">
+            <div className="pt-0.5">
+              <div className="flex items-baseline justify-between gap-1.5">
+                <h4 className="text-[15px] font-black text-slate-900 tracking-tight leading-snug truncate">
+                  {doc.name}
+                </h4>
+                <span className="text-[10px] font-mono font-bold text-slate-500 shrink-0">
+                  {doc.degree}
+                </span>
+              </div>
+              <p className="text-[11.5px] font-medium text-slate-600 line-clamp-2 leading-snug mt-0.5 min-h-[30px]">
                 {doc.role}
               </p>
             </div>
           </div>
 
-          {/* Dedicated Book Appointment Button on Card: Opens Doctor Details Modal */}
+          {/* Dedicated See Details Button on Card: Opens Doctor Details Modal */}
           <div className="pt-2.5 border-t border-slate-100/90 mt-2">
             <motion.button
               type="button"
@@ -542,8 +549,8 @@ function DoctorCard({
                 boxShadow: `0 4px 14px ${doc.gradientFrom}35`,
               }}
             >
-              <Calendar className="w-3.5 h-3.5" />
-              <span>Book Appointment</span>
+              <Eye className="w-3.5 h-3.5" />
+              <span>See Details</span>
               <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-1 duration-200" />
             </motion.button>
           </div>
@@ -582,184 +589,212 @@ function DoctorDetailModal({
     };
   }, [doc, onClose]);
 
-  if (!doc) return null;
-  const Icon = doc.icon;
+  if (typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <AnimatePresence>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="doctor-modal-name"
-        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
-      >
-        {/* Backdrop */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          onClick={onClose}
-          className="fixed inset-0 bg-slate-950/65 backdrop-blur-sm transition-opacity"
-        />
-
-        {/* Modal Window */}
-        <motion.div
-          ref={modalRef}
-          initial={{ opacity: 0, scale: 0.94, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.94, y: 20 }}
-          transition={{ type: "spring", stiffness: 420, damping: 30 }}
-          className="relative z-10 w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[90vh] flex flex-col"
+      {doc && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="doctor-modal-name"
+          className="fixed inset-0 z-[99999] overflow-y-auto"
         >
-          {/* Top Gradient Header */}
-          <div
-            className="relative h-28 sm:h-32 w-full p-4 sm:p-5 flex items-start justify-between shrink-0"
-            style={{
-              background: `linear-gradient(135deg, ${doc.gradientFrom}, ${doc.gradientTo})`,
-            }}
-          >
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px] font-mono font-bold uppercase tracking-wider">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Verified WeCare Specialist
-            </div>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity cursor-pointer"
+          />
 
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close modal"
-              className="size-9 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center backdrop-blur-md transition-colors cursor-pointer"
+          {/* Centering Wrapper: min-h-full ensures the modal is centered when there is space, and scrolls gracefully without cutting off the top when space is tight */}
+          <div className="min-h-full flex items-center justify-center p-3 sm:p-6 text-center pointer-events-none">
+            {/* Modal Dialog Window */}
+            <motion.div
+              ref={modalRef}
+              initial={{ opacity: 0, scale: 0.94, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 16 }}
+              transition={{ type: "spring", stiffness: 420, damping: 30 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative z-10 w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[88vh] flex flex-col text-left pointer-events-auto"
             >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Doctor Header & Portrait */}
-          <div className="px-6 sm:px-8 -mt-14 shrink-0 flex flex-col sm:flex-row items-start sm:items-end gap-5">
-            <div className="relative shrink-0 size-28 sm:size-32 rounded-2xl overflow-hidden ring-4 ring-white shadow-xl bg-slate-100">
-              <img
-                src={doc.image}
-                alt={doc.name}
-                className="w-full h-full object-cover object-[center_12%]"
-              />
-            </div>
-
-            <div className="space-y-1.5 flex-1 pt-14 sm:pt-14 pb-1">
-              <h3 id="doctor-modal-name" className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
-                {doc.name}, <span className="text-slate-500 font-semibold text-base sm:text-lg">{doc.degree}</span>
-              </h3>
-              <p className="text-xs sm:text-sm font-semibold text-slate-500">
-                {doc.role} &bull; <span style={{ color: doc.gradientFrom }}>{doc.department}</span>
-              </p>
-              <div className="flex items-center gap-2 flex-wrap pt-1">
-                <span
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-md text-white text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs"
+            {/* Integrated Modern Header (Clean, legible, non-overflowing) */}
+            <div
+              className="relative p-5 sm:p-6 border-b border-slate-100 shrink-0"
+              style={{
+                background: `linear-gradient(135deg, ${doc.gradientFrom}14 0%, ${doc.gradientTo}06 60%, #ffffff 100%)`,
+              }}
+            >
+              {/* Top Bar: Verification Badge & Close Button */}
+              <div className="flex items-center justify-between gap-3 mb-3.5">
+                <div
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider shadow-2xs text-white"
                   style={{
                     background: `linear-gradient(135deg, ${doc.gradientFrom}, ${doc.gradientTo})`,
                   }}
                 >
-                  {doc.badge}
-                </span>
-                <span className="flex items-center gap-1 text-xs text-amber-500 font-bold bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
-                  <Star className="w-3.5 h-3.5 fill-amber-500 stroke-none" />
-                  {doc.rating} Rating
-                </span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
-                  <Clock className="w-3 h-3 text-slate-500" />
-                  {doc.experience}
-                </span>
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Verified WeCare Specialist
+                </div>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close modal"
+                  className="size-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Doctor Identity Row: Square Portrait + Typography */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
+                <div
+                  className="relative shrink-0 size-20 sm:size-24 rounded-2xl overflow-hidden shadow-md ring-2 ring-white bg-slate-100"
+                >
+                  <img
+                    src={doc.image}
+                    alt={doc.name}
+                    className="w-full h-full object-cover object-[center_15%]"
+                  />
+                </div>
+
+                <div className="space-y-1 flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 id="doctor-modal-name" className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                      {doc.name}, <span className="text-slate-500 font-semibold text-sm sm:text-base">{doc.degree}</span>
+                    </h3>
+                    <span
+                      className="inline-flex items-center px-2 py-0.5 rounded text-white text-[10px] font-mono font-bold uppercase tracking-wider shadow-2xs"
+                      style={{
+                        background: `linear-gradient(135deg, ${doc.gradientFrom}, ${doc.gradientTo})`,
+                      }}
+                    >
+                      {doc.badge}
+                    </span>
+                  </div>
+
+                  <p className="text-xs sm:text-sm font-semibold text-slate-500">
+                    {doc.role} &bull; <span style={{ color: doc.gradientFrom }}>{doc.department}</span>
+                  </p>
+
+                  {/* Meta Pills: Rating, Experience, Department */}
+                  <div className="flex items-center gap-2 pt-1 flex-wrap">
+                    <span className="flex items-center gap-1 text-xs text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/80">
+                      <Star className="w-3.5 h-3.5 fill-amber-500 stroke-none" />
+                      {doc.rating} Rating
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-600 bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
+                      <Clock className="w-3 h-3 text-slate-500" />
+                      {doc.experience}
+                    </span>
+                    <span
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md bg-white border shadow-2xs"
+                      style={{
+                        color: doc.gradientFrom,
+                        borderColor: `${doc.gradientFrom}35`,
+                      }}
+                    >
+                      <doc.icon className="w-3 h-3" />
+                      {doc.department} Lead
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Scrollable Body Content */}
-          <div className="px-6 sm:px-8 py-5 space-y-5 overflow-y-auto flex-1">
-            {/* Specialty Highlight Banner */}
-            <div
-              className="p-4 rounded-2xl border flex items-start gap-3.5"
-              style={{
-                backgroundColor: `${doc.gradientFrom}08`,
-                borderColor: `${doc.gradientFrom}30`,
-              }}
-            >
+            {/* Scrollable Body Content */}
+            <div className="px-6 sm:px-8 py-5 space-y-5 overflow-y-auto flex-1">
+              {/* Specialty Highlight Banner */}
               <div
-                className="size-10 rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm"
+                className="p-4 rounded-2xl border flex items-start gap-3.5"
                 style={{
-                  background: `linear-gradient(135deg, ${doc.gradientFrom}, ${doc.gradientTo})`,
+                  backgroundColor: `${doc.gradientFrom}08`,
+                  borderColor: `${doc.gradientFrom}30`,
                 }}
               >
-                <Icon className="w-5 h-5 text-white" />
+                <div
+                  className="size-10 rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm"
+                  style={{
+                    background: `linear-gradient(135deg, ${doc.gradientFrom}, ${doc.gradientTo})`,
+                  }}
+                >
+                  <doc.icon className="w-5 h-5 text-white" />
+                </div>
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
+                    Primary Specialty & Focus
+                  </span>
+                  <p className="text-sm sm:text-base font-bold text-slate-900">
+                    {doc.specialty}
+                  </p>
+                </div>
               </div>
-              <div className="space-y-0.5">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
-                  Primary Specialty & Focus
-                </span>
-                <p className="text-sm sm:text-base font-bold text-slate-900">
-                  {doc.specialty}
+
+              {/* About Specialist */}
+              <div className="space-y-1.5">
+                <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+                  Biography & Clinical Philosophy
+                </h4>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {doc.bio}
                 </p>
               </div>
-            </div>
 
-            {/* About Specialist */}
-            <div className="space-y-1.5">
-              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
-                Biography & Clinical Philosophy
-              </h4>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                {doc.bio}
-              </p>
-            </div>
+              {/* Clinical Highlights & Achievements */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+                  Clinical Highlights & Accreditations
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {doc.highlights.map((h, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs font-semibold text-slate-700"
+                    >
+                      <Check
+                        className="w-3.5 h-3.5 shrink-0"
+                        style={{ color: doc.gradientFrom }}
+                      />
+                      <span>{h}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-            {/* Clinical Highlights & Achievements */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
-                Clinical Highlights & Accreditations
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                {doc.highlights.map((h, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs font-semibold text-slate-700"
-                  >
-                    <Check
-                      className="w-3.5 h-3.5 shrink-0"
-                      style={{ color: doc.gradientFrom }}
-                    />
-                    <span>{h}</span>
+              {/* Practice Details & Hospital Location */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-500 uppercase">
+                    <MapPin className="w-3.5 h-3.5 text-slate-500" />
+                    Clinic Wing & Location
                   </div>
-                ))}
+                  <p className="text-xs font-bold text-slate-800">
+                    WeCare Medical Tower &bull; {doc.department}
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    Suite 800 &bull; In-Person Hospital Suite Consultations
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-500 uppercase">
+                    <GraduationCap className="w-3.5 h-3.5 text-slate-500" />
+                    Education & Credentials
+                  </div>
+                  <p className="text-xs font-bold text-slate-800">
+                    {doc.degree} &bull; Verified Specialist
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    Tertiary Clinical Fellowship & Surgical Board
+                  </p>
+                </div>
               </div>
             </div>
-
-            {/* Practice Details & Hospital Location */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1">
-                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-500 uppercase">
-                  <MapPin className="w-3.5 h-3.5 text-slate-500" />
-                  Clinic Wing & Location
-                </div>
-                <p className="text-xs font-bold text-slate-800">
-                  WeCare Medical Tower &bull; {doc.department}
-                </p>
-                <p className="text-[11px] text-slate-500">
-                  Suite 800 &bull; In-Person & Telehealth Consultations
-                </p>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1">
-                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-500 uppercase">
-                  <GraduationCap className="w-3.5 h-3.5 text-slate-500" />
-                  Education & Credentials
-                </div>
-                <p className="text-xs font-bold text-slate-800">
-                  {doc.degree} &bull; Verified Specialist
-                </p>
-                <p className="text-[11px] text-slate-500">
-                  Tertiary Clinical Fellowship & Surgical Board
-                </p>
-              </div>
-            </div>
-          </div>
 
           {/* Modal Footer CTA */}
           <div className="p-4 sm:px-8 sm:py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
@@ -795,8 +830,11 @@ function DoctorDetailModal({
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>
-  );
+    </div>
+  )}
+</AnimatePresence>,
+document.body
+);
 }
 
 /* ==========================================================================
@@ -815,7 +853,7 @@ function FeaturedDoctorBanner({
     <motion.div
       initial={{ opacity: 0, y: 55, scale: 0.97 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+      viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       className="relative w-full pt-4 pb-2 transform-gpu will-change-transform"
     >
@@ -1060,7 +1098,7 @@ export function DoctorsBento({ onBookConsultation }: DoctorsBentoProps) {
           <motion.div
             initial={{ opacity: 0, y: 55, scale: 0.97 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: false, amount: 0.18, margin: "0px 0px -40px 0px" }}
+            viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             whileHover={{ y: -6, scale: 1.01 }}
             className="relative z-20 rounded-3xl bg-white/85 sm:backdrop-blur-md p-8 sm:p-12 text-slate-900 border border-slate-200/90 shadow-[0_16px_40px_rgba(37,99,235,0.06),inset_0_1.5px_2px_rgba(255,255,255,0.95)] flex flex-col md:flex-row items-center justify-between gap-8 transition-shadow hover:shadow-[0_24px_50px_rgba(37,99,235,0.12)] transform-gpu will-change-transform"
