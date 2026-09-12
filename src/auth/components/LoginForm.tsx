@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, CheckCircle2, AlertCircle, ShieldAlert } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, CheckCircle2, AlertCircle, ShieldAlert, Copy, Check, ExternalLink } from 'lucide-react';
 import type { UserRole } from '../types';
 import { ROLE_CONFIGS } from '../types';
 import { useAuth, DEMO_USERS } from '../AuthContext';
@@ -27,6 +27,14 @@ export function LoginForm({
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [copiedDomain, setCopiedDomain] = useState(false);
+
+  const handleCopyDomain = () => {
+    if (typeof window === 'undefined') return;
+    navigator.clipboard.writeText(window.location.hostname);
+    setCopiedDomain(true);
+    setTimeout(() => setCopiedDomain(false), 2000);
+  };
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
 
@@ -136,17 +144,76 @@ export function LoginForm({
 
       {/* Error Alert */}
       <AnimatePresence>
-        {errorMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="mb-4 p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-200 text-xs flex items-center gap-2.5"
-          >
-            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-            <span>{errorMessage}</span>
-          </motion.div>
-        )}
+        {errorMessage && (() => {
+          const isDomainError = errorMessage.includes('Domain unauthorized') || errorMessage.includes('unauthorized-domain');
+          const currentHostname = typeof window !== 'undefined' ? window.location.hostname : 'we-care-app-rouge.vercel.app';
+
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className={`mb-4 p-3.5 rounded-xl border text-xs flex flex-col gap-2.5 ${
+                isDomainError
+                  ? 'bg-amber-500/15 border-amber-500/40 text-amber-100 shadow-md'
+                  : 'bg-red-500/15 border-red-500/30 text-red-200'
+              }`}
+            >
+              <div className="flex items-start gap-2.5">
+                <AlertCircle className={`w-4 h-4 shrink-0 mt-0.5 ${isDomainError ? 'text-amber-400' : 'text-red-400'}`} />
+                <div className="flex-1 space-y-1">
+                  <div className={`font-bold text-xs ${isDomainError ? 'text-amber-300' : 'text-red-300'}`}>
+                    {isDomainError ? 'Firebase Authorized Domain Setup Required' : 'Authentication Notice'}
+                  </div>
+                  <div className="leading-relaxed opacity-90">{errorMessage}</div>
+                </div>
+              </div>
+
+              {isDomainError && (
+                <div className="pt-2 border-t border-amber-500/30 flex flex-col gap-2">
+                  <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-900/90 border border-slate-700/80">
+                    <span className="font-mono text-xs text-amber-300 font-bold truncate">
+                      {currentHostname}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleCopyDomain}
+                      className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold text-[11px] flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+                      title="Copy domain to clipboard"
+                    >
+                      {copiedDomain ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span className="text-emerald-300">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5 text-slate-400" />
+                          <span>Copy Domain</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  <a
+                    href="https://console.firebase.google.com/project/wecare-165d7/authentication/settings"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all no-underline shadow-sm cursor-pointer"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Open Firebase Console Settings ↗</span>
+                  </a>
+
+                  <div className="text-[11px] text-slate-300 leading-snug space-y-0.5">
+                    <div>1. In Firebase Console, go to <strong>Authorized domains</strong></div>
+                    <div>2. Click <strong>Add domain</strong>, paste <code className="bg-slate-900 px-1 py-0.5 rounded text-amber-300 font-mono text-[10.5px]">{currentHostname}</code> & click <strong>Save</strong></div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          );
+        })()}
       </AnimatePresence>
 
       {/* Login Form */}

@@ -16,6 +16,9 @@ import {
   ShieldCheck,
   Eye,
   EyeOff,
+  Copy,
+  Check,
+  ExternalLink,
 } from "lucide-react";
 import { useAuth } from "@/auth/AuthContext";
 
@@ -47,6 +50,14 @@ export default function AuthSectionOne({
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [copiedDomain, setCopiedDomain] = useState(false);
+
+  const handleCopyDomain = () => {
+    if (typeof window === "undefined") return;
+    navigator.clipboard.writeText(window.location.hostname);
+    setCopiedDomain(true);
+    setTimeout(() => setCopiedDomain(false), 2000);
+  };
 
   const { login, register, loginWithGoogle, resetPassword } = useAuth();
 
@@ -326,22 +337,91 @@ export default function AuthSectionOne({
             </div>
 
             {/* Error & Success Messages */}
-            {errorMsg && (
-              <div className="mb-3 rounded-xl bg-red-50 border border-red-200 p-3 flex flex-col gap-2.5 text-xs font-medium text-red-700">
-                <div className="flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-                  <span className="flex-1 leading-relaxed">{errorMsg}</span>
+            {errorMsg && (() => {
+              const isDomainError = errorMsg.includes("Domain unauthorized") || errorMsg.includes("unauthorized-domain");
+              const isIp = typeof window !== "undefined" && window.location.hostname === "127.0.0.1";
+              const currentHostname = typeof window !== "undefined" ? window.location.hostname : "we-care-app-rouge.vercel.app";
+
+              return (
+                <div
+                  className={`mb-3.5 rounded-2xl p-3.5 flex flex-col gap-2.5 text-xs font-medium border ${
+                    isDomainError
+                      ? "bg-amber-50/90 border-amber-300 text-amber-950 shadow-xs"
+                      : "bg-red-50 border-red-200 text-red-700"
+                  }`}
+                >
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle
+                      className={`w-4 h-4 shrink-0 mt-0.5 ${
+                        isDomainError ? "text-amber-600" : "text-red-500"
+                      }`}
+                    />
+                    <div className="flex-1 space-y-1">
+                      <div className={`font-bold text-xs ${isDomainError ? "text-amber-900" : "text-red-800"}`}>
+                        {isDomainError ? "Firebase Authorized Domain Setup Required" : "Authentication Notice"}
+                      </div>
+                      <div className="text-[11.5px] leading-relaxed text-slate-700">{errorMsg}</div>
+                    </div>
+                  </div>
+
+                  {isDomainError && (
+                    <div className="mt-1 pt-2.5 border-t border-amber-300/60 flex flex-col gap-2">
+                      <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-white border border-amber-200 shadow-2xs">
+                        <span className="font-mono text-xs text-slate-800 font-bold truncate">
+                          {currentHostname}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleCopyDomain}
+                          className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+                          title="Copy domain to clipboard"
+                        >
+                          {copiedDomain ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-600" />
+                              <span className="text-emerald-700">Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5 text-slate-600" />
+                              <span>Copy Domain</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      <a
+                        href="https://console.firebase.google.com/project/wecare-165d7/authentication/settings"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all no-underline shadow-xs cursor-pointer"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Open Firebase Console Settings ↗</span>
+                      </a>
+
+                      <div className="text-[11px] text-slate-600 leading-snug space-y-0.5">
+                        <div>1. Scroll down to <strong>Authorized domains</strong></div>
+                        <div>2. Click <strong>Add domain</strong>, paste <code className="bg-amber-100 px-1 py-0.5 rounded text-amber-900 font-mono text-[10.5px] font-bold">{currentHostname}</code> & click <strong>Save</strong></div>
+                      </div>
+
+                      <div className="mt-0.5 p-2 rounded-lg bg-blue-50 border border-blue-200/80 text-[11px] text-blue-900 leading-snug">
+                        💡 <strong>Immediate Alternative:</strong> You can also register or sign in with <strong>Email & Password</strong> below right away without needing any Firebase setup!
+                      </div>
+                    </div>
+                  )}
+
+                  {isIp && (
+                    <a
+                      href={window.location.href.replace("127.0.0.1", "localhost")}
+                      className="w-full py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors no-underline shadow-xs"
+                    >
+                      <span>Open via http://localhost:5173 for Google Auth</span>
+                    </a>
+                  )}
                 </div>
-                {typeof window !== "undefined" && window.location.hostname === "127.0.0.1" && (
-                  <a
-                    href={window.location.href.replace("127.0.0.1", "localhost")}
-                    className="w-full py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors no-underline shadow-xs"
-                  >
-                    <span>Open via http://localhost:5173 for Google Auth</span>
-                  </a>
-                )}
-              </div>
-            )}
+              );
+            })()}
             {successMsg && (
               <div className="mb-3 rounded-xl bg-emerald-50 border border-emerald-200 p-2.5 flex items-start gap-2 text-xs font-semibold text-emerald-800">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
