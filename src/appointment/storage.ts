@@ -32,8 +32,62 @@ export function isMockAppointment(bookingId?: string): boolean {
 export const INITIAL_MOCK_APPOINTMENTS: StoredAppointment[] = [];
 
 /**
- * Get stored appointments: strictly only returns appointments scheduled by real patients.
- * Any mock/fake appointments are filtered out and pruned from localStorage.
+ * Accurately extracts a numeric epoch timestamp (in milliseconds) from any appointment.
+ * Evaluates timestamp, createdAtIso, savedAt, syncedAt, scheduled date/time, and booking ID.
+ */
+export function getAppointmentCreationTimestamp(appt: StoredAppointment): number {
+  if (!appt) return 0;
+
+  // 1. Explicit numeric timestamp
+  if (typeof appt.timestamp === 'number' && !isNaN(appt.timestamp) && appt.timestamp > 0) {
+    return appt.timestamp;
+  }
+
+  // 2. ISO timestamp strings (createdAtIso, savedAt, or syncedAt)
+  const isoCandidates = [appt.createdAtIso, appt.savedAt, (appt as any).syncedAt];
+  for (const iso of isoCandidates) {
+    if (iso) {
+      const parsed = new Date(iso).getTime();
+      if (!isNaN(parsed) && parsed > 0) return parsed;
+    }
+  }
+
+  // 3. Try parsing createdAt (e.g. if it is an ISO or date string)
+  if (appt.createdAt) {
+    const parsed = new Date(appt.createdAt).getTime();
+    if (!isNaN(parsed) && parsed > 100000000000) return parsed;
+  }
+
+  // 4. Fallback: Parse scheduled appointment date + time (e.g. "2026-09-15 10:00 AM")
+  if (appt.date) {
+    const timeClean = appt.time ? ` ${appt.time}` : '';
+    const parsed = new Date(`${appt.date}${timeClean}`).getTime();
+    if (!isNaN(parsed) && parsed > 0) return parsed;
+  }
+
+  return 0;
+}
+
+/**
+ * Sorts appointments chronologically in descending order:
+ * The most recently registered/booked patient appointment appears FIRST (at the front).
+ */
+export function sortAppointmentsDescending(list: StoredAppointment[]): StoredAppointment[] {
+  if (!Array.isArray(list)) return [];
+  return [...list].sort((a, b) => {
+    const timeA = getAppointmentCreationTimestamp(a);
+    const timeB = getAppointmentCreationTimestamp(b);
+    if (timeA !== timeB) {
+      return timeB - timeA; // Descending: newest first
+    }
+    // Secondary fallback: bookingId lexical reverse
+    return (b.bookingId || '').localeCompare(a.bookingId || '');
+  });
+}
+
+/**
+ * Get stored appointments: strictly only returns appointments scheduled by real patients,
+ * automatically sorted newest/latest registered first.
  */
 export function getStoredAppointments(): StoredAppointment[] {
   if (typeof window === 'undefined') return [];
@@ -60,11 +114,14 @@ export function getStoredAppointments(): StoredAppointment[] {
           return appt;
         });
 
+      // Always sort descending: latest registered patient comes first
+      const sorted = sortAppointmentsDescending(realAppointments);
+
       // If fake mock items were removed or paths were migrated, update localStorage
       if (changed || realAppointments.length !== parsed.length) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(realAppointments));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
       }
-      return realAppointments;
+      return sorted;
     }
     return [];
   } catch {
@@ -84,30 +141,39 @@ export function getUserAppointments(user: { email?: string; id?: string; uid?: s
   const userEmail = user.email.toLowerCase().trim();
   const userId = user.id || user.uid;
 
-  return all.filter((appt) => {
+  const filtered = all.filter((appt) => {
     const apptEmail = appt.email ? appt.email.toLowerCase().trim() : '';
     const matchEmail = apptEmail === userEmail;
     const matchUserId = userId ? appt.userId === userId : false;
 
     return (matchEmail || matchUserId) && !isMockAppointment(appt.bookingId);
   });
+
+  return sortAppointmentsDescending(filtered);
 }
 
 export function saveAppointment(appointment: StoredAppointment): void {
   if (typeof window === 'undefined') return;
   try {
+    const now = Date.now();
+    const enrichedAppt: StoredAppointment = {
+      ...appointment,
+      timestamp: appointment.timestamp || now,
+      createdAtIso: appointment.createdAtIso || new Date(now).toISOString(),
+      savedAt: appointment.savedAt || new Date(now).toISOString(),
+    };
     const current = getStoredAppointments();
-    const updated = [appointment, ...current.filter(a => a.bookingId !== appointment.bookingId)];
+    const updated = sortAppointmentsDescending([
+      enrichedAppt,
+      ...current.filter((a) => a.bookingId !== enrichedAppt.bookingId),
+    ]);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     window.dispatchEvent(new Event('wecare_appointments_changed'));
 
     // Write to Firebase Cloud Firestore collection 'appointments'
-    setDoc(doc(db, 'appointments', appointment.bookingId), {
-      ...appointment,
-      savedAt: new Date().toISOString(),
-    })
+    setDoc(doc(db, 'appointments', enrichedAppt.bookingId), enrichedAppt)
       .then(() => {
-        console.info(`[Firebase Firestore] Appointment ${appointment.bookingId} successfully recorded in cloud.`);
+        console.info(`[Firebase Firestore] Appointment ${enrichedAppt.bookingId} successfully recorded in cloud.`);
       })
       .catch((fsErr: any) => {
         console.warn(`[Firebase Firestore Note] Cloud sync: ${fsErr.code || fsErr.message}. If permission-denied, update Firestore Rules in Firebase Console.`);
@@ -288,7 +354,10 @@ export async function syncAppointmentsFromFirestore(): Promise<StoredAppointment
 
       const remoteIds = new Set(remoteList.map((r) => r.bookingId));
       const cleanLocal = local.filter((l) => !isMockAppointment(l.bookingId));
-      const merged = [...remoteList, ...cleanLocal.filter((l) => !remoteIds.has(l.bookingId))];
+      const merged = sortAppointmentsDescending([
+        ...remoteList,
+        ...cleanLocal.filter((l) => !remoteIds.has(l.bookingId)),
+      ]);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
       window.dispatchEvent(new Event('wecare_appointments_changed'));
 
@@ -304,7 +373,7 @@ export async function syncAppointmentsFromFirestore(): Promise<StoredAppointment
       return merged;
     } else if (local.length > 0) {
       // If Firestore is empty, backfill only real patient appointments into Cloud Firestore
-      const cleanLocal = local.filter((l) => !isMockAppointment(l.bookingId));
+      const cleanLocal = sortAppointmentsDescending(local.filter((l) => !isMockAppointment(l.bookingId)));
       for (const loc of cleanLocal) {
         setDoc(doc(db, 'appointments', loc.bookingId), {
           ...loc,

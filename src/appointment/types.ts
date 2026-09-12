@@ -81,6 +81,9 @@ export interface ConfirmedAppointment extends AppointmentFormData {
   approvedAt?: string;
   rejectedAt?: string;
   lastUpdated?: string;
+  createdAtIso?: string;
+  timestamp?: number;
+  savedAt?: string;
 }
 
 export type StoredAppointment = ConfirmedAppointment;

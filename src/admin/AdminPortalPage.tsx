@@ -40,6 +40,8 @@ import {
   getAppointmentCounts,
   syncAppointmentsFromFirestore,
   isMockAppointment,
+  sortAppointmentsDescending,
+  getAppointmentCreationTimestamp,
 } from '../appointment/storage';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
@@ -53,8 +55,11 @@ export default function AdminPortalPage() {
     currentUser?.role === 'admin' ||
     currentUser?.email?.toLowerCase() === 'rudrant.joshi@gmail.com';
 
-  // State
-  const [appointments, setAppointments] = useState<StoredAppointment[]>(() => getStoredAppointments());
+  // State (Appointments chronologically sorted: newest registered patient appears first)
+  const [appointments, setAppointments] = useState<StoredAppointment[]>(() =>
+    sortAppointmentsDescending(getStoredAppointments())
+  );
+  const [sortOrder, setSortOrder] = useState<'latest' | 'oldest'>('latest');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled'>('all');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
@@ -131,11 +136,14 @@ export default function AdminPortalPage() {
             const local = getStoredAppointments();
             const remoteIds = new Set(remoteList.map((r) => r.bookingId));
             const cleanLocal = local.filter((l) => !isMockAppointment(l.bookingId));
-            const merged = [...remoteList, ...cleanLocal.filter((l) => !remoteIds.has(l.bookingId))];
+            const merged = sortAppointmentsDescending([
+              ...remoteList,
+              ...cleanLocal.filter((l) => !remoteIds.has(l.bookingId)),
+            ]);
             setAppointments(merged);
             localStorage.setItem('wecare_user_appointments_v2', JSON.stringify(merged));
           } else {
-            const local = getStoredAppointments();
+            const local = sortAppointmentsDescending(getStoredAppointments());
             setAppointments(local);
           }
         },
@@ -167,6 +175,22 @@ export default function AdminPortalPage() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
+  // Helper to format when patient registered/booked
+  const formatRegistrationTiming = (appt: StoredAppointment) => {
+    const ts = getAppointmentCreationTimestamp(appt);
+    if (!ts) return appt.createdAt ? `Time: ${appt.createdAt}` : 'Recent';
+
+    const diffMs = Date.now() - ts;
+    const diffMinutes = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMinutes / 60);
+
+    if (diffMinutes < 1) return 'Just registered';
+    if (diffMinutes < 60) return `Registered ${diffMinutes}m ago`;
+    if (diffHours < 24) return `Registered ${diffHours}h ago`;
+
+    return `Registered ${new Date(ts).toLocaleDateString([], { month: 'short', day: 'numeric' })}`;
+  };
+
   // KPIs
   const stats = useMemo(() => {
     return getAppointmentCounts(appointments);
@@ -181,9 +205,9 @@ export default function AdminPortalPage() {
     return Array.from(depts);
   }, [appointments]);
 
-  // Filtered & Searched Appointments
+  // Filtered & Searched Appointments (Chronologically sorted: latest registered patient appears first)
   const filteredAppointments = useMemo(() => {
-    return appointments.filter((appt) => {
+    const filtered = appointments.filter((appt) => {
       // Status Filter
       if (statusFilter !== 'all' && appt.status !== statusFilter) {
         return false;
@@ -206,7 +230,14 @@ export default function AdminPortalPage() {
       }
       return true;
     });
-  }, [appointments, statusFilter, departmentFilter, searchQuery]);
+
+    // Sort: newest/latest registered patient comes first
+    return [...filtered].sort((a, b) => {
+      const timeA = getAppointmentCreationTimestamp(a);
+      const timeB = getAppointmentCreationTimestamp(b);
+      return sortOrder === 'latest' ? timeB - timeA : timeA - timeB;
+    });
+  }, [appointments, statusFilter, departmentFilter, searchQuery, sortOrder]);
 
   // Handle Quick Login
   const handleGateLogin = async (e?: React.FormEvent) => {
@@ -339,11 +370,15 @@ export default function AdminPortalPage() {
       return;
     }
 
-    const bookingId = `WC-2026-${Date.now().toString().slice(-4)}${Math.floor(10 + Math.random() * 90)}`;
+    const now = Date.now();
+    const bookingId = `WC-2026-${now.toString().slice(-4)}${Math.floor(10 + Math.random() * 90)}`;
 
     const newAppt: StoredAppointment = {
       bookingId,
       createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      createdAtIso: new Date(now).toISOString(),
+      timestamp: now,
+      savedAt: new Date(now).toISOString(),
       departmentId: newDept,
       doctorId: newDept === 'cardiology' ? 'iron-man' : newDept === 'neurology' ? 'doctor-strange' : 'captain-america',
       doctorName: newDoctor,
@@ -731,6 +766,31 @@ export default function AdminPortalPage() {
               </select>
             )}
 
+            {/* Sort Order: Latest Registered First Switcher */}
+            <div className="flex items-center bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs shadow-xs">
+              <button
+                type="button"
+                onClick={() => setSortOrder('latest')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  sortOrder === 'latest' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+                title="Display newest registered patient appointments first (at the front)"
+              >
+                <Clock className="w-3.5 h-3.5" />
+                <span>Latest First</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSortOrder('oldest')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  sortOrder === 'oldest' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+                title="Display oldest registered patient appointments first"
+              >
+                Oldest First
+              </button>
+            </div>
+
             {/* Simple List / Table View Switcher */}
             <div className="flex items-center bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs">
               <button
@@ -758,10 +818,16 @@ export default function AdminPortalPage() {
         </section>
 
         {/* RESULTS HEADER */}
-        <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-          <div>
-            Showing <span className="text-white font-bold">{filteredAppointments.length}</span> patient appointment
-            {filteredAppointments.length === 1 ? '' : 's'} across the system
+        <div className="flex flex-wrap items-center justify-between text-xs text-slate-400 px-1 gap-2">
+          <div className="flex items-center gap-2.5">
+            <span>
+              Showing <span className="text-white font-bold">{filteredAppointments.length}</span> patient appointment
+              {filteredAppointments.length === 1 ? '' : 's'} across the system
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/25 text-[10.5px] font-mono font-bold text-purple-300">
+              <Clock className="w-3 h-3 text-purple-400" />
+              <span>{sortOrder === 'latest' ? 'Timing: Latest Registered at Front' : 'Timing: Oldest Registered First'}</span>
+            </span>
           </div>
           {(searchQuery || statusFilter !== 'all' || departmentFilter !== 'all') && (
             <button
@@ -808,16 +874,30 @@ export default function AdminPortalPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800">
-                  {filteredAppointments.map((appt) => (
+                  {filteredAppointments.map((appt, idx) => (
                     <tr
                       key={appt.bookingId}
-                      className="hover:bg-slate-700/30 transition-colors group cursor-default"
+                      className={`hover:bg-slate-700/30 transition-colors group cursor-default ${
+                        sortOrder === 'latest' && idx === 0 ? 'bg-purple-950/20' : ''
+                      }`}
                     >
                       {/* Booking ID & Patient */}
                       <td className="py-3.5 px-4">
-                        <div className="font-mono text-purple-400 font-bold text-xs">{appt.bookingId}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-purple-400 font-bold text-xs">{appt.bookingId}</span>
+                          {sortOrder === 'latest' && idx === 0 && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                              Latest Registered
+                            </span>
+                          )}
+                        </div>
                         <div className="font-bold text-white text-sm mt-0.5">{appt.patientName}</div>
-                        <div className="text-[11px] text-slate-400 truncate max-w-[180px]">{appt.reason}</div>
+                        <div className="flex items-center gap-1.5 text-[10.5px] mt-0.5">
+                          <span className="text-purple-300 font-medium font-mono">{formatRegistrationTiming(appt)}</span>
+                          <span className="text-slate-500">&bull;</span>
+                          <span className="text-slate-400 truncate max-w-[140px]">{appt.reason}</span>
+                        </div>
                       </td>
 
                       {/* Contact & Insurance */}
@@ -952,15 +1032,22 @@ export default function AdminPortalPage() {
         ) : (
           /* SIMPLE & SWEET LIST VIEW */
           <div className="space-y-3">
-            {filteredAppointments.map((appt) => (
+            {filteredAppointments.map((appt, idx) => (
               <div
                 key={appt.bookingId}
-                className="rounded-2xl border border-slate-800/90 bg-slate-800/40 hover:bg-slate-800/70 hover:border-purple-500/40 backdrop-blur-xl p-4 sm:p-5 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-sm"
+                className={`rounded-2xl border backdrop-blur-xl p-4 sm:p-5 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-sm ${
+                  sortOrder === 'latest' && idx === 0
+                    ? 'border-purple-500/60 bg-slate-800/80 shadow-lg shadow-purple-500/10'
+                    : 'border-slate-800/90 bg-slate-800/40 hover:bg-slate-800/70 hover:border-purple-500/40'
+                }`}
               >
                 {/* Left: Patient & Doctor Info */}
                 <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
-                  <div className="size-11 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-sm shrink-0">
+                  <div className="size-11 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-sm shrink-0 relative">
                     {appt.patientName ? appt.patientName.charAt(0).toUpperCase() : 'P'}
+                    {sortOrder === 'latest' && idx === 0 && (
+                      <span className="absolute -top-1 -right-1 size-3 rounded-full bg-emerald-500 border-2 border-slate-900" />
+                    )}
                   </div>
 
                   <div className="min-w-0 flex-1">
@@ -968,8 +1055,17 @@ export default function AdminPortalPage() {
                       <span className="font-mono text-purple-400 font-bold text-xs">
                         {appt.bookingId}
                       </span>
+                      {sortOrder === 'latest' && idx === 0 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Latest Registered
+                        </span>
+                      )}
                       <span className="text-white font-extrabold text-sm sm:text-base">
                         {appt.patientName}
+                      </span>
+                      <span className="text-[11.5px] text-purple-300 font-medium font-mono">
+                        &bull; {formatRegistrationTiming(appt)}
                       </span>
                       <span className="text-xs text-slate-400">
                         &bull; {appt.email} &bull; {appt.phone}

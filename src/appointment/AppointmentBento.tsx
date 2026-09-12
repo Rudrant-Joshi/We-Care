@@ -505,11 +505,15 @@ export function AppointmentBento() {
 
     // Simulate clinical triage and appointment reservation
     setTimeout(() => {
-      const randomCode = `WC-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}${Math.floor(10 + Math.random() * 90)}`;
+      const now = Date.now();
+      const randomCode = `WC-${new Date().getFullYear()}-${now.toString().slice(-4)}${Math.floor(10 + Math.random() * 90)}`;
       const bookingData: ConfirmedAppointment = {
         bookingId: randomCode,
         userId: currentUser?.id,
         createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        createdAtIso: new Date(now).toISOString(),
+        timestamp: now,
+        savedAt: new Date(now).toISOString(),
         departmentId: selectedDeptId,
         doctorId: activeDoctor.id,
         doctorName: activeDoctor.name,
