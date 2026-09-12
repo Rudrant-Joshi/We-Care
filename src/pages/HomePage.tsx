@@ -79,8 +79,8 @@ export default function HomePage() {
             />
           </div>
 
-          {/* Right Column: AI Workflow & Smart Agents Feature Stack */}
-          <div className="w-full lg:max-w-md xl:max-w-[440px] flex justify-center lg:justify-end">
+          {/* Right Column: Interactive Bento Showcase */}
+          <div className="w-full lg:max-w-md xl:max-w-[480px] flex justify-center lg:justify-end">
             <FeaturePanel
               onWorkflowClick={handleBookAppointment}
               onAgentsClick={handleOpenDemo}
