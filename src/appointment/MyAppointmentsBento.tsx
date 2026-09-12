@@ -533,9 +533,16 @@ export function MyAppointmentsBento() {
                         style={{ borderColor: `${deptColor.gradientFrom}55` }}
                       >
                         <img
-                          src={appt.doctorImage}
+                          src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
                           alt={appt.doctorName}
                           className="w-full h-full object-cover object-[center_25%]"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            if (!target.dataset.fallback) {
+                              target.dataset.fallback = '1';
+                              target.src = `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`;
+                            }
+                          }}
                         />
                         <span
                           className="absolute bottom-0 right-0 size-3 rounded-full border-2 border-white shadow-xs"
@@ -859,9 +866,16 @@ export function MyAppointmentsBento() {
                     <div className="flex items-center gap-3.5 mb-4 p-3 rounded-xl bg-white/80 border border-slate-200/70 shadow-2xs">
                       <div className="relative size-14 rounded-xl overflow-hidden shrink-0 border border-slate-200/80 bg-slate-100">
                         <img
-                          src={appt.doctorImage}
+                          src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
                           alt={appt.doctorName}
                           className="w-full h-full object-cover object-[center_25%]"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            if (!target.dataset.fallback) {
+                              target.dataset.fallback = '1';
+                              target.src = `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`;
+                            }
+                          }}
                         />
                       </div>
                       <div className="min-w-0 flex-1">

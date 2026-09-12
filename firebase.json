@@ -8,6 +8,10 @@
     ],
     "rewrites": [
       {
+        "source": "/doctors/**",
+        "destination": "/doctor-images/**"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

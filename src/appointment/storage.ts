@@ -44,13 +44,24 @@ export function getStoredAppointments(): StoredAppointment[] {
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
-      // Filter out any mock/fake appointments
-      const realAppointments = parsed.filter(
-        (appt: StoredAppointment) => appt && appt.bookingId && !isMockAppointment(appt.bookingId)
-      );
+      let changed = false;
+      // Filter out any mock/fake appointments and migrate doctor image paths
+      const realAppointments = parsed
+        .filter((appt: StoredAppointment) => appt && appt.bookingId && !isMockAppointment(appt.bookingId))
+        .map((appt: StoredAppointment) => {
+          if (appt.doctorImage && appt.doctorImage.startsWith('/doctors/')) {
+            appt.doctorImage = appt.doctorImage.replace(/^\/doctors\//, '/doctor-images/');
+            changed = true;
+          }
+          if (!appt.doctorImage && appt.doctorId) {
+            appt.doctorImage = `/doctor-images/${appt.doctorId}.jpg`;
+            changed = true;
+          }
+          return appt;
+        });
 
-      // If fake mock items were found and removed, clean up localStorage
-      if (realAppointments.length !== parsed.length) {
+      // If fake mock items were removed or paths were migrated, update localStorage
+      if (changed || realAppointments.length !== parsed.length) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(realAppointments));
       }
       return realAppointments;

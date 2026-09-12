@@ -833,11 +833,15 @@ export default function AdminPortalPage() {
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2.5">
                           <img
-                            src={appt.doctorImage}
+                            src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
                             alt={appt.doctorName}
-                            className="w-8 h-8 rounded-full object-cover border border-slate-700"
+                            className="w-8 h-8 rounded-full object-cover border border-slate-700 bg-slate-800 shrink-0"
                             onError={(e) => {
-                              (e.target as HTMLElement).style.display = 'none';
+                              const target = e.currentTarget;
+                              if (!target.dataset.fallback) {
+                                target.dataset.fallback = '1';
+                                target.src = `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`;
+                              }
                             }}
                           />
                           <div>

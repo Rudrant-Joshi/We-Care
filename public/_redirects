@@ -1,1 +1,4 @@
+/doctors/*.jpg    /doctor-images/:splat.jpg   200
+/doctors/*.png    /doctor-images/:splat.png   200
+/doctors/*.webp   /doctor-images/:splat.webp  200
 /*    /index.html   200

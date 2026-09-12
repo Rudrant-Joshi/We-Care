@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/doctors/:image(.*\\.(?:jpg|jpeg|png|webp|svg))",
+      "destination": "/doctor-images/:image"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

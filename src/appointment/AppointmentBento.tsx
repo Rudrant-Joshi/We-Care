@@ -791,10 +791,16 @@ export function AppointmentBento() {
                         {/* Doctor Avatar */}
                         <div className="relative size-12 rounded-xl overflow-hidden shrink-0 border border-slate-200/80 bg-slate-100 shadow-2xs">
                           <img
-                            src={doc.image}
+                            src={doc.image || `/doctor-images/${doc.id}.jpg`}
                             alt={doc.name}
                             className="w-full h-full object-cover object-[center_25%]"
-                            loading="lazy"
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              if (!target.dataset.fallback) {
+                                target.dataset.fallback = '1';
+                                target.src = `/doctor-images/${doc.id}.jpg`;
+                              }
+                            }}
                           />
                           {isSelected && (
                             <div
@@ -1201,9 +1207,16 @@ export function AppointmentBento() {
                     {/* Doctor Preview Box */}
                     <div className="flex items-center gap-3.5 my-4 p-3 rounded-xl bg-white/80 border border-slate-200/70 shadow-2xs">
                       <img
-                        src={activeDoctor.image}
+                        src={activeDoctor.image || `/doctor-images/${activeDoctor.id}.jpg`}
                         alt={activeDoctor.name}
                         className="size-14 rounded-xl object-cover object-[center_25%] border border-slate-200/80 shrink-0"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          if (!target.dataset.fallback) {
+                            target.dataset.fallback = '1';
+                            target.src = `/doctor-images/${activeDoctor.id}.jpg`;
+                          }
+                        }}
                       />
                       <div className="min-w-0">
                         <span
@@ -1392,9 +1405,16 @@ export function AppointmentBento() {
                 {/* Doctor Row */}
                 <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
                   <img
-                    src={confirmedBooking.doctorImage}
+                    src={(confirmedBooking.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${confirmedBooking.doctorId || 'iron-man'}.jpg`}
                     alt={confirmedBooking.doctorName}
                     className="size-16 rounded-xl object-cover object-[center_25%] border border-slate-200 shadow-sm"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.dataset.fallback) {
+                        target.dataset.fallback = '1';
+                        target.src = `/doctor-images/${confirmedBooking.doctorId || 'iron-man'}.jpg`;
+                      }
+                    }}
                   />
                   <div>
                     <span
