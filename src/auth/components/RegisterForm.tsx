@@ -59,8 +59,8 @@ export function RegisterForm({
       setErrorMessage('Please provide a valid clinical or personal email.');
       return;
     }
-    if (password.length < 8) {
-      setErrorMessage('Password must contain at least 8 characters.');
+    if (password.length < 6) {
+      setErrorMessage('Password must contain at least 6 characters.');
       return;
     }
     if (password !== confirmPassword) {
@@ -76,6 +76,8 @@ export function RegisterForm({
     const result = await register({
       name: fullName,
       email,
+      password,
+      phone,
       role: activeRole,
       specialty: activeRole === 'doctor' ? specialty : undefined,
     });

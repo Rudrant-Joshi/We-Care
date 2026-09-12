@@ -846,7 +846,7 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
                         <div className="flex items-center gap-3">
                           <div className="relative size-12 rounded-xl overflow-hidden shadow-sm shrink-0 ring-2 ring-white/90 group-hover:scale-105 transition-transform bg-slate-100">
                             <img
-                              src={`/doctors/${doc.id}.jpg`}
+                              src={`/doctor-images/${doc.id}.jpg`}
                               alt={doc.name}
                               loading="lazy"
                               className="w-full h-full object-cover object-[center_25%]"

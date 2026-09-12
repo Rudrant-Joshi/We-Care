@@ -353,10 +353,10 @@ export default function AdminPortalPage() {
       doctorRole: 'Senior Clinical Specialist',
       doctorImage:
         newDept === 'cardiology'
-          ? '/doctors/iron-man.jpg'
+          ? '/doctor-images/iron-man.jpg'
           : newDept === 'neurology'
-            ? '/doctors/doctor-strange.jpg'
-            : '/doctors/captain-america.jpg',
+            ? '/doctor-images/doctor-strange.jpg'
+            : '/doctor-images/captain-america.jpg',
       departmentName: newDept.charAt(0).toUpperCase() + newDept.slice(1),
       specialty: newDept === 'cardiology' ? 'Arc-Reactor Cardiothoracic Surgery' : newDept === 'neurology' ? 'Complex Micro-Neurosurgery' : 'Peak Kinetic Biomechanics',
       gradientFrom: newDept === 'cardiology' ? '#f43f5e' : newDept === 'neurology' ? '#8b5cf6' : '#f59e0b',

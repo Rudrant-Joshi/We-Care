@@ -122,7 +122,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 5.0,
     gradientFrom: "#f43f5e",
     gradientTo: "#e11d48",
-    image: "/doctors/iron-man.jpg",
+    image: "/doctor-images/iron-man.jpg",
   },
   {
     id: "war-machine",
@@ -140,7 +140,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 4.9,
     gradientFrom: "#f43f5e",
     gradientTo: "#e11d48",
-    image: "/doctors/war-machine.jpg",
+    image: "/doctor-images/war-machine.jpg",
   },
 
   // ── Neurology (Violet) ──
@@ -160,7 +160,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 5.0,
     gradientFrom: "#8b5cf6",
     gradientTo: "#6366f1",
-    image: "/doctors/doctor-strange.jpg",
+    image: "/doctor-images/doctor-strange.jpg",
   },
   {
     id: "hulk",
@@ -178,7 +178,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 4.9,
     gradientFrom: "#8b5cf6",
     gradientTo: "#6366f1",
-    image: "/doctors/hulk.jpg",
+    image: "/doctor-images/hulk.jpg",
   },
 
   // ── Orthopedics (Amber) ──
@@ -198,7 +198,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 5.0,
     gradientFrom: "#f59e0b",
     gradientTo: "#ea580c",
-    image: "/doctors/captain-america.jpg",
+    image: "/doctor-images/captain-america.jpg",
   },
   {
     id: "winter-soldier",
@@ -216,7 +216,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 4.9,
     gradientFrom: "#f59e0b",
     gradientTo: "#ea580c",
-    image: "/doctors/winter-soldier.jpg",
+    image: "/doctor-images/winter-soldier.jpg",
   },
 
   // ── Pediatrics (Cyan) ──
@@ -236,7 +236,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 5.0,
     gradientFrom: "#06b6d4",
     gradientTo: "#0284c7",
-    image: "/doctors/spider-man.jpg",
+    image: "/doctor-images/spider-man.jpg",
   },
   {
     id: "ant-man",
@@ -254,7 +254,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 4.9,
     gradientFrom: "#06b6d4",
     gradientTo: "#0284c7",
-    image: "/doctors/ant-man.jpg",
+    image: "/doctor-images/ant-man.jpg",
   },
 
   // ── Oncology (Emerald) ──
@@ -274,7 +274,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 5.0,
     gradientFrom: "#10b981",
     gradientTo: "#0d9488",
-    image: "/doctors/black-panther.jpg",
+    image: "/doctor-images/black-panther.jpg",
   },
   {
     id: "vision",
@@ -292,7 +292,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 4.9,
     gradientFrom: "#10b981",
     gradientTo: "#0d9488",
-    image: "/doctors/vision.jpg",
+    image: "/doctor-images/vision.jpg",
   },
 
   // ── Dermatology (Pink) ──
@@ -312,7 +312,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 5.0,
     gradientFrom: "#ec4899",
     gradientTo: "#c026d3",
-    image: "/doctors/black-widow.jpg",
+    image: "/doctor-images/black-widow.jpg",
   },
   {
     id: "scarlet-witch",
@@ -330,7 +330,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 4.9,
     gradientFrom: "#ec4899",
     gradientTo: "#c026d3",
-    image: "/doctors/scarlet-witch.jpg",
+    image: "/doctor-images/scarlet-witch.jpg",
   },
 
   // ── Emergency (Orange) ──
@@ -350,7 +350,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 5.0,
     gradientFrom: "#f97316",
     gradientTo: "#ef4444",
-    image: "/doctors/thor.jpg",
+    image: "/doctor-images/thor.jpg",
   },
   {
     id: "captain-marvel",
@@ -368,7 +368,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 4.9,
     gradientFrom: "#f97316",
     gradientTo: "#ef4444",
-    image: "/doctors/captain-marvel.jpg",
+    image: "/doctor-images/captain-marvel.jpg",
   },
 
   // ── Radiology (Blue) ──
@@ -388,7 +388,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 5.0,
     gradientFrom: "#3b82f6",
     gradientTo: "#1d4ed8",
-    image: "/doctors/hawkeye.jpg",
+    image: "/doctor-images/hawkeye.jpg",
   },
   {
     id: "falcon",
@@ -406,7 +406,7 @@ const ALL_DOCTORS: Doctor[] = [
     rating: 4.9,
     gradientFrom: "#3b82f6",
     gradientTo: "#1d4ed8",
-    image: "/doctors/falcon.jpg",
+    image: "/doctor-images/falcon.jpg",
   },
 ];
 

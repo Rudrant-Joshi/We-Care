@@ -18,7 +18,7 @@ As requested, the functionality is divided into two distinct, high-impact sectio
 - **Complete 4-Step Interactive Booking Experience**:
   - Triggered whenever the user clicks **"BOOK APPOINTMENT"** anywhere in the navigation, hero, or cards.
   - Step 1: Medical Department Selector (Cardiology, Neurology, Orthopedics, Pediatrics, Oncology, Dermatology, Emergency, Radiology).
-  - Step 2: Specialist Selector with real doctor portraits (`/doctors/*.jpg`).
+  - Step 2: Specialist Selector with real doctor portraits (`/doctor-images/*.jpg`).
   - Step 3: Dynamic 7-day calendar and morning/afternoon slot picker.
   - Step 4: Patient clinical intake form & verification.
   - Live Digital Pass Card with colored backing tabs and ambient glow.

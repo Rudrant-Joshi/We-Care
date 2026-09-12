@@ -224,7 +224,7 @@ const DOCTORS = [
     specialtyBadge: DEPARTMENT_COLORS.cardiology.tagBadge,
     highlightBadge: "bg-rose-50/60 text-rose-900 border-rose-200/60",
     buttonHover: "group-hover:bg-rose-600 group-hover:text-white group-hover:border-rose-600",
-    image: "/doctors/iron-man.jpg",
+    image: "/doctor-images/iron-man.jpg",
   },
   {
     id: "captain-america",
@@ -246,7 +246,7 @@ const DOCTORS = [
     specialtyBadge: DEPARTMENT_COLORS.orthopedics.tagBadge,
     highlightBadge: "bg-amber-50/60 text-amber-900 border-amber-200/60",
     buttonHover: "group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600",
-    image: "/doctors/captain-america.jpg",
+    image: "/doctor-images/captain-america.jpg",
   },
   {
     id: "thor",
@@ -268,7 +268,7 @@ const DOCTORS = [
     specialtyBadge: DEPARTMENT_COLORS.emergency.tagBadge,
     highlightBadge: "bg-orange-50/60 text-orange-900 border-orange-200/60",
     buttonHover: "group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-600",
-    image: "/doctors/thor.jpg",
+    image: "/doctor-images/thor.jpg",
   },
 ];
 
