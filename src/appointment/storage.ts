@@ -308,9 +308,9 @@ export async function syncAppointmentsFromFirestore(): Promise<StoredAppointment
   return getStoredAppointments();
 }
 
-export function getAppointmentCounts() {
-  const all = getStoredAppointments();
-  const uniquePatients = new Set(all.map((a) => a.email.toLowerCase().trim())).size;
+export function getAppointmentCounts(list?: StoredAppointment[]) {
+  const all = list || getStoredAppointments();
+  const uniquePatients = new Set(all.map((a) => a.email ? a.email.toLowerCase().trim() : '')).size;
   return {
     total: all.length,
     pending: all.filter((a) => a.status === 'pending').length,

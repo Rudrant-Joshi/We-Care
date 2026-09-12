@@ -430,11 +430,9 @@ export function AppointmentBento() {
   // Sync state when currentUser authenticates or changes
   React.useEffect(() => {
     if (currentUser) {
-      setPatientName((prev) => prev || currentUser.name || '');
-      setEmail((prev) => prev || currentUser.email || '');
-      if (currentUser.phone) {
-        setPhone((prev) => prev || currentUser.phone || '');
-      }
+      if (currentUser.name) setPatientName((prev) => prev || currentUser.name);
+      if (currentUser.email) setEmail((prev) => prev || currentUser.email);
+      if (currentUser.phone) setPhone((prev) => prev || currentUser.phone || '');
     }
   }, [currentUser]);
 
@@ -507,7 +505,7 @@ export function AppointmentBento() {
 
     // Simulate clinical triage and appointment reservation
     setTimeout(() => {
-      const randomCode = `WC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const randomCode = `WC-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}${Math.floor(10 + Math.random() * 90)}`;
       const bookingData: ConfirmedAppointment = {
         bookingId: randomCode,
         userId: currentUser?.id,

@@ -45,7 +45,7 @@ export default function HomePage() {
   return (
     <main
       id="vortiq-app-root"
-      className="relative h-screen max-h-screen w-full bg-transparent text-white overflow-hidden flex flex-col justify-between selection:bg-sky-500 selection:text-black font-sans select-none"
+      className="relative min-h-screen lg:h-screen lg:max-h-screen w-full bg-transparent text-white overflow-y-auto lg:overflow-hidden flex flex-col justify-between selection:bg-sky-500 selection:text-black font-sans select-none"
     >
       {/* Interactive Doctor Background Video */}
       <BackgroundVideo />

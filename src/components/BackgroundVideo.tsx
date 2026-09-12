@@ -125,6 +125,7 @@ export default function BackgroundVideo() {
         willChange: 'transform',
       }}
       src={VIDEO_SRC}
+      poster="/about-bg.jpg"
       muted
       playsInline
       preload="auto"

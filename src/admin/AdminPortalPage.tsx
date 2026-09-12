@@ -54,7 +54,7 @@ export default function AdminPortalPage() {
     currentUser?.email?.toLowerCase() === 'rudrant.joshi@gmail.com';
 
   // State
-  const [appointments, setAppointments] = useState<StoredAppointment[]>([]);
+  const [appointments, setAppointments] = useState<StoredAppointment[]>(() => getStoredAppointments());
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled'>('all');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
@@ -107,8 +107,6 @@ export default function AdminPortalPage() {
   };
 
   useEffect(() => {
-    refreshAppointments();
-
     // 1. Initial Cloud Sync
     syncAppointmentsFromFirestore().then((cloudList) => {
       if (cloudList) {
@@ -171,7 +169,7 @@ export default function AdminPortalPage() {
 
   // KPIs
   const stats = useMemo(() => {
-    return getAppointmentCounts();
+    return getAppointmentCounts(appointments);
   }, [appointments]);
 
   // Unique departments for filter
@@ -341,8 +339,7 @@ export default function AdminPortalPage() {
       return;
     }
 
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const bookingId = `WC-2026-${randomSuffix}`;
+    const bookingId = `WC-2026-${Date.now().toString().slice(-4)}${Math.floor(10 + Math.random() * 90)}`;
 
     const newAppt: StoredAppointment = {
       bookingId,

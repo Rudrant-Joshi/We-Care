@@ -13,7 +13,13 @@ export default function AuthPage() {
   const isBookingRedirect = explicitRedirect ? explicitRedirect.includes('book') : false;
 
   const handleSuccess = (user?: any) => {
-    const effectiveUser = user || currentUser;
+    let effectiveUser = user || currentUser;
+    if (!effectiveUser) {
+      try {
+        const saved = localStorage.getItem('wecare_authenticated_user_v1');
+        if (saved) effectiveUser = JSON.parse(saved);
+      } catch {}
+    }
     // If admin signs in, direct to admin portal unless an explicit redirect was provided
     if (effectiveUser?.role === 'admin' || effectiveUser?.email?.toLowerCase() === 'rudrant.joshi@gmail.com') {
       navigate(explicitRedirect || '/admin', { replace: true });

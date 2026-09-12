@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -42,27 +42,33 @@ import { useAuth } from '../auth/AuthContext';
 export function MyAppointmentsBento() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const [appointments, setAppointments] = useState<StoredAppointment[]>([]);
+  const isAdmin =
+    currentUser?.role === 'admin' ||
+    currentUser?.email?.toLowerCase() === 'rudrant.joshi@gmail.com';
+
+  const [appointments, setAppointments] = useState<StoredAppointment[]>(() => {
+    const adminCheck =
+      currentUser?.role === 'admin' ||
+      currentUser?.email?.toLowerCase() === 'rudrant.joshi@gmail.com';
+    return adminCheck
+      ? getStoredAppointments().filter((a) => !isMockAppointment(a.bookingId))
+      : getUserAppointments(currentUser).filter((a) => !isMockAppointment(a.bookingId));
+  });
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'completed'>('all');
   const [viewMode, setViewMode] = useState<'list' | 'cards'>('list');
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
 
-  const isAdmin =
-    currentUser?.role === 'admin' ||
-    currentUser?.email?.toLowerCase() === 'rudrant.joshi@gmail.com';
-
-  const loadAppointments = () => {
+  const loadAppointments = useCallback(() => {
     const list = isAdmin
       ? getStoredAppointments().filter((a) => !isMockAppointment(a.bookingId))
       : getUserAppointments(currentUser).filter((a) => !isMockAppointment(a.bookingId));
     setAppointments(list);
-  };
+  }, [currentUser, isAdmin]);
 
   // Load appointments: all hospital appointments for admin, personal schedule for patient.
   // Strictly rejects any fake/mock appointments.
   useEffect(() => {
-    loadAppointments();
     syncAppointmentsFromFirestore().then((cloudList) => {
       const cleanList = (cloudList || []).filter((a) => !isMockAppointment(a.bookingId));
       if (isAdmin) {
@@ -112,13 +118,6 @@ export function MyAppointmentsBento() {
       // Fallback
     }
 
-    return () => {
-      if (unsubscribeFirestore) unsubscribeFirestore();
-    };
-  }, [currentUser, isAdmin]);
-
-  // Sync when appointments or auth state changes
-  useEffect(() => {
     const handleSync = () => {
       loadAppointments();
     };
@@ -126,13 +125,15 @@ export function MyAppointmentsBento() {
     window.addEventListener('wecare_auth_state_changed', handleSync);
     window.addEventListener('storage', handleSync);
     window.addEventListener('focus', handleSync);
+
     return () => {
+      if (unsubscribeFirestore) unsubscribeFirestore();
       window.removeEventListener('wecare_appointments_changed', handleSync);
       window.removeEventListener('wecare_auth_state_changed', handleSync);
       window.removeEventListener('storage', handleSync);
       window.removeEventListener('focus', handleSync);
     };
-  }, [currentUser, isAdmin]);
+  }, [currentUser, isAdmin, loadAppointments]);
 
   // Compute live summary statistics
   const stats = useMemo(() => {
