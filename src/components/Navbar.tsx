@@ -12,6 +12,7 @@ interface NavbarProps {
 
 // Routes that use the light Slate/Blue theme
 const LIGHT_ROUTES = [
+  '/',
   '/about',
   '/departments',
   '/doctors',
