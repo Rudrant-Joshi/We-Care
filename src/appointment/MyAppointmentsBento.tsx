@@ -316,16 +316,9 @@ export function MyAppointmentsBento() {
           initial={{ opacity: 0, y: 14, scale: 0.99 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true, amount: 0.05 }}
-          whileHover={{ y: -6, scale: 1.02 }}
           transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-          className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-white via-blue-50/50 to-sky-100/30 border border-blue-200/90 shadow-sm relative overflow-hidden group hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/15 transition-all duration-200 transform-gpu will-change-transform cursor-default"
+          className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-white via-blue-50/50 to-sky-100/30 border border-blue-200/90 shadow-sm relative overflow-hidden group hover:border-blue-400 hover:shadow-md transition-all duration-200 cursor-default"
         >
-          {/* Animated floating frosted glass blur badges */}
-          <span className="pointer-events-none absolute inset-0 z-10 overflow-visible">
-            <span className="absolute top-0 left-0 size-0 rounded-xl opacity-0 bg-white/75 backdrop-blur-[10px] shadow-[0_5px_15px_rgba(0,0,0,0.06)] border border-white/90 transition-all duration-150 animate-blob-fast group-hover:top-[-12px] group-hover:left-[24px] group-hover:size-10 group-hover:opacity-100" />
-            <span className="absolute bottom-0 right-0 size-0 rounded-xl opacity-0 bg-white/75 backdrop-blur-[10px] shadow-[0_5px_15px_rgba(0,0,0,0.06)] border border-white/90 transition-all duration-200 animate-blob-fast animation-delay-1000 group-hover:bottom-[-12px] group-hover:right-[24px] group-hover:size-10 group-hover:opacity-100" />
-          </span>
-
           {/* Glowing background panel */}
           <span className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-400/10 via-sky-300/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
 
@@ -336,7 +329,7 @@ export function MyAppointmentsBento() {
             <span className="text-[11px] font-mono font-bold text-blue-900 uppercase tracking-wider">
               {isAdmin ? 'Total Bookings' : 'Total Appointments'}
             </span>
-            <div className="size-10 rounded-xl bg-gradient-to-br from-blue-600 to-sky-600 text-white shadow-md shadow-blue-500/30 flex items-center justify-center transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-3">
+            <div className="size-10 rounded-xl bg-gradient-to-br from-blue-600 to-sky-600 text-white shadow-md shadow-blue-500/30 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
               <CalendarCheck2 className="w-5 h-5" />
             </div>
           </div>
@@ -359,16 +352,9 @@ export function MyAppointmentsBento() {
           initial={{ opacity: 0, y: 14, scale: 0.99 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true, amount: 0.05 }}
-          whileHover={{ y: -6, scale: 1.02 }}
           transition={{ delay: 0.03, duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-          className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-white via-amber-50/70 to-orange-100/35 border border-amber-300/90 shadow-sm relative overflow-hidden group hover:border-amber-400 hover:shadow-xl hover:shadow-amber-500/15 transition-all duration-200 transform-gpu will-change-transform cursor-default"
+          className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-white via-amber-50/70 to-orange-100/35 border border-amber-300/90 shadow-sm relative overflow-hidden group hover:border-amber-400 hover:shadow-md transition-all duration-200 cursor-default"
         >
-          {/* Animated floating frosted glass blur badges */}
-          <span className="pointer-events-none absolute inset-0 z-10 overflow-visible">
-            <span className="absolute top-0 left-0 size-0 rounded-xl opacity-0 bg-white/75 backdrop-blur-[10px] shadow-[0_5px_15px_rgba(0,0,0,0.06)] border border-white/90 transition-all duration-150 animate-blob-fast group-hover:top-[-12px] group-hover:left-[24px] group-hover:size-10 group-hover:opacity-100" />
-            <span className="absolute bottom-0 right-0 size-0 rounded-xl opacity-0 bg-white/75 backdrop-blur-[10px] shadow-[0_5px_15px_rgba(0,0,0,0.06)] border border-white/90 transition-all duration-200 animate-blob-fast animation-delay-1000 group-hover:bottom-[-12px] group-hover:right-[24px] group-hover:size-10 group-hover:opacity-100" />
-          </span>
-
           {/* Glowing background panel */}
           <span className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-amber-400/10 via-orange-300/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
 
@@ -379,7 +365,7 @@ export function MyAppointmentsBento() {
             <span className="text-[11px] font-mono font-bold text-amber-900 uppercase tracking-wider">
               Pending Approval
             </span>
-            <div className="size-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/30 flex items-center justify-center transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-3">
+            <div className="size-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/30 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
               <Clock className="w-5 h-5" />
             </div>
           </div>
@@ -405,16 +391,9 @@ export function MyAppointmentsBento() {
           initial={{ opacity: 0, y: 14, scale: 0.99 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true, amount: 0.05 }}
-          whileHover={{ y: -6, scale: 1.02 }}
           transition={{ delay: 0.06, duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-          className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-white via-emerald-50/70 to-teal-100/35 border border-emerald-300/90 shadow-sm relative overflow-hidden group hover:border-emerald-400 hover:shadow-xl hover:shadow-emerald-500/15 transition-all duration-200 transform-gpu will-change-transform cursor-default"
+          className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-white via-emerald-50/70 to-teal-100/35 border border-emerald-300/90 shadow-sm relative overflow-hidden group hover:border-emerald-400 hover:shadow-md transition-all duration-200 cursor-default"
         >
-          {/* Animated floating frosted glass blur badges */}
-          <span className="pointer-events-none absolute inset-0 z-10 overflow-visible">
-            <span className="absolute top-0 left-0 size-0 rounded-xl opacity-0 bg-white/75 backdrop-blur-[10px] shadow-[0_5px_15px_rgba(0,0,0,0.06)] border border-white/90 transition-all duration-150 animate-blob-fast group-hover:top-[-12px] group-hover:left-[24px] group-hover:size-10 group-hover:opacity-100" />
-            <span className="absolute bottom-0 right-0 size-0 rounded-xl opacity-0 bg-white/75 backdrop-blur-[10px] shadow-[0_5px_15px_rgba(0,0,0,0.06)] border border-white/90 transition-all duration-200 animate-blob-fast animation-delay-1000 group-hover:bottom-[-12px] group-hover:right-[24px] group-hover:size-10 group-hover:opacity-100" />
-          </span>
-
           {/* Glowing background panel */}
           <span className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-emerald-400/10 via-teal-300/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
 
@@ -425,7 +404,7 @@ export function MyAppointmentsBento() {
             <span className="text-[11px] font-mono font-bold text-emerald-900 uppercase tracking-wider">
               Approved & Active
             </span>
-            <div className="size-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/30 flex items-center justify-center transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-3">
+            <div className="size-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/30 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
               <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
