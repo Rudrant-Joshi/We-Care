@@ -216,6 +216,10 @@
   animation: blob 3s ease-in-out infinite;
 }
 
+.animate-blob-fast {
+  animation: blob 1.4s ease-in-out infinite;
+}
+
 .animation-delay-1000 {
   animation-delay: -1.5s;
 }
