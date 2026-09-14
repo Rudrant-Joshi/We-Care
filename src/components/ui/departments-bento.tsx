@@ -340,7 +340,7 @@ function DepartmentCard({
         whileHover={{ y: -8, scale: 1.025 }}
         whileTap={{ scale: 0.98 }}
         transition={{ type: "spring", stiffness: 380, damping: 24 }}
-        className="group relative w-full h-[380px] cursor-pointer select-none"
+        className="group relative w-full h-[400px] cursor-pointer select-none"
       >
         {/* 1. Skewed gradient backing panel */}
         <span
@@ -366,7 +366,17 @@ function DepartmentCard({
           }}
         />
 
-        {/* 3. Foreground Transparent Liquid Glass Content Panel (Clean White Liquid Glass Theme) */}
+        {/* 3. Animated floating frosted glass blur badges (Up & down items moving while hovering, matching Our Core Clinical Values) */}
+        <span className="pointer-events-none absolute inset-0 z-10 overflow-visible">
+          <span
+            className="absolute top-0 left-0 size-0 rounded-xl opacity-0 bg-white/70 backdrop-blur-[10px] shadow-[0_5px_15px_rgba(0,0,0,0.06)] border border-white/90 transition-all duration-300 animate-blob group-hover:top-[-16px] group-hover:left-[20px] group-hover:size-12 group-hover:opacity-100"
+          />
+          <span
+            className="absolute bottom-0 right-0 size-0 rounded-xl opacity-0 bg-white/70 backdrop-blur-[10px] shadow-[0_5px_15px_rgba(0,0,0,0.06)] border border-white/90 transition-all duration-500 animate-blob animation-delay-1000 group-hover:bottom-[-16px] group-hover:right-[20px] group-hover:size-12 group-hover:opacity-100"
+          />
+        </span>
+
+        {/* 4. Foreground Transparent Liquid Glass Content Panel (Clean White Liquid Glass Theme) */}
         <div
           className={`relative z-20 h-full p-6 bg-white/60 backdrop-blur-[14px] rounded-2xl border ${
             isActive
@@ -383,7 +393,7 @@ function DepartmentCard({
           }
         >
           {/* Top Info */}
-          <div className="space-y-3.5">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
               <motion.div
                 whileHover={{ rotate: [-5, 5, 0], scale: 1.12 }}
@@ -433,6 +443,20 @@ function DepartmentCard({
             <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
               {dept.description}
             </p>
+
+            {/* Checklist items with group-hover translate matching Core Clinical Values */}
+            <div className="space-y-1 pt-0.5">
+              {dept.services.slice(0, 2).map((service, sIdx) => (
+                <div
+                  key={sIdx}
+                  className="flex items-center gap-1.5 text-[11px] font-mono font-medium text-slate-600 group-hover:translate-x-1 transition-transform duration-300"
+                  style={{ transitionDelay: `${sIdx * 50}ms` }}
+                >
+                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span className="truncate">{service}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Bottom Info & Action */}

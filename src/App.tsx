@@ -31,25 +31,19 @@ function ScrollToTop() {
 const pageTransitionVariants: Variants = {
   initial: {
     opacity: 0,
-    y: 10,
-    scale: 0.995,
   },
   animate: {
     opacity: 1,
-    y: 0,
-    scale: 1,
     transition: {
-      duration: 0.35,
-      ease: [0.22, 1, 0.36, 1] as const,
+      duration: 0.25,
+      ease: 'easeOut',
     },
   },
   exit: {
     opacity: 0,
-    y: -8,
-    scale: 0.995,
     transition: {
-      duration: 0.2,
-      ease: [0.22, 1, 0.36, 1] as const,
+      duration: 0.15,
+      ease: 'easeIn',
     },
   },
 };
@@ -61,7 +55,7 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="w-full min-h-screen transform-gpu will-change-transform"
+      className="w-full min-h-screen"
     >
       {children}
     </motion.div>
