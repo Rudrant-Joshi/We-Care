@@ -2,6 +2,7 @@
 
 import { GrainGradient } from "@paper-design/shaders-react";
 import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   HeartPulse,
   User,
@@ -13,7 +14,6 @@ import {
   AlertCircle,
   Lock,
   Mail,
-  ShieldCheck,
   Eye,
   EyeOff,
   Copy,
@@ -228,6 +228,20 @@ export default function AuthSectionOne({
 
   return (
     <section className="relative min-h-screen lg:h-screen lg:max-h-screen bg-slate-50 p-3 sm:p-4 lg:p-5 xl:p-6 text-slate-900 antialiased font-sans flex flex-col justify-center overflow-x-hidden lg:overflow-hidden">
+      {/* Dynamic Ambient Background Glow Orbs */}
+      <motion.div
+        aria-hidden="true"
+        animate={{ y: [0, -25, 0], x: [0, 15, 0], scale: [1, 1.08, 1] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        className="pointer-events-none fixed -top-32 -left-20 w-[520px] h-[520px] rounded-full bg-blue-400/12 blur-[130px] z-0"
+      />
+      <motion.div
+        aria-hidden="true"
+        animate={{ y: [0, 25, 0], x: [0, -15, 0], scale: [1, 1.06, 1] }}
+        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+        className="pointer-events-none fixed -bottom-32 -right-20 w-[500px] h-[500px] rounded-full bg-sky-400/10 blur-[130px] z-0"
+      />
+
       {/* Subtle Architectural Dot Grid Canvas */}
       <div 
         aria-hidden="true" 
@@ -236,16 +250,25 @@ export default function AuthSectionOne({
 
       <div className="relative z-10 grid h-full max-h-full gap-4 lg:gap-6 lg:grid-cols-2 max-w-[1540px] w-full mx-auto my-auto items-stretch">
         
-        {/* Left Form Card */}
-        <div className="flex flex-col justify-center rounded-2xl border border-slate-200/90 bg-white px-5 py-6 sm:px-8 sm:py-7 lg:px-10 lg:py-6 xl:px-12 xl:py-7 shadow-sm sm:shadow-md overflow-y-auto max-h-full">
+        {/* Left Form Card with Entrance Animation */}
+        <motion.div
+          initial={{ opacity: 0, x: -28, scale: 0.98 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col justify-center rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md px-5 py-6 sm:px-8 sm:py-7 lg:px-10 lg:py-6 xl:px-12 xl:py-7 shadow-lg shadow-slate-900/5 overflow-y-auto max-h-full"
+        >
           <div className="mx-auto w-full max-w-[480px]">
             
             {/* Top Brand & Mode Switcher */}
-            <div className="mb-3 sm:mb-4 flex items-center justify-between">
+            <div className="mb-4 sm:mb-5 flex items-center justify-between">
               <a href="/" className="flex items-center gap-2.5 no-underline group" title="Return to Home Page">
-                <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/25 group-hover:scale-105 transition-transform">
+                <motion.div
+                  whileHover={{ scale: 1.08, rotate: [0, -5, 5, 0] }}
+                  transition={{ duration: 0.3 }}
+                  className="flex items-center justify-center w-8 h-8 rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/25"
+                >
                   <HeartPulse className="w-4 h-4 text-white" />
-                </div>
+                </motion.div>
                 <div className="flex items-center tracking-tight text-lg font-black">
                   <span className="text-slate-900">We</span>
                   <span className="text-blue-600 ml-0.5">Care</span>
@@ -254,8 +277,8 @@ export default function AuthSectionOne({
               </a>
 
               <div className="flex items-center gap-2.5">
-                {/* Mode Toggle Pills (Register / Login) */}
-                <div className="inline-flex rounded-xl border border-slate-200 bg-slate-100 p-1">
+                {/* Mode Toggle Pills (Register / Login) with Spring Animated Indicator */}
+                <div className="relative inline-flex rounded-xl border border-slate-200 bg-slate-100 p-1">
                   <button
                     type="button"
                     onClick={() => {
@@ -263,12 +286,19 @@ export default function AuthSectionOne({
                       setErrorMsg(null);
                       setSuccessMsg(null);
                     }}
-                    className={`rounded-lg px-3 py-1 text-xs font-bold transition-all cursor-pointer ${
+                    className={`relative z-10 rounded-lg px-3.5 py-1 text-xs font-bold transition-colors cursor-pointer ${
                       mode === "login"
-                        ? "bg-white text-blue-600 shadow-xs"
+                        ? "text-blue-600 font-extrabold"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
+                    {mode === "login" && (
+                      <motion.span
+                        layoutId="active-auth-pill"
+                        transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                        className="absolute inset-0 bg-white rounded-lg shadow-xs -z-10"
+                      />
+                    )}
                     Sign In
                   </button>
                   <button
@@ -278,62 +308,66 @@ export default function AuthSectionOne({
                       setErrorMsg(null);
                       setSuccessMsg(null);
                     }}
-                    className={`rounded-lg px-3 py-1 text-xs font-bold transition-all cursor-pointer ${
+                    className={`relative z-10 rounded-lg px-3.5 py-1 text-xs font-bold transition-colors cursor-pointer ${
                       mode === "register"
-                        ? "bg-white text-blue-600 shadow-xs"
+                        ? "text-blue-600 font-extrabold"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
+                    {mode === "register" && (
+                      <motion.span
+                        layoutId="active-auth-pill"
+                        transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                        className="absolute inset-0 bg-white rounded-lg shadow-xs -z-10"
+                      />
+                    )}
                     Register
                   </button>
                 </div>
 
-                <a
+                <motion.a
                   href="/"
+                  whileHover={{ x: -2 }}
                   className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors"
                   title="Return to Home Page"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Home</span>
-                </a>
+                </motion.a>
               </div>
             </div>
 
-            {/* Prominent Booking Redirection Gate Alert */}
-            {isBookingRedirect && (
-              <div className="mb-3.5 rounded-xl bg-blue-50 border border-blue-200/90 p-3 flex items-start gap-2.5 text-xs text-blue-900 shadow-2xs">
-                <Calendar className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-                <div>
-                  <div className="font-bold text-blue-900">Sign In Required to Book</div>
-                  <div className="text-blue-700 text-[11.5px] mt-0.5">
-                    Please sign in or register your account to book an appointment with our specialist physicians and receive your confirmed clinical pass.
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Title & Context for Booking Appointments */}
-            <div className="mb-3 sm:mb-4">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-[11px] font-semibold text-blue-700 mb-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-                <span>Secure Firebase Healthcare Auth</span>
-              </div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-                {mode === "register" ? "Create Patient Account" : "Patient Sign In"}
-              </h1>
-              <p className="mt-0.5 text-xs sm:text-sm text-slate-600">
-                {mode === "register"
-                  ? "Register to schedule specialist consultations and access your clinical history."
-                  : "Sign in to access your appointments, medical records, and physician visits."}
-              </p>
+            <div className="mb-4 sm:mb-5">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={mode}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                    {mode === "register" ? "Create Patient Account" : "Patient Sign In"}
+                  </h1>
+                  <p className="mt-1 text-xs sm:text-sm text-slate-600">
+                    {mode === "register"
+                      ? "Register to schedule specialist consultations and access your clinical history."
+                      : "Sign in to access your appointments, medical records, and physician visits."}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
             </div>
 
             {/* Google One-Click Sign In */}
-            <button
+            <motion.button
               type="button"
               onClick={handleGoogleSignIn}
               disabled={isGoogleSubmitting || isSubmitting}
-              className="w-full h-10 sm:h-11 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-2xs transition-all active:scale-[0.99] cursor-pointer disabled:opacity-60"
+              whileHover={{ scale: 1.015, y: -1 }}
+              whileTap={{ scale: 0.985 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              className="w-full h-10 sm:h-11 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-800 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-2xs transition-all cursor-pointer disabled:opacity-60"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
@@ -354,7 +388,8 @@ export default function AuthSectionOne({
                 />
               </svg>
               <span>{isGoogleSubmitting ? "Connecting Google..." : "Continue with Google"}</span>
-            </button>
+            </motion.button>
+
 
             {/* Divider */}
             <div className="relative my-3 flex items-center justify-center">
@@ -366,121 +401,144 @@ export default function AuthSectionOne({
               </span>
             </div>
 
-            {/* Error & Success Messages */}
-            {errorMsg && (() => {
-              const isDomainError = errorMsg.includes("Domain unauthorized") || errorMsg.includes("unauthorized-domain");
-              const isIp = typeof window !== "undefined" && window.location.hostname === "127.0.0.1";
-              const currentHostname = typeof window !== "undefined" ? window.location.hostname : "we-care-app-rouge.vercel.app";
+            {/* Error & Success Messages with Smooth Animation */}
+            <AnimatePresence mode="wait">
+              {errorMsg && (() => {
+                const isDomainError = errorMsg.includes("Domain unauthorized") || errorMsg.includes("unauthorized-domain");
+                const isIp = typeof window !== "undefined" && window.location.hostname === "127.0.0.1";
+                const currentHostname = typeof window !== "undefined" ? window.location.hostname : "we-care-app-rouge.vercel.app";
 
-              return (
-                <div
-                  className={`mb-3.5 rounded-2xl p-3.5 flex flex-col gap-2.5 text-xs font-medium border ${
-                    isDomainError
-                      ? "bg-amber-50/90 border-amber-300 text-amber-950 shadow-xs"
-                      : "bg-red-50 border-red-200 text-red-700"
-                  }`}
-                >
-                  <div className="flex items-start gap-2.5">
-                    <AlertCircle
-                      className={`w-4 h-4 shrink-0 mt-0.5 ${
-                        isDomainError ? "text-amber-600" : "text-red-500"
-                      }`}
-                    />
-                    <div className="flex-1 space-y-1">
-                      <div className={`font-bold text-xs ${isDomainError ? "text-amber-900" : "text-red-800"}`}>
-                        {isDomainError ? "Firebase Authorized Domain Setup Required" : "Authentication Notice"}
+                return (
+                  <motion.div
+                    key="error-alert"
+                    initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                    transition={{ duration: 0.2 }}
+                    className={`mb-3.5 rounded-2xl p-3.5 flex flex-col gap-2.5 text-xs font-medium border ${
+                      isDomainError
+                        ? "bg-amber-50/90 border-amber-300 text-amber-950 shadow-xs"
+                        : "bg-red-50 border-red-200 text-red-700"
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <AlertCircle
+                        className={`w-4 h-4 shrink-0 mt-0.5 ${
+                          isDomainError ? "text-amber-600" : "text-red-500"
+                        }`}
+                      />
+                      <div className="flex-1 space-y-1">
+                        <div className={`font-bold text-xs ${isDomainError ? "text-amber-900" : "text-red-800"}`}>
+                          {isDomainError ? "Firebase Authorized Domain Setup Required" : "Authentication Notice"}
+                        </div>
+                        <div className="text-[11.5px] leading-relaxed text-slate-700">{errorMsg}</div>
                       </div>
-                      <div className="text-[11.5px] leading-relaxed text-slate-700">{errorMsg}</div>
                     </div>
-                  </div>
 
-                  {isDomainError && (
-                    <div className="mt-1 pt-2.5 border-t border-amber-300/60 flex flex-col gap-2">
-                      <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-white border border-amber-200 shadow-2xs">
-                        <span className="font-mono text-xs text-slate-800 font-bold truncate">
-                          {currentHostname}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={handleCopyDomain}
-                          className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] flex items-center gap-1 transition-colors cursor-pointer shrink-0"
-                          title="Copy domain to clipboard"
+                    {isDomainError && (
+                      <div className="mt-1 pt-2.5 border-t border-amber-300/60 flex flex-col gap-2">
+                        <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-white border border-amber-200 shadow-2xs">
+                          <span className="font-mono text-xs text-slate-800 font-bold truncate">
+                            {currentHostname}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={handleCopyDomain}
+                            className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+                            title="Copy domain to clipboard"
+                          >
+                            {copiedDomain ? (
+                              <>
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                <span className="text-emerald-700">Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-3.5 h-3.5 text-slate-600" />
+                                <span>Copy Domain</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+
+                        <a
+                          href="https://console.firebase.google.com/project/wecare-165d7/authentication/settings"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all no-underline shadow-xs cursor-pointer"
                         >
-                          {copiedDomain ? (
-                            <>
-                              <Check className="w-3.5 h-3.5 text-emerald-600" />
-                              <span className="text-emerald-700">Copied!</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-3.5 h-3.5 text-slate-600" />
-                              <span>Copy Domain</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>Open Firebase Console Settings ↗</span>
+                        </a>
 
+                        <div className="text-[11px] text-slate-600 leading-snug space-y-0.5">
+                          <div>1. Scroll down to <strong>Authorized domains</strong></div>
+                          <div>2. Click <strong>Add domain</strong>, paste <code className="bg-amber-100 px-1 py-0.5 rounded text-amber-900 font-mono text-[10.5px] font-bold">{currentHostname}</code> & click <strong>Save</strong></div>
+                        </div>
+
+                        <div className="mt-0.5 p-2 rounded-lg bg-blue-50 border border-blue-200/80 text-[11px] text-blue-900 leading-snug">
+                          💡 <strong>Immediate Alternative:</strong> You can also register or sign in with <strong>Email & Password</strong> below right away without needing any Firebase setup!
+                        </div>
+                      </div>
+                    )}
+
+                    {isIp && (
                       <a
-                        href="https://console.firebase.google.com/project/wecare-165d7/authentication/settings"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all no-underline shadow-xs cursor-pointer"
+                        href={window.location.href.replace("127.0.0.1", "localhost")}
+                        className="w-full py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors no-underline shadow-xs"
                       >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        <span>Open Firebase Console Settings ↗</span>
+                        <span>Open via http://localhost:5173 for Google Auth</span>
                       </a>
-
-                      <div className="text-[11px] text-slate-600 leading-snug space-y-0.5">
-                        <div>1. Scroll down to <strong>Authorized domains</strong></div>
-                        <div>2. Click <strong>Add domain</strong>, paste <code className="bg-amber-100 px-1 py-0.5 rounded text-amber-900 font-mono text-[10.5px] font-bold">{currentHostname}</code> & click <strong>Save</strong></div>
-                      </div>
-
-                      <div className="mt-0.5 p-2 rounded-lg bg-blue-50 border border-blue-200/80 text-[11px] text-blue-900 leading-snug">
-                        💡 <strong>Immediate Alternative:</strong> You can also register or sign in with <strong>Email & Password</strong> below right away without needing any Firebase setup!
-                      </div>
-                    </div>
-                  )}
-
-                  {isIp && (
-                    <a
-                      href={window.location.href.replace("127.0.0.1", "localhost")}
-                      className="w-full py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors no-underline shadow-xs"
-                    >
-                      <span>Open via http://localhost:5173 for Google Auth</span>
-                    </a>
-                  )}
-                </div>
-              );
-            })()}
-            {successMsg && (
-              <div className="mb-3 rounded-xl bg-emerald-50 border border-emerald-200 p-2.5 flex items-start gap-2 text-xs font-semibold text-emerald-800">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span className="flex-1">{successMsg}</span>
-              </div>
-            )}
+                    )}
+                  </motion.div>
+                );
+              })()}
+              {successMsg && (
+                <motion.div
+                  key="success-alert"
+                  initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                  className="mb-3 rounded-xl bg-emerald-50 border border-emerald-200 p-2.5 flex items-start gap-2 text-xs font-semibold text-emerald-800 shadow-2xs"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span className="flex-1">{successMsg}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-2.5">
-              {mode === "register" && (
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-slate-700">Full Name</label>
-                  <div className="flex h-10 sm:h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 focus-within:bg-white focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-500/15">
-                    <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. John Doe"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="w-full bg-transparent text-slate-900 outline-none text-xs sm:text-sm font-medium placeholder:text-slate-400"
-                    />
-                  </div>
-                </div>
-              )}
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <AnimatePresence initial={false}>
+                {mode === "register" && (
+                  <motion.div
+                    key="field-name"
+                    initial={{ opacity: 0, height: 0, y: -8 }}
+                    animate={{ opacity: 1, height: "auto", y: 0 }}
+                    exit={{ opacity: 0, height: 0, y: -8 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    className="overflow-hidden space-y-1"
+                  >
+                    <label className="text-[11px] font-bold text-slate-700">Full Name</label>
+                    <div className="flex h-10 sm:h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 focus-within:bg-white focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-500/15 transition-all">
+                      <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <input
+                        type="text"
+                        required={mode === "register"}
+                        placeholder="e.g. John Doe"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="w-full bg-transparent text-slate-900 outline-none text-xs sm:text-sm font-medium placeholder:text-slate-400"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <div className="space-y-1">
                 <label className="text-[11px] font-bold text-slate-700">Email ID</label>
-                <div className="flex h-10 sm:h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 focus-within:bg-white focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-500/15">
+                <div className="flex h-10 sm:h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 focus-within:bg-white focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-500/15 transition-all">
                   <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   <input
                     type="email"
@@ -506,7 +564,7 @@ export default function AuthSectionOne({
                     </button>
                   )}
                 </div>
-                <div className="flex h-10 sm:h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 focus-within:bg-white focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-500/15">
+                <div className="flex h-10 sm:h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 focus-within:bg-white focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-500/15 transition-all">
                   <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   <input
                     type={showPassword ? "text" : "password"}
@@ -549,10 +607,13 @@ export default function AuthSectionOne({
                 {termsText}
               </div>
 
-              <button
+              <motion.button
                 type="submit"
                 disabled={isSubmitting || isGoogleSubmitting}
-                className="mt-1 flex h-10 sm:h-11 w-full items-center justify-center rounded-xl bg-blue-600 text-xs sm:text-sm font-bold text-white transition-all hover:bg-blue-700 shadow-md shadow-blue-500/20 active:scale-[0.99] cursor-pointer disabled:opacity-50"
+                whileHover={{ scale: 1.015, y: -1, boxShadow: "0 10px 24px -4px rgba(37, 99, 235, 0.38)" }}
+                whileTap={{ scale: 0.985 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                className="mt-1 flex h-10 sm:h-11 w-full items-center justify-center rounded-xl bg-blue-600 text-xs sm:text-sm font-bold text-white transition-colors hover:bg-blue-700 shadow-md shadow-blue-500/20 active:scale-[0.99] cursor-pointer disabled:opacity-50"
               >
                 {isSubmitting
                   ? "Authenticating..."
@@ -563,7 +624,7 @@ export default function AuthSectionOne({
                     : isBookingRedirect
                       ? "Sign In & Book Appointment"
                       : "Sign In to Account"}
-              </button>
+              </motion.button>
 
               {/* Switch Mode Prompt */}
               <div className="pt-1 text-center text-xs text-slate-600">
@@ -616,10 +677,15 @@ export default function AuthSectionOne({
               </div>
             </form>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Right Shader Banner - Blue Hospital Theme */}
-        <div className="relative hidden lg:flex overflow-hidden rounded-2xl bg-[#070e20] p-7 sm:p-8 lg:p-9 xl:p-11 text-white border border-blue-900/30 shadow-xl h-full max-h-full">
+        {/* Right Shader Banner with Entrance Animation & Micro-Interactions */}
+        <motion.div
+          initial={{ opacity: 0, x: 28, scale: 0.98 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          transition={{ duration: 0.55, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+          className="relative hidden lg:flex overflow-hidden rounded-2xl bg-[#070e20] p-7 sm:p-8 lg:p-9 xl:p-11 text-white border border-blue-900/30 shadow-xl h-full max-h-full"
+        >
           <GrainGradient
             speed={1}
             scale={1}
@@ -637,53 +703,83 @@ export default function AuthSectionOne({
           />
 
           <div className="relative z-10 flex h-full w-full flex-col justify-between">
-            {/* Top Telemetry Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-mono font-bold tracking-wider text-white shadow-2xs w-fit">
+            {/* Top Telemetry Badge with Pulse */}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.4 }}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-mono font-bold tracking-wider text-white shadow-2xs w-fit"
+            >
               <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping" />
               <span>WECARE PATIENT PORTAL</span>
-            </div>
+            </motion.div>
 
-            {/* Main Headline & Relatable Patient Care Points */}
+            {/* Main Headline & Relatable Patient Care Points with Staggered Entrance */}
             <div className="my-auto py-4">
-              <h2 className="max-w-[560px] text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-bold tracking-tight text-white leading-[1.1]">
+              <motion.h2
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.22, duration: 0.5 }}
+                className="max-w-[560px] text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-bold tracking-tight text-white leading-[1.1]"
+              >
                 {brandTitle.split("\n").map((line, idx) => (
                   <span key={idx}>
                     {line}
                     {idx < brandTitle.split("\n").length - 1 && <br />}
                   </span>
                 ))}
-              </h2>
-              <p className="mt-3 max-w-md text-sm sm:text-base text-white/80 leading-relaxed font-normal">
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="mt-3 max-w-md text-sm sm:text-base text-white/80 leading-relaxed font-normal"
+              >
                 {brandSubtitle}
-              </p>
+              </motion.p>
 
-              {/* Relatable Patient Appointment Highlights */}
+              {/* Relatable Patient Appointment Highlights with Spring Hover */}
               <div className="mt-5 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 backdrop-blur-xs border border-white/15 text-xs text-white/90">
+                <motion.span
+                  whileHover={{ scale: 1.06, y: -2, backgroundColor: "rgba(255,255,255,0.18)" }}
+                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 backdrop-blur-xs border border-white/15 text-xs text-white/90 cursor-default select-none"
+                >
                   <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
                   Verified Specialists
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 backdrop-blur-xs border border-white/15 text-xs text-white/90">
+                </motion.span>
+                <motion.span
+                  whileHover={{ scale: 1.06, y: -2, backgroundColor: "rgba(255,255,255,0.18)" }}
+                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 backdrop-blur-xs border border-white/15 text-xs text-white/90 cursor-default select-none"
+                >
                   <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
                   Instant Clinical Pass
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 backdrop-blur-xs border border-white/15 text-xs text-white/90">
+                </motion.span>
+                <motion.span
+                  whileHover={{ scale: 1.06, y: -2, backgroundColor: "rgba(255,255,255,0.18)" }}
+                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 backdrop-blur-xs border border-white/15 text-xs text-white/90 cursor-default select-none"
+                >
                   <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
                   In-Person Clinical Care
-                </span>
+                </motion.span>
               </div>
             </div>
 
             {/* Bottom Action */}
-            <a
+            <motion.a
               href="/book-appointment"
-              className="inline-flex h-11 items-center gap-2.5 rounded-xl border border-white/25 bg-white/10 px-5 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20 hover:border-white/40 active:scale-[0.98] w-fit"
+              whileHover={{ scale: 1.04, x: 3 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              className="inline-flex h-11 items-center gap-2.5 rounded-xl border border-white/25 bg-white/10 px-5 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20 hover:border-white/40 active:scale-[0.98] w-fit"
             >
               <Calendar className="w-4 h-4 text-sky-300" />
               <span>Book an Appointment</span>
-            </a>
+            </motion.a>
           </div>
-        </div>
+        </motion.div>
 
       </div>
     </section>
