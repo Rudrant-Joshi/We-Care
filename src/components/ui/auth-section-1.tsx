@@ -45,6 +45,7 @@ export default function AuthSectionOne({
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
+  const [focusedField, setFocusedField] = useState<"name" | "email" | "password" | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
@@ -514,81 +515,289 @@ export default function AuthSectionOne({
                 {mode === "register" && (
                   <motion.div
                     key="field-name"
-                    initial={{ opacity: 0, height: 0, y: -8 }}
+                    initial={{ opacity: 0, height: 0, y: -10 }}
                     animate={{ opacity: 1, height: "auto", y: 0 }}
-                    exit={{ opacity: 0, height: 0, y: -8 }}
-                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    exit={{ opacity: 0, height: 0, y: -10 }}
+                    transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
                     className="overflow-hidden space-y-1"
                   >
-                    <label className="text-[11px] font-bold text-slate-700">Full Name</label>
-                    <div className="flex h-10 sm:h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 focus-within:bg-white focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-500/15 transition-all">
-                      <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <motion.label
+                      animate={{
+                        color: focusedField === "name" ? "#2563eb" : "#334155",
+                        x: focusedField === "name" ? 2 : 0,
+                      }}
+                      transition={{ duration: 0.2 }}
+                      className="text-[11px] font-bold block"
+                    >
+                      Full Name
+                    </motion.label>
+                    <motion.div
+                      animate={{
+                        scale: focusedField === "name" ? 1.012 : 1,
+                        borderColor: focusedField === "name" ? "#3b82f6" : "#e2e8f0",
+                        backgroundColor: focusedField === "name" ? "#ffffff" : "rgba(248, 250, 252, 0.75)",
+                        boxShadow: focusedField === "name"
+                          ? "0 0 0 4px rgba(59, 130, 246, 0.14), 0 4px 14px -2px rgba(59, 130, 246, 0.1)"
+                          : "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
+                      }}
+                      whileHover={{
+                        scale: focusedField === "name" ? 1.012 : 1.006,
+                        borderColor: focusedField === "name" ? "#3b82f6" : "#cbd5e1",
+                      }}
+                      transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                      className="relative flex h-10 sm:h-11 items-center gap-2 rounded-xl border px-3 text-sm text-slate-900 overflow-hidden"
+                    >
+                      <motion.div
+                        animate={{
+                          scale: focusedField === "name" ? 1.18 : 1,
+                          color: focusedField === "name" ? "#2563eb" : "#94a3b8",
+                          rotate: focusedField === "name" ? [0, -8, 6, 0] : 0,
+                        }}
+                        transition={{ duration: 0.25 }}
+                        className="shrink-0 flex items-center justify-center"
+                      >
+                        <User className="w-3.5 h-3.5" />
+                      </motion.div>
                       <input
                         type="text"
                         required={mode === "register"}
                         placeholder="e.g. John Doe"
                         value={fullName}
+                        onFocus={() => setFocusedField("name")}
+                        onBlur={() => setFocusedField(null)}
                         onChange={(e) => setFullName(e.target.value)}
                         className="w-full bg-transparent text-slate-900 outline-none text-xs sm:text-sm font-medium placeholder:text-slate-400"
                       />
-                    </div>
+                      <AnimatePresence>
+                        {fullName.trim().length >= 2 && (
+                          <motion.div
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                            className="shrink-0 flex items-center justify-center text-emerald-600"
+                            title="Name entered"
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Animated bottom gradient beam */}
+                      <motion.div
+                        initial={false}
+                        animate={{
+                          scaleX: focusedField === "name" ? 1 : 0,
+                          opacity: focusedField === "name" ? 1 : 0,
+                        }}
+                        transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-sky-400 to-indigo-500 origin-center pointer-events-none"
+                      />
+                    </motion.div>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-700">Email ID</label>
-                <div className="flex h-10 sm:h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 focus-within:bg-white focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-500/15 transition-all">
-                  <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.05 }}
+                className="space-y-1"
+              >
+                <motion.label
+                  animate={{
+                    color: focusedField === "email" ? "#2563eb" : "#334155",
+                    x: focusedField === "email" ? 2 : 0,
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="text-[11px] font-bold block"
+                >
+                  Email ID
+                </motion.label>
+                <motion.div
+                  animate={{
+                    scale: focusedField === "email" ? 1.012 : 1,
+                    borderColor: focusedField === "email" ? "#3b82f6" : "#e2e8f0",
+                    backgroundColor: focusedField === "email" ? "#ffffff" : "rgba(248, 250, 252, 0.75)",
+                    boxShadow: focusedField === "email"
+                      ? "0 0 0 4px rgba(59, 130, 246, 0.14), 0 4px 14px -2px rgba(59, 130, 246, 0.1)"
+                      : "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
+                  }}
+                  whileHover={{
+                    scale: focusedField === "email" ? 1.012 : 1.006,
+                    borderColor: focusedField === "email" ? "#3b82f6" : "#cbd5e1",
+                  }}
+                  transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                  className="relative flex h-10 sm:h-11 items-center gap-2 rounded-xl border px-3 text-sm text-slate-900 overflow-hidden"
+                >
+                  <motion.div
+                    animate={{
+                      scale: focusedField === "email" ? 1.18 : 1,
+                      color: focusedField === "email" ? "#2563eb" : "#94a3b8",
+                      rotate: focusedField === "email" ? [0, -8, 6, 0] : 0,
+                    }}
+                    transition={{ duration: 0.25 }}
+                    className="shrink-0 flex items-center justify-center"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                  </motion.div>
                   <input
                     type="email"
                     required
                     placeholder="patient@example.com"
                     value={email}
+                    onFocus={() => setFocusedField("email")}
+                    onBlur={() => setFocusedField(null)}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full bg-transparent text-slate-900 outline-none text-xs sm:text-sm font-medium placeholder:text-slate-400"
                   />
-                </div>
-              </div>
+                  <AnimatePresence>
+                    {email.includes("@") && email.includes(".") && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                        className="shrink-0 flex items-center justify-center text-emerald-600"
+                        title="Valid email format"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
-              <div className="space-y-1">
+                  {/* Animated bottom gradient beam */}
+                  <motion.div
+                    initial={false}
+                    animate={{
+                      scaleX: focusedField === "email" ? 1 : 0,
+                      opacity: focusedField === "email" ? 1 : 0,
+                    }}
+                    transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-sky-400 to-indigo-500 origin-center pointer-events-none"
+                  />
+                </motion.div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                className="space-y-1"
+              >
                 <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-bold text-slate-700">Password</label>
+                  <motion.label
+                    animate={{
+                      color: focusedField === "password" ? "#2563eb" : "#334155",
+                      x: focusedField === "password" ? 2 : 0,
+                    }}
+                    transition={{ duration: 0.2 }}
+                    className="text-[11px] font-bold block"
+                  >
+                    Password
+                  </motion.label>
                   {mode === "login" && (
-                    <button
+                    <motion.button
                       type="button"
+                      whileHover={{ scale: 1.04, x: 1 }}
+                      whileTap={{ scale: 0.96 }}
                       onClick={handleForgotPassword}
                       className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
                     >
                       Forgot password?
-                    </button>
+                    </motion.button>
                   )}
                 </div>
-                <div className="flex h-10 sm:h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-3 text-sm text-slate-900 focus-within:bg-white focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-500/15 transition-all">
-                  <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <motion.div
+                  animate={{
+                    scale: focusedField === "password" ? 1.012 : 1,
+                    borderColor: focusedField === "password" ? "#3b82f6" : "#e2e8f0",
+                    backgroundColor: focusedField === "password" ? "#ffffff" : "rgba(248, 250, 252, 0.75)",
+                    boxShadow: focusedField === "password"
+                      ? "0 0 0 4px rgba(59, 130, 246, 0.14), 0 4px 14px -2px rgba(59, 130, 246, 0.1)"
+                      : "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
+                  }}
+                  whileHover={{
+                    scale: focusedField === "password" ? 1.012 : 1.006,
+                    borderColor: focusedField === "password" ? "#3b82f6" : "#cbd5e1",
+                  }}
+                  transition={{ type: "spring", stiffness: 450, damping: 25 }}
+                  className="relative flex h-10 sm:h-11 items-center gap-2 rounded-xl border px-3 text-sm text-slate-900 overflow-hidden"
+                >
+                  <motion.div
+                    animate={{
+                      scale: focusedField === "password" ? 1.18 : 1,
+                      color: focusedField === "password" ? "#2563eb" : "#94a3b8",
+                      rotate: focusedField === "password" ? [0, -8, 6, 0] : 0,
+                    }}
+                    transition={{ duration: 0.25 }}
+                    className="shrink-0 flex items-center justify-center"
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                  </motion.div>
                   <input
                     type={showPassword ? "text" : "password"}
                     required
                     minLength={mode === "register" ? 6 : 1}
                     placeholder={mode === "register" ? "At least 6 characters" : "Enter your password"}
                     value={password}
+                    onFocus={() => setFocusedField("password")}
+                    onBlur={() => setFocusedField(null)}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full bg-transparent text-slate-900 outline-none text-xs sm:text-sm font-medium placeholder:text-slate-400"
                   />
-                  <button
+                  <AnimatePresence>
+                    {mode === "register" && password.length >= 6 && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                        className="shrink-0 flex items-center justify-center text-emerald-600 mr-0.5"
+                        title="Password meets length requirement"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  <motion.button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="text-slate-400 hover:text-slate-600 focus:outline-none p-1 transition-colors cursor-pointer shrink-0"
+                    whileHover={{ scale: 1.15 }}
+                    whileTap={{ scale: 0.85, rotate: showPassword ? -15 : 15 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    className="text-slate-400 hover:text-blue-600 focus:outline-none p-1 transition-colors cursor-pointer shrink-0"
                     title={showPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.div
+                        key={showPassword ? "hide" : "show"}
+                        initial={{ opacity: 0, rotate: -40, scale: 0.7 }}
+                        animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                        exit={{ opacity: 0, rotate: 40, scale: 0.7 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4 text-blue-600" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </motion.div>
+                    </AnimatePresence>
+                  </motion.button>
+
+                  {/* Animated bottom gradient beam */}
+                  <motion.div
+                    initial={false}
+                    animate={{
+                      scaleX: focusedField === "password" ? 1 : 0,
+                      opacity: focusedField === "password" ? 1 : 0,
+                    }}
+                    transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-sky-400 to-indigo-500 origin-center pointer-events-none"
+                  />
+                </motion.div>
+              </motion.div>
 
               {/* Remember me */}
               <div className="flex items-center justify-between text-xs pt-0.5">
