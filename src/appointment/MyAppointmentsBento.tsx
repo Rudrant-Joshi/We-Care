@@ -460,7 +460,6 @@ export function MyAppointmentsBento() {
               { id: 'pending', label: `Pending (${stats.pending})`, activeGradient: 'from-amber-500 to-orange-600' },
               { id: 'approved', label: `Approved (${stats.approved})`, activeGradient: 'from-emerald-600 to-teal-600' },
               { id: 'rejected', label: `Rejected (${stats.rejected})`, activeGradient: 'from-rose-600 to-red-600' },
-              { id: 'completed', label: `Completed (${stats.completed})`, activeGradient: 'from-slate-700 to-slate-900' },
             ] as const
           ).map((tab) => {
             const isActive = filter === tab.id;
