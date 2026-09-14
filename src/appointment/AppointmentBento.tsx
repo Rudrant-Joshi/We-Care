@@ -563,8 +563,14 @@ export function AppointmentBento() {
   };
 
   return (
-    <section id="appointment-bento-section" className="relative w-full max-w-[1720px] mx-auto px-4 sm:px-8 md:px-14 py-8 md:py-16">
-      
+    <section id="appointment-bento-section" className="relative w-full max-w-[1720px] mx-auto px-4 sm:px-8 md:px-14 py-8 md:py-16 overflow-hidden">
+      {/* Dynamic Ambient Colorful Floating Gradient Orbs */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden z-0">
+        <div className="absolute top-10 -left-10 w-[520px] h-[520px] rounded-full bg-gradient-to-br from-blue-400/15 via-sky-300/10 to-transparent blur-3xl transform-gpu animate-blob opacity-70" />
+        <div className="absolute top-1/2 -right-10 w-[540px] h-[540px] rounded-full bg-gradient-to-bl from-indigo-400/15 via-purple-300/10 to-transparent blur-3xl transform-gpu animate-blob [animation-delay:4s] opacity-60" />
+        <div className="absolute bottom-10 left-1/3 w-[460px] h-[460px] rounded-full bg-gradient-to-tr from-emerald-400/12 via-teal-300/10 to-transparent blur-3xl transform-gpu animate-blob [animation-delay:8s] opacity-50" />
+      </div>
+
       {/* Section Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
