@@ -1,6 +1,6 @@
-"use client";
-
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useNavigate } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import gsap from "gsap";
 
 function cn(...parts: Array<string | undefined | false>) {
@@ -183,12 +183,16 @@ export function MusicVideoPinStack({
   className,
 }: MusicVideoPinStackProps) {
   useMusicVideoFonts();
+  const navigate = useNavigate();
+  const [activeIdx, setActiveIdx] = useState(0);
   const rootRef = useRef<HTMLElement>(null);
   const runwayRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const titleRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const metaRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const touchStartPos = useRef<{ x: number; y: number; time: number } | null>(null);
+  const touchMovedRef = useRef(false);
   const pinned = forceProgress != null;
   const count = items.length;
 
@@ -212,6 +216,7 @@ export function MusicVideoPinStack({
     const setActive = (index: number) => {
       if (index === activeIndex) return;
       activeIndex = index;
+      setActiveIdx(index);
 
       titleRefs.current.forEach((el, i) => {
         if (!el) return;
@@ -302,9 +307,14 @@ export function MusicVideoPinStack({
 
     const sizeLayout = () => {
       const vh = viewportHeight();
+      const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+      // On mobile view, calibrated multiplier prevents scroll fatigue and lets cards smoothly advance per swipe
+      const heightMultiplier = isMobile
+        ? Math.max(count * 0.75 + 0.35, 2.2)
+        : count + 1;
       stage.style.height = `${vh}px`;
-      runway.style.minHeight = `${(count + 1) * vh}px`;
-      runway.style.height = `${(count + 1) * vh}px`;
+      runway.style.minHeight = `${heightMultiplier * vh}px`;
+      runway.style.height = `${heightMultiplier * vh}px`;
     };
     sizeLayout();
 
@@ -360,6 +370,94 @@ export function MusicVideoPinStack({
       runway.style.minHeight = "";
     };
   }, [items, forceProgress, pinned, count]);
+
+  const goToCard = (targetIdx: number) => {
+    const runway = runwayRef.current;
+    if (!runway) return;
+    const clampedIdx = Math.max(0, Math.min(count - 1, targetIdx));
+    const targetP = count > 1 ? clampedIdx / (count - 1) : 0;
+    const scrollRoot = getScrollParent(runway);
+    const vh = isElementScrollRoot(scrollRoot)
+      ? scrollRoot.clientHeight
+      : window.innerHeight;
+    const scrollable = runway.offsetHeight - vh;
+    if (scrollable <= 0) return;
+
+    const runwayRect = runway.getBoundingClientRect();
+    const currentScrollY = isElementScrollRoot(scrollRoot)
+      ? scrollRoot.scrollTop
+      : window.scrollY;
+    const runwayTopDoc = runwayRect.top + currentScrollY;
+    const targetScrollTop = runwayTopDoc + targetP * scrollable;
+
+    if (isElementScrollRoot(scrollRoot)) {
+      scrollRoot.scrollTo({ top: targetScrollTop, behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: targetScrollTop, behavior: "smooth" });
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchStartPos.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+        time: performance.now(),
+      };
+      touchMovedRef.current = false;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartPos.current || e.touches.length !== 1) return;
+    const dx = e.touches[0].clientX - touchStartPos.current.x;
+    const dy = e.touches[0].clientY - touchStartPos.current.y;
+    if (Math.hypot(dx, dy) > 8) {
+      touchMovedRef.current = true;
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartPos.current) return;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - touchStartPos.current.x;
+    const dy = touch.clientY - touchStartPos.current.y;
+    touchStartPos.current = null;
+
+    if (Math.abs(dx) > 36 && Math.abs(dx) > Math.abs(dy) * 0.7) {
+      if (dx < 0) {
+        goToCard(activeIdx + 1);
+      } else {
+        goToCard(activeIdx - 1);
+      }
+    } else if (Math.abs(dy) > 42 && Math.abs(dy) > Math.abs(dx) * 1.2) {
+      if (dy < 0) {
+        goToCard(activeIdx + 1);
+      } else {
+        goToCard(activeIdx - 1);
+      }
+    }
+
+    setTimeout(() => {
+      touchMovedRef.current = false;
+    }, 180);
+  };
+
+  const handleCardClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href?: string,
+    isExternal?: boolean,
+  ) => {
+    if (touchMovedRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    if (href && !isExternal && href.startsWith("/")) {
+      e.preventDefault();
+      navigate(href);
+    }
+  };
 
   const cssVars = {
     "--mvp-field": fieldColor,
@@ -507,6 +605,10 @@ export function MusicVideoPinStack({
   height: 100%;
   object-fit: cover;
   border-radius: 22px;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 [data-tsuna-id="music-video-pin-stack"] .mvp-play {
@@ -546,6 +648,9 @@ export function MusicVideoPinStack({
 }
 [data-tsuna-id="music-video-pin-stack"]:not(.is-preview) .mvp-item:hover img {
   transform: scale(1.08);
+}
+[data-tsuna-id="music-video-pin-stack"] .mvp-mobile-controls {
+  display: none;
 }
 @keyframes mvp-flicker {
   0% { opacity: 0; }
@@ -603,6 +708,74 @@ export function MusicVideoPinStack({
   }
   [data-tsuna-id="music-video-pin-stack"] .mvp-item {
     touch-action: pan-y;
+  }
+  [data-tsuna-id="music-video-pin-stack"] .mvp-mobile-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    position: absolute;
+    z-index: 25;
+    left: 0;
+    right: 0;
+    bottom: calc(50% - (var(--mvp-thumb-w) * 9 / 32) - 4.5rem);
+    margin: 0 auto;
+    width: max-content;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.1);
+    touch-action: auto;
+  }
+  [data-tsuna-id="music-video-pin-stack"] .mvp-mobile-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    background: #f8fafc;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  [data-tsuna-id="music-video-pin-stack"] .mvp-mobile-nav-btn:active {
+    transform: scale(0.92);
+  }
+  [data-tsuna-id="music-video-pin-stack"] .mvp-mobile-nav-btn:disabled {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  [data-tsuna-id="music-video-pin-stack"] .mvp-mobile-dots {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  [data-tsuna-id="music-video-pin-stack"] .mvp-mobile-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: #cbd5e1;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  [data-tsuna-id="music-video-pin-stack"] .mvp-mobile-dot.is-active {
+    width: 22px;
+    height: 6px;
+    background: #135940;
+  }
+  [data-tsuna-id="music-video-pin-stack"] .mvp-mobile-counter {
+    font-size: 11px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 600;
+    color: #475569;
+    margin-left: 2px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -672,7 +845,13 @@ export function MusicVideoPinStack({
             ))}
           </div>
 
-          <div ref={listRef} className="mvp-list">
+          <div
+            ref={listRef}
+            className="mvp-list"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             {items.map((item, i) => {
               const media = resolveItemMedia(item);
               const href = media.href;
@@ -686,6 +865,8 @@ export function MusicVideoPinStack({
                       href,
                       target: isExternal ? "_blank" : undefined,
                       rel: isExternal ? "noopener noreferrer" : undefined,
+                      onClick: (e: React.MouseEvent<HTMLAnchorElement>) =>
+                        handleCardClick(e, href, isExternal),
                     }
                     : {})}
                   className="mvp-item"
@@ -698,7 +879,8 @@ export function MusicVideoPinStack({
                       src={media.imageSrc}
                       alt={item.imageAlt ?? item.title}
                       loading={i === 0 ? "eager" : "lazy"}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover select-none pointer-events-none"
+                      draggable={false}
                     />
                   ) : null}
                   <span className="mvp-play" aria-hidden="true">
@@ -708,6 +890,59 @@ export function MusicVideoPinStack({
                 </Tag>
               );
             })}
+          </div>
+
+          {/* Mobile Touch Navigation Controls - Elegant Dots, Arrows & Counter */}
+          <div
+            className="mvp-mobile-controls"
+            aria-label="Clinical cards navigation"
+          >
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                goToCard(activeIdx - 1);
+              }}
+              disabled={activeIdx === 0}
+              className="mvp-mobile-nav-btn"
+              aria-label="Previous card"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            <div className="mvp-mobile-dots">
+              {items.map((it, idx) => (
+                <button
+                  key={it.id}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goToCard(idx);
+                  }}
+                  className={`mvp-mobile-dot ${
+                    idx === activeIdx ? "is-active" : ""
+                  }`}
+                  aria-label={`Go to ${it.title}`}
+                />
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                goToCard(activeIdx + 1);
+              }}
+              disabled={activeIdx === count - 1}
+              className="mvp-mobile-nav-btn"
+              aria-label="Next card"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            <span className="mvp-mobile-counter">
+              0{activeIdx + 1} / 0{count}
+            </span>
           </div>
         </div>
       </div>

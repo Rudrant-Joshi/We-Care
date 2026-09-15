@@ -30,15 +30,15 @@ export default function DoctorsPage() {
         className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:28px_28px] opacity-35"
       />
 
-      {/* Clean White Navbar Header Shell */}
-      <div className="bg-white/95 backdrop-blur-md w-full relative z-40 border-b border-slate-200/90 shadow-xs">
-        <Navbar onBookDemoClick={handleBookAppointment} />
-      </div>
-
-      {/* Section 1: Template Implementation for Doctors */}
+      {/* Section 1: Template Implementation for Doctors with Non-Sticky Navbar */}
       <section className="relative z-20 w-full">
         <Demo
           word="DOCTORS"
+          navbar={
+            <div className="bg-white/95 backdrop-blur-md w-full relative z-40 border-b border-slate-200/90 shadow-xs">
+              <Navbar onBookDemoClick={handleBookAppointment} />
+            </div>
+          }
           primaryButton={{
             label: "Browse Doctor Roster ↓",
             onClick: (e) => {

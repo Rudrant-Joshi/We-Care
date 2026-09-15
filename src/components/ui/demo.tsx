@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import GlyphPortal from "@/components/ui/glyph-portal";
 
 export type DemoFeature = {
@@ -16,6 +16,7 @@ export type DemoButton = {
 };
 
 export type DemoProps = {
+  navbar?: ReactNode;
   word?: string;
   logo?: string;
   category?: string;
@@ -39,6 +40,7 @@ const family = '"Glyph Portal Jakarta", Arial, sans-serif';
 let fontLoad: Promise<void> | undefined;
 
 export default function Demo({
+  navbar,
   word = "DOCTORS",
   logo,
   category,
@@ -232,16 +234,156 @@ export default function Demo({
     };
   }, []);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Synchronize reverse and forward scrolling between Section 1 (inner scroll container) and Section 2 (window scroll)
+  // This completely eliminates the scroll trap where Section 2 gets stuck midway on Section 1 during reverse scrolling.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // 1. Reverse scrolling: User scrolls UP (deltaY < 0)
+      if (e.deltaY < 0) {
+        // If window is scrolled down into Section 2 (window.scrollY > 0.5):
+        // Section 2 is still visible on screen. We MUST scroll the window back up to 0 first!
+        // We prevent the inner container from scrolling backwards while Section 2 is still on screen.
+        if (window.scrollY > 0.5) {
+          e.preventDefault();
+          const windowToScroll = Math.min(window.scrollY, -e.deltaY);
+          const remainingDelta = e.deltaY + windowToScroll;
+          const targetY = Math.max(0, window.scrollY - windowToScroll);
+          window.scrollTo({ top: targetY, behavior: "auto" });
+
+          // If the window has now reached 0, apply any leftover upward delta to container.scrollTop
+          if (targetY === 0 && remainingDelta < 0) {
+            container.scrollTop = Math.max(0, container.scrollTop + remainingDelta);
+          }
+          return;
+        }
+      }
+
+      // 2. Forward scrolling: User scrolls DOWN (deltaY > 0)
+      if (e.deltaY > 0) {
+        const maxScroll = container.scrollHeight - container.clientHeight;
+        const availableDown = maxScroll - container.scrollTop;
+        if (availableDown <= 2) {
+          // Inner container is at the bottom: forward scroll down into Section 2
+          e.preventDefault();
+          window.scrollBy({ top: e.deltaY, behavior: "auto" });
+          return;
+        }
+      }
+    };
+
+    let touchStartY = 0;
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        touchStartY = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 0) return;
+      const currentY = e.touches[0].clientY;
+      const deltaY = touchStartY - currentY; // positive = swipe up (scroll down), negative = swipe down (scroll up)
+      touchStartY = currentY;
+
+      // Reverse scrolling on mobile touch
+      if (deltaY < 0 && window.scrollY > 0.5) {
+        e.preventDefault();
+        const windowToScroll = Math.min(window.scrollY, -deltaY);
+        const remainingDelta = deltaY + windowToScroll;
+        const targetY = Math.max(0, window.scrollY - windowToScroll);
+        window.scrollTo({ top: targetY, behavior: "auto" });
+        if (targetY === 0 && remainingDelta < 0) {
+          container.scrollTop = Math.max(0, container.scrollTop + remainingDelta);
+        }
+        return;
+      }
+
+      // Forward scrolling on mobile touch when container reaches bottom
+      if (deltaY > 0) {
+        const maxScroll = container.scrollHeight - container.clientHeight;
+        const availableDown = maxScroll - container.scrollTop;
+        if (availableDown <= 2) {
+          e.preventDefault();
+          window.scrollBy({ top: deltaY, behavior: "auto" });
+          return;
+        }
+      }
+    };
+
+    // If cursor is outside container (e.g. over margin/scrollbar) and window is at 0:
+    const handleWindowWheel = (e: WheelEvent) => {
+      if (window.scrollY <= 1 && e.deltaY < 0) {
+        if (!container.contains(e.target as Node) && container.scrollTop > 0) {
+          container.scrollTop = Math.max(0, container.scrollTop + e.deltaY);
+        }
+      }
+    };
+
+    // Snap cleanly to 0 if left hovering slightly above 0 after scrolling up
+    let scrollTimeout: number | undefined;
+    const handleWindowScroll = () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = window.setTimeout(() => {
+        if (window.scrollY > 0 && window.scrollY < 80) {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      }, 150);
+    };
+
+    let winTouchStartY = 0;
+    const handleWinTouchStart = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        winTouchStartY = e.touches[0].clientY;
+      }
+    };
+    const handleWinTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 0) return;
+      const currentY = e.touches[0].clientY;
+      const deltaY = winTouchStartY - currentY; // negative = swipe down = scroll up
+      winTouchStartY = currentY;
+      if (window.scrollY <= 0.5 && deltaY < 0 && container.scrollTop > 0) {
+        if (!container.contains(e.target as Node)) {
+          container.scrollTop = Math.max(0, container.scrollTop + deltaY);
+        }
+      }
+    };
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    container.addEventListener("touchstart", handleTouchStart, { passive: true });
+    container.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("wheel", handleWindowWheel, { passive: true });
+    window.addEventListener("scroll", handleWindowScroll, { passive: true });
+    window.addEventListener("touchstart", handleWinTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleWinTouchMove, { passive: true });
+
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+      container.removeEventListener("touchstart", handleTouchStart);
+      container.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("wheel", handleWindowWheel);
+      window.removeEventListener("scroll", handleWindowScroll);
+      window.removeEventListener("touchstart", handleWinTouchStart);
+      window.removeEventListener("touchmove", handleWinTouchMove);
+      clearTimeout(scrollTimeout);
+    };
+  }, []);
+
   return (
     <div
+      ref={containerRef}
       data-demo-scroll
       data-slipstream-demo
       tabIndex={0}
       role="region"
       aria-label={`${word}. Scroll to step inside.`}
       style={{
+        position: "relative",
         width: "100%",
-        height: "min(720px, 100svh)",
+        height: navbar ? "100svh" : "min(720px, 100svh)",
         overflowY: "auto",
         background: "#fff",
         containerType: "inline-size",
@@ -256,7 +398,7 @@ export default function Demo({
         [data-slipstream-demo] [data-gp-enter]:focus-visible{outline:2px solid #176247;outline-offset:4px;}
         [data-slipstream-demo] [data-gp-touch-picker]{top:auto;bottom:18px;left:50%;}
         [data-slipstream-demo] [data-gp-select]{border-color:transparent;border-radius:8px;font-size:12px;color:#626964;}
-        [data-sublime-header]{position:absolute;inset:clamp(24px,4.5cqw,48px) clamp(24px,5cqw,64px) auto;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+        [data-sublime-header]{position:absolute;inset:clamp(24px,4.5cqw,48px) clamp(24px,5cqw,64px) auto;display:flex;align-items:center;justify-content:space-between;gap:20px;z-index:20;pointer-events:none;}
         [data-sublime-logo]{font-size:19px;font-weight:600;letter-spacing:-.065em;color:#18251e;}
         [data-sublime-category]{font-size:12px;line-height:1.5;color:#71766f;}
         [data-sublime-eyebrow]{position:absolute;inset:auto 24px calc(100% - var(--gp-word-top,35%) + 32px);margin:0;text-align:center;font-size:13px;font-weight:400;line-height:1.5;letter-spacing:.005em;color:#71766f;}
@@ -283,10 +425,30 @@ export default function Demo({
         [data-slipstream-btn-secondary]{display:inline-flex;align-items:center;gap:10px;padding:0 20px;min-height:46px;border-radius:12px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);color:#ffffff;font-size:13px;font-weight:500;text-decoration:none;transition:background 0.18s,border-color 0.18s,transform 0.18s;cursor:pointer;}
         [data-slipstream-btn-secondary]:hover{background:rgba(255,255,255,0.24);border-color:rgba(255,255,255,0.4);transform:translateY(-2px);}
         @container(max-width:640px){
-          [data-slipstream-actions]{width:100%;flex-direction:column;align-items:stretch;gap:10px;}
-          [data-slipstream-btn-primary],[data-slipstream-btn-secondary]{width:100%;justify-content:center;}
+          [data-slipstream-demo] [data-gp-content]{padding:clamp(2.5rem, 5svh, 3.5rem) 1.25rem clamp(2.5rem, 6svh, 4rem);}
+          [data-slipstream-copy]{gap:clamp(1rem, 2.5svh, 1.5rem);}
+          [data-slipstream-copy] h2{font-size:clamp(1.45rem, 5.2cqw, 1.85rem);line-height:1.22;}
+          [data-slipstream-subtitle]{font-size:0.885rem;line-height:1.55;}
+          [data-slipstream-features]{gap:1.15rem;}
+          [data-slipstream-feature]{padding-top:0.75rem;}
+          [data-slipstream-feature] h3{font-size:1rem;}
+          [data-slipstream-feature] p{font-size:0.85rem;line-height:1.5;}
+          [data-slipstream-actions]{width:100%;flex-direction:column;align-items:stretch;gap:10px;margin-top:0.5rem;}
+          [data-slipstream-btn-primary],[data-slipstream-btn-secondary]{width:100%;justify-content:center;min-height:46px;}
         }
       `}</style>
+
+      {/* Main Website Navigation Bar - Inside scroll container so it scrolls away naturally on section one */}
+      {navbar}
+
+      {/* Section Navbar Header - Shown if no external navbar provided */}
+      {!navbar && (
+        <div data-sublime-header>
+          <span data-sublime-logo>{resolvedLogo}</span>
+          <span data-sublime-category>{resolvedCategory}</span>
+        </div>
+      )}
+
       {face ? (
         <GlyphPortal
           word={word}
@@ -299,10 +461,6 @@ export default function Demo({
           enterLabel={enterLabel}
           front={
             <>
-              <div data-sublime-header>
-                <span data-sublime-logo>{resolvedLogo}</span>
-                <span data-sublime-category>{resolvedCategory}</span>
-              </div>
               <p data-sublime-eyebrow>{resolvedEyebrow}</p>
               <p data-sublime-support>{resolvedSupport}</p>
               <span data-sublime-scroll>{scrollNotice}</span>
