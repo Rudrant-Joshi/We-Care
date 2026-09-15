@@ -584,6 +584,27 @@ export function MusicVideoPinStack({
     letter-spacing: 0.06em;
   }
 }
+@media (max-width: 640px) {
+  [data-tsuna-id="music-video-pin-stack"] .mvp-stage {
+    --mvp-thumb-w: min(90vw, 420px);
+    touch-action: pan-y;
+  }
+  [data-tsuna-id="music-video-pin-stack"] .mvp-heading {
+    top: 2rem;
+    font-size: clamp(1.75rem, 9vw, 2.75rem);
+  }
+  [data-tsuna-id="music-video-pin-stack"] .mvp-titles {
+    font-size: 0.82rem;
+    bottom: calc(50% + (var(--mvp-thumb-w) * 9 / 32) + 0.6rem);
+  }
+  [data-tsuna-id="music-video-pin-stack"] .mvp-metas {
+    font-size: 0.72rem;
+    top: calc(50% + (var(--mvp-thumb-w) * 9 / 32) + 0.5rem);
+  }
+  [data-tsuna-id="music-video-pin-stack"] .mvp-item {
+    touch-action: pan-y;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   [data-tsuna-id="music-video-pin-stack"] .mvp-title-item[data-active],
   [data-tsuna-id="music-video-pin-stack"] .mvp-meta-item[data-active] {

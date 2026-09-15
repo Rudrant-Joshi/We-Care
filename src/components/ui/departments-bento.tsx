@@ -344,10 +344,10 @@ function DepartmentCard({
       >
         {/* 1. Skewed gradient backing panel */}
         <span
-          className={`absolute top-0 left-[22px] w-3/5 h-full rounded-2xl transform ${
+          className={`absolute top-0 max-sm:left-[10px] max-sm:w-[calc(100%-20px)] max-sm:skew-x-[3deg] sm:left-[22px] sm:w-3/5 sm:skew-x-[12deg] h-full rounded-2xl transform ${
             isActive
               ? "skew-x-0 left-[10px] w-[calc(100%-20px)] opacity-95"
-              : "skew-x-[12deg] opacity-75 group-hover:skew-x-0 group-hover:left-[10px] group-hover:w-[calc(100%-20px)] group-hover:opacity-95"
+              : "opacity-75 group-hover:skew-x-0 group-hover:left-[10px] group-hover:w-[calc(100%-20px)] group-hover:opacity-95"
           } transition-all duration-500 pointer-events-none z-0`}
           style={{
             background: `linear-gradient(315deg, ${dept.theme.gradientFrom}, ${dept.theme.gradientTo})`,
@@ -356,10 +356,10 @@ function DepartmentCard({
 
         {/* 2. Skewed blurred neon glow shadow */}
         <span
-          className={`absolute top-0 left-[22px] w-3/5 h-full rounded-2xl transform ${
+          className={`absolute top-0 max-sm:left-[10px] max-sm:w-[calc(100%-20px)] max-sm:skew-x-[3deg] sm:left-[22px] sm:w-3/5 sm:skew-x-[12deg] h-full rounded-2xl transform ${
             isActive
               ? "skew-x-0 left-[10px] w-[calc(100%-20px)] opacity-55"
-              : "skew-x-[12deg] opacity-25 blur-[26px] group-hover:skew-x-0 group-hover:left-[10px] group-hover:w-[calc(100%-20px)] group-hover:opacity-60"
+              : "opacity-25 blur-[26px] group-hover:skew-x-0 group-hover:left-[10px] group-hover:w-[calc(100%-20px)] group-hover:opacity-60"
           } blur-[26px] transition-all duration-500 pointer-events-none z-0 will-change-transform transform-gpu`}
           style={{
             background: `linear-gradient(315deg, ${dept.theme.gradientFrom}, ${dept.theme.gradientTo})`,
@@ -673,7 +673,7 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
               initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 0.85, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="absolute top-2 left-[28px] w-3/4 sm:w-[70%] h-[calc(100%-16px)] rounded-3xl transform skew-x-[6deg] sm:skew-x-[8deg] pointer-events-none z-0 transition-all duration-700"
+              className="absolute top-2 max-sm:left-[10px] max-sm:w-[calc(100%-20px)] max-sm:skew-x-[2deg] sm:left-[28px] sm:w-[70%] h-[calc(100%-16px)] rounded-3xl transform sm:skew-x-[8deg] pointer-events-none z-0 transition-all duration-700"
               style={{
                 background: `linear-gradient(315deg, ${activeDept.theme.gradientFrom}, ${activeDept.theme.gradientTo})`,
               }}
@@ -685,7 +685,7 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.4 }}
               transition={{ duration: 0.5 }}
-              className="absolute top-2 left-[28px] w-3/4 sm:w-[70%] h-[calc(100%-16px)] rounded-3xl transform skew-x-[6deg] sm:skew-x-[8deg] blur-[36px] pointer-events-none z-0 transition-all duration-700"
+              className="absolute top-2 max-sm:left-[10px] max-sm:w-[calc(100%-20px)] max-sm:skew-x-[2deg] sm:left-[28px] sm:w-[70%] h-[calc(100%-16px)] rounded-3xl transform sm:skew-x-[8deg] blur-[36px] pointer-events-none z-0 transition-all duration-700"
               style={{
                 background: `linear-gradient(315deg, ${activeDept.theme.gradientFrom}, ${activeDept.theme.gradientTo})`,
               }}

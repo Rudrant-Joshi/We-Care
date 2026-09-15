@@ -282,6 +282,10 @@ export default function Demo({
         [data-slipstream-btn-primary]:hover{background:#ecfdf5;transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,0.35);}
         [data-slipstream-btn-secondary]{display:inline-flex;align-items:center;gap:10px;padding:0 20px;min-height:46px;border-radius:12px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);color:#ffffff;font-size:13px;font-weight:500;text-decoration:none;transition:background 0.18s,border-color 0.18s,transform 0.18s;cursor:pointer;}
         [data-slipstream-btn-secondary]:hover{background:rgba(255,255,255,0.24);border-color:rgba(255,255,255,0.4);transform:translateY(-2px);}
+        @container(max-width:640px){
+          [data-slipstream-actions]{width:100%;flex-direction:column;align-items:stretch;gap:10px;}
+          [data-slipstream-btn-primary],[data-slipstream-btn-secondary]{width:100%;justify-content:center;}
+        }
       `}</style>
       {face ? (
         <GlyphPortal

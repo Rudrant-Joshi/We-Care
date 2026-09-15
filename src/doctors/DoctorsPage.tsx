@@ -71,7 +71,7 @@ export default function DoctorsPage() {
       </motion.div>
 
       {/* Light Clean Footer matching Slate-50 background */}
-      <footer className="relative z-20 w-full px-8 md:px-14 py-6 flex flex-col sm:flex-row items-center justify-between text-[11.5px] font-mono text-slate-500 border-t border-slate-200 bg-white">
+      <footer className="relative z-20 w-full px-4 sm:px-8 md:px-14 py-6 flex flex-col sm:flex-row items-center justify-between text-[11.5px] font-mono text-slate-500 border-t border-slate-200 bg-white">
         <div className="flex items-center gap-4">
           <span>LATITUDE: 37.7749° N</span>
           <span className="hidden sm:inline text-slate-300">•</span>

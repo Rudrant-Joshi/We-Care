@@ -456,7 +456,7 @@ function DoctorCard({
       >
         {/* 1. Skewed gradient backing panel */}
         <span
-          className="absolute -top-1.5 left-[12px] w-[calc(100%-14px)] h-full rounded-2xl transform skew-x-[6deg] opacity-90 group-hover:skew-x-0 group-hover:-top-2 group-hover:left-[6px] group-hover:w-[calc(100%-12px)] group-hover:opacity-100 transition-all duration-300 pointer-events-none z-0 will-change-transform"
+          className="absolute -top-1.5 max-sm:left-[8px] max-sm:w-[calc(100%-12px)] max-sm:skew-x-[2deg] sm:left-[12px] sm:w-[calc(100%-14px)] sm:skew-x-[6deg] h-full rounded-2xl transform opacity-90 group-hover:skew-x-0 group-hover:-top-2 group-hover:left-[6px] group-hover:w-[calc(100%-12px)] group-hover:opacity-100 transition-all duration-300 pointer-events-none z-0 will-change-transform"
           style={{
             background: `linear-gradient(315deg, ${doc.gradientFrom}, ${doc.gradientTo})`,
           }}
@@ -464,7 +464,7 @@ function DoctorCard({
 
         {/* 2. Blurred vibrant neon glow shadow */}
         <span
-          className="absolute -top-1 left-[10px] w-[calc(100%-12px)] h-full rounded-2xl transform skew-x-[6deg] opacity-55 blur-[26px] group-hover:skew-x-0 group-hover:left-[6px] group-hover:w-[calc(100%-12px)] group-hover:opacity-85 group-hover:blur-[32px] transition-all duration-300 pointer-events-none z-0 transform-gpu will-change-transform"
+          className="absolute -top-1 max-sm:left-[8px] max-sm:w-[calc(100%-12px)] max-sm:skew-x-[2deg] sm:left-[10px] sm:w-[calc(100%-12px)] sm:skew-x-[6deg] h-full rounded-2xl transform opacity-55 blur-[26px] group-hover:skew-x-0 group-hover:left-[6px] group-hover:w-[calc(100%-12px)] group-hover:opacity-85 group-hover:blur-[32px] transition-all duration-300 pointer-events-none z-0 transform-gpu will-change-transform"
           style={{
             background: `linear-gradient(315deg, ${doc.gradientFrom}, ${doc.gradientTo})`,
           }}
@@ -620,11 +620,11 @@ function DoctorDetailModal({
               exit={{ opacity: 0, scale: 0.94, y: 16 }}
               transition={{ type: "spring", stiffness: 420, damping: 30 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative z-10 w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[88vh] flex flex-col text-left pointer-events-auto"
+              className="relative z-10 w-full max-w-2xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[92vh] sm:max-h-[88vh] flex flex-col text-left pointer-events-auto"
             >
             {/* Integrated Modern Header (Clean, legible, non-overflowing) */}
             <div
-              className="relative p-5 sm:p-6 border-b border-slate-100 shrink-0"
+              className="relative p-4 sm:p-6 border-b border-slate-100 shrink-0"
               style={{
                 background: `linear-gradient(135deg, ${doc.gradientFrom}14 0%, ${doc.gradientTo}06 60%, #ffffff 100%)`,
               }}
@@ -708,7 +708,7 @@ function DoctorDetailModal({
             </div>
 
             {/* Scrollable Body Content */}
-            <div className="px-6 sm:px-8 py-5 space-y-5 overflow-y-auto flex-1">
+            <div className="px-4 sm:px-8 py-4 sm:py-5 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
               {/* Specialty Highlight Banner */}
               <div
                 className="p-4 rounded-2xl border flex items-start gap-3.5"

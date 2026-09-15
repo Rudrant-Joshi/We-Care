@@ -36,10 +36,14 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Prevent iOS Safari automatic zooming on inputs */
+  /* Prevent iOS Safari automatic zooming on inputs & optimize mobile scrolling */
   @media screen and (max-width: 768px) {
     input, select, textarea {
       font-size: 16px !important;
+    }
+    .overflow-y-auto, .overflow-x-auto {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
     }
   }
 }

@@ -886,7 +886,7 @@ export default function AdminPortalPage() {
           /* TABLE VIEW */
           <div className="rounded-3xl border border-slate-800 bg-slate-800/40 backdrop-blur-xl overflow-hidden shadow-2xl">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full min-w-[760px] text-left text-xs border-collapse">
                 <thead>
                   <tr className="border-b border-slate-700/80 bg-slate-900/80 text-slate-400 font-mono text-[11px] uppercase tracking-wider">
                     <th className="py-3.5 px-4 font-bold">Booking ID & Patient</th>
@@ -1210,7 +1210,7 @@ export default function AdminPortalPage() {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="w-full max-w-2xl rounded-3xl border border-purple-500/30 bg-slate-900 p-6 sm:p-8 text-slate-100 shadow-[0_25px_80px_rgba(0,0,0,0.8)] max-h-[90vh] overflow-y-auto"
+              className="w-full max-w-2xl rounded-2xl sm:rounded-3xl border border-purple-500/30 bg-slate-900 p-4 sm:p-8 text-slate-100 shadow-[0_25px_80px_rgba(0,0,0,0.8)] max-h-[90vh] overflow-y-auto"
             >
               {/* Header */}
               <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-800">
@@ -1423,7 +1423,7 @@ export default function AdminPortalPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-lg rounded-3xl border border-purple-500/30 bg-slate-900 p-6 sm:p-7 text-slate-100 shadow-2xl max-h-[90vh] overflow-y-auto"
+              className="w-full max-w-lg rounded-2xl sm:rounded-3xl border border-purple-500/30 bg-slate-900 p-4 sm:p-7 text-slate-100 shadow-2xl max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
                 <div className="flex items-center gap-2.5">
@@ -1442,7 +1442,7 @@ export default function AdminPortalPage() {
               </div>
 
               <form onSubmit={handleCreateAppointment} className="space-y-3 text-xs">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-[11px] font-bold text-slate-400">Patient Full Name *</label>
                     <input
@@ -1451,7 +1451,7 @@ export default function AdminPortalPage() {
                       value={newPatientName}
                       onChange={(e) => setNewPatientName(e.target.value)}
                       placeholder="e.g. Jordan Hayes"
-                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white outline-none focus:border-purple-500"
+                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white text-base sm:text-xs outline-none focus:border-purple-500"
                     />
                   </div>
                   <div className="space-y-1">
@@ -1462,12 +1462,12 @@ export default function AdminPortalPage() {
                       value={newEmail}
                       onChange={(e) => setNewEmail(e.target.value)}
                       placeholder="jordan.h@example.com"
-                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white outline-none focus:border-purple-500"
+                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white text-base sm:text-xs outline-none focus:border-purple-500"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-[11px] font-bold text-slate-400">Contact Phone</label>
                     <input
@@ -1475,7 +1475,7 @@ export default function AdminPortalPage() {
                       value={newPhone}
                       onChange={(e) => setNewPhone(e.target.value)}
                       placeholder="(555) 000-0000"
-                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white outline-none focus:border-purple-500"
+                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white text-base sm:text-xs outline-none focus:border-purple-500"
                     />
                   </div>
                   <div className="space-y-1">
@@ -1485,12 +1485,12 @@ export default function AdminPortalPage() {
                       value={newInsurance}
                       onChange={(e) => setNewInsurance(e.target.value)}
                       placeholder="BlueCross / Aetna"
-                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white outline-none focus:border-purple-500"
+                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white text-base sm:text-xs outline-none focus:border-purple-500"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-[11px] font-bold text-slate-400">Department</label>
                     <select
@@ -1502,7 +1502,7 @@ export default function AdminPortalPage() {
                         if (val === 'neurology') setNewDoctor('Dr. Stephen Strange');
                         if (val === 'orthopedics') setNewDoctor('Dr. Steve Rogers');
                       }}
-                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white outline-none"
+                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white text-base sm:text-xs outline-none"
                     >
                       <option value="cardiology">Cardiology</option>
                       <option value="neurology">Neurology</option>
@@ -1516,12 +1516,12 @@ export default function AdminPortalPage() {
                       type="text"
                       value={newDoctor}
                       onChange={(e) => setNewDoctor(e.target.value)}
-                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white outline-none"
+                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white text-base sm:text-xs outline-none"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-[11px] font-bold text-slate-400">Date</label>
                     <input
@@ -1529,7 +1529,7 @@ export default function AdminPortalPage() {
                       value={newDate}
                       onChange={(e) => setNewDate(e.target.value)}
                       placeholder="Mon, Sep 21, 2026"
-                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white outline-none"
+                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white text-base sm:text-xs outline-none"
                     />
                   </div>
                   <div className="space-y-1">
@@ -1539,7 +1539,7 @@ export default function AdminPortalPage() {
                       value={newTime}
                       onChange={(e) => setNewTime(e.target.value)}
                       placeholder="10:00 AM"
-                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white outline-none"
+                      className="w-full h-10 px-3 rounded-xl bg-slate-800 border border-slate-700 text-white text-base sm:text-xs outline-none"
                     />
                   </div>
                 </div>

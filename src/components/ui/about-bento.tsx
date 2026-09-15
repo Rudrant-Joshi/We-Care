@@ -598,7 +598,7 @@ function DoctorCard({
       >
         {/* 1. Skewed gradient backing panel */}
         <span
-          className="absolute top-0 left-[22px] w-3/5 h-full rounded-2xl transform skew-x-[12deg] opacity-75 group-hover:skew-x-0 group-hover:left-[10px] group-hover:w-[calc(100%-20px)] group-hover:opacity-95 transition-all duration-300 pointer-events-none z-0 will-change-transform"
+          className="absolute top-0 max-sm:left-[10px] max-sm:w-[calc(100%-20px)] max-sm:skew-x-[3deg] sm:left-[22px] sm:w-3/5 sm:skew-x-[12deg] h-full rounded-2xl transform opacity-75 group-hover:skew-x-0 group-hover:left-[10px] group-hover:w-[calc(100%-20px)] group-hover:opacity-95 transition-all duration-300 pointer-events-none z-0 will-change-transform"
           style={{
             background: `linear-gradient(315deg, ${doc.gradientFrom}, ${doc.gradientTo})`,
           }}
@@ -606,7 +606,7 @@ function DoctorCard({
 
         {/* 2. Skewed blurred neon glow shadow */}
         <span
-          className="absolute top-0 left-[22px] w-3/5 h-full rounded-2xl transform skew-x-[12deg] opacity-25 blur-[26px] group-hover:skew-x-0 group-hover:left-[10px] group-hover:w-[calc(100%-20px)] group-hover:opacity-60 transition-all duration-300 pointer-events-none z-0 transform-gpu will-change-transform"
+          className="absolute top-0 max-sm:left-[10px] max-sm:w-[calc(100%-20px)] max-sm:skew-x-[3deg] sm:left-[22px] sm:w-3/5 sm:skew-x-[12deg] h-full rounded-2xl transform opacity-25 blur-[26px] group-hover:skew-x-0 group-hover:left-[10px] group-hover:w-[calc(100%-20px)] group-hover:opacity-60 transition-all duration-300 pointer-events-none z-0 transform-gpu will-change-transform"
           style={{
             background: `linear-gradient(315deg, ${doc.gradientFrom}, ${doc.gradientTo})`,
           }}
@@ -1371,7 +1371,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-          className="rounded-3xl bg-gradient-to-r from-[#135940] via-[#1b7454] to-[#0e4230] p-8 sm:p-12 text-white border border-emerald-800/40 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8"
+          className="rounded-3xl bg-gradient-to-r from-[#135940] via-[#1b7454] to-[#0e4230] p-6 sm:p-12 text-white border border-emerald-800/40 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8"
         >
           <div className="space-y-3 max-w-2xl text-center md:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold uppercase tracking-wider border border-emerald-400/30">
@@ -1390,7 +1390,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
             whileHover={{ scale: 1.06 }}
             whileTap={{ scale: 0.96 }}
             onClick={onBookConsultation}
-            className="px-8 py-4 rounded-2xl bg-white hover:bg-slate-100 text-[#135940] font-bold text-sm shadow-xl shrink-0 flex items-center gap-3 transition-all cursor-pointer"
+            className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white hover:bg-slate-100 text-[#135940] font-bold text-sm shadow-xl shrink-0 flex items-center justify-center gap-3 transition-all cursor-pointer"
           >
             <Calendar className="w-4 h-4 text-[#135940]" />
             Book Initial Consultation

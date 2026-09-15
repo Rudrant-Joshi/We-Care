@@ -215,13 +215,6 @@ export function MyAppointmentsBento() {
     return { total, pending, approved, rejected, completed };
   }, [appointments]);
 
-  // Next upcoming consultation spotlight
-  const nextAppointment = useMemo(() => {
-    const upcoming = appointments.filter(
-      (a) => a.status === 'approved' || a.status === 'upcoming' || a.status === 'pending'
-    );
-    return upcoming.length > 0 ? upcoming[0] : null;
-  }, [appointments]);
 
   // Filtered & Searched Appointments
   const filteredAppointments = useMemo(() => {
@@ -409,142 +402,6 @@ export function MyAppointmentsBento() {
           </div>
         </div>
 
-        {/* Spotlight Next Upcoming Appointment Ticket (if exists) */}
-        {nextAppointment && (() => {
-          const nextDeptColor = getDepartmentColor(nextAppointment.departmentId);
-
-          return (
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -4, scale: 1.008 }}
-              whileTap={{ scale: 0.99 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              className="mt-6 p-4 sm:p-5 md:p-6 rounded-3xl bg-gradient-to-r from-emerald-50/90 via-teal-50/70 to-white border border-emerald-200/80 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-5"
-            >
-              <div className="flex items-start sm:items-center gap-3.5 sm:gap-4 min-w-0 flex-1">
-                {/* Doctor Avatar with Department Color Ring */}
-                <div
-                  className="relative size-14 sm:size-16 rounded-2xl overflow-hidden shrink-0 border-2 bg-slate-100 shadow-sm"
-                  style={{ borderColor: `${nextDeptColor.gradientFrom}60` }}
-                >
-                  <img
-                    src={(nextAppointment.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${nextAppointment.doctorId || 'iron-man'}.jpg`}
-                    alt={nextAppointment.doctorName}
-                    className="w-full h-full object-cover object-[center_25%] transition-transform duration-500 group-hover:scale-110"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      if (!target.dataset.fallback) {
-                        target.dataset.fallback = '1';
-                        target.src = `/doctor-images/${nextAppointment.doctorId || 'iron-man'}.jpg`;
-                      }
-                    }}
-                  />
-                  <span
-                    className="absolute bottom-0 right-0 size-3.5 rounded-full border-2 border-white shadow-xs"
-                    style={{ backgroundColor: nextDeptColor.gradientFrom }}
-                  />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span
-                      className="px-2.5 py-0.5 rounded-md text-white font-mono font-bold text-[10px] uppercase tracking-wider shadow-2xs"
-                      style={{
-                        background: `linear-gradient(135deg, ${nextDeptColor.gradientFrom}, ${nextDeptColor.gradientTo})`,
-                      }}
-                    >
-                      NEXT UPCOMING VISIT
-                    </span>
-                    <span
-                      className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border"
-                      style={{
-                        borderColor: `${nextDeptColor.gradientFrom}40`,
-                        color: nextDeptColor.gradientFrom,
-                        backgroundColor: `${nextDeptColor.gradientFrom}15`,
-                      }}
-                    >
-                      {nextAppointment.departmentName}
-                    </span>
-                    <span className="text-xs font-mono font-bold text-slate-500">
-                      Pass: {nextAppointment.bookingId}
-                    </span>
-                  </div>
-
-                  <h3 className="text-base sm:text-lg font-black text-slate-900 truncate flex items-center gap-2 flex-wrap">
-                    <span>{nextAppointment.doctorName}</span>
-                    <span className="text-slate-300 hidden sm:inline">&bull;</span>
-                    <span
-                      className="font-bold text-xs sm:text-sm"
-                      style={{ color: nextDeptColor.gradientFrom }}
-                    >
-                      {nextAppointment.specialty || nextAppointment.departmentName}
-                    </span>
-                  </h3>
-
-                  <div className="flex items-center gap-2 sm:gap-3 text-xs text-slate-600 mt-1.5 flex-wrap">
-                    <div
-                      className="flex items-center gap-1.5 font-bold font-mono px-2.5 py-1 rounded-xl text-xs border shadow-2xs"
-                      style={{
-                        backgroundColor: `${nextDeptColor.gradientFrom}10`,
-                        borderColor: `${nextDeptColor.gradientFrom}35`,
-                        color: nextDeptColor.gradientFrom,
-                      }}
-                    >
-                      <CalendarIcon className="w-3.5 h-3.5" />
-                      <span>{nextAppointment.date}</span>
-                    </div>
-
-                    <div
-                      className="flex items-center gap-1.5 font-bold font-mono px-2.5 py-1 rounded-xl text-xs border shadow-2xs"
-                      style={{
-                        backgroundColor: `${nextDeptColor.gradientTo}10`,
-                        borderColor: `${nextDeptColor.gradientTo}35`,
-                        color: nextDeptColor.gradientTo,
-                      }}
-                    >
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>{nextAppointment.time}</span>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 text-slate-600 text-xs px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-200/80">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{nextAppointment.location || 'WeCare Tower 4, Suite 800'}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2.5 w-full md:w-auto shrink-0 pt-2 md:pt-0">
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.03, y: -1 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setDirectionModalAppt(nextAppointment)}
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-slate-300 hover:bg-white text-slate-800 shadow-2xs w-full md:w-auto"
-                >
-                  <Compass className="w-3.5 h-3.5 text-[#135940]" />
-                  <span>Floor Map</span>
-                </motion.button>
-
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.03, y: -1 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => handleDownloadIcs(nextAppointment)}
-                  className="px-5 py-2.5 rounded-xl text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer w-full md:w-auto"
-                  style={{
-                    background: `linear-gradient(135deg, ${nextDeptColor.gradientFrom}, ${nextDeptColor.gradientTo})`,
-                    boxShadow: `0 4px 14px ${nextDeptColor.gradientFrom}40`,
-                  }}
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Add to Calendar</span>
-                </motion.button>
-              </div>
-            </motion.div>
-          );
-        })()}
       </motion.div>
 
       {/* ====================================================================
@@ -557,22 +414,22 @@ export function MyAppointmentsBento() {
           variants={sectionItemVariants}
           whileHover={{ y: -4, scale: 1.015 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+          className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] sm:text-xs font-mono font-bold uppercase text-slate-500">
               Total Visits
             </span>
-            <div className="size-8 sm:size-9 rounded-xl bg-emerald-50 text-[#135940] flex items-center justify-center shadow-xs">
+            <div className="size-7 sm:size-9 rounded-xl bg-emerald-50 text-[#135940] flex items-center justify-center shadow-xs">
               <CalendarCheck2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">
+          <div className="text-xl sm:text-3xl font-black text-slate-900 tabular-nums">
             {stats.total}
           </div>
-          <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
-            <span className="size-1.5 rounded-full bg-[#135940] animate-pulse" />
-            <span>Lifetime schedule repository</span>
+          <div className="text-[10px] sm:text-[11px] text-slate-500 mt-1 flex items-center gap-1 truncate">
+            <span className="size-1.5 rounded-full bg-[#135940] animate-pulse shrink-0" />
+            <span className="truncate">Lifetime schedule repository</span>
           </div>
         </motion.div>
 
@@ -581,22 +438,22 @@ export function MyAppointmentsBento() {
           variants={sectionItemVariants}
           whileHover={{ y: -4, scale: 1.015 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+          className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] sm:text-xs font-mono font-bold uppercase text-amber-800">
               Pending Review
             </span>
-            <div className="size-8 sm:size-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-xs">
+            <div className="size-7 sm:size-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-xs">
               <Clock className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-amber-600 tabular-nums">
+          <div className="text-xl sm:text-3xl font-black text-amber-600 tabular-nums">
             {stats.pending}
           </div>
-          <div className="text-[11px] text-amber-700 mt-1 flex items-center gap-1 font-medium">
-            <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
-            <span>Under hospital triage review</span>
+          <div className="text-[10px] sm:text-[11px] text-amber-700 mt-1 flex items-center gap-1 font-medium truncate">
+            <span className="size-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+            <span className="truncate">Under hospital triage review</span>
           </div>
         </motion.div>
 
@@ -605,22 +462,22 @@ export function MyAppointmentsBento() {
           variants={sectionItemVariants}
           whileHover={{ y: -4, scale: 1.015 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+          className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] sm:text-xs font-mono font-bold uppercase text-emerald-800">
               Active Passes
             </span>
-            <div className="size-8 sm:size-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-xs">
+            <div className="size-7 sm:size-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-xs">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-emerald-600 tabular-nums">
+          <div className="text-xl sm:text-3xl font-black text-emerald-600 tabular-nums">
             {stats.approved}
           </div>
-          <div className="text-[11px] text-emerald-700 mt-1 flex items-center gap-1 font-medium">
-            <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Suites allocated & confirmed</span>
+          <div className="text-[10px] sm:text-[11px] text-emerald-700 mt-1 flex items-center gap-1 font-medium truncate">
+            <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="truncate">Suites allocated & confirmed</span>
           </div>
         </motion.div>
 
@@ -629,22 +486,22 @@ export function MyAppointmentsBento() {
           variants={sectionItemVariants}
           whileHover={{ y: -4, scale: 1.015 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+          className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] sm:text-xs font-mono font-bold uppercase text-slate-500">
               Completed Care
             </span>
-            <div className="size-8 sm:size-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-xs">
+            <div className="size-7 sm:size-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-xs">
               <Activity className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-indigo-600 tabular-nums">
+          <div className="text-xl sm:text-3xl font-black text-indigo-600 tabular-nums">
             {stats.completed}
           </div>
-          <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
-            <span className="size-1.5 rounded-full bg-indigo-500" />
-            <span>Consultation notes archived</span>
+          <div className="text-[10px] sm:text-[11px] text-slate-500 mt-1 flex items-center gap-1 truncate">
+            <span className="size-1.5 rounded-full bg-indigo-500 shrink-0" />
+            <span className="truncate">Consultation notes archived</span>
           </div>
         </motion.div>
       </div>
@@ -663,7 +520,7 @@ export function MyAppointmentsBento() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by doctor, specialty, pass ID, or clinical reason..."
-              className="w-full h-11 pl-10 pr-9 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm font-medium hover:bg-slate-100/70 focus:bg-white focus:border-[#135940] focus:ring-4 focus:ring-[#135940]/15 outline-none transition-all"
+              className="w-full h-11 pl-10 pr-9 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-base sm:text-sm font-medium hover:bg-slate-100/70 focus:bg-white focus:border-[#135940] focus:ring-4 focus:ring-[#135940]/15 outline-none transition-all"
             />
             {searchQuery && (
               <motion.button
@@ -1395,7 +1252,7 @@ export function MyAppointmentsBento() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, y: 20 }}
               transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-              className="relative w-full max-w-xl rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-slate-200 overflow-hidden text-left"
+              className="relative w-full max-w-xl rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-7 shadow-2xl border border-slate-200 overflow-hidden text-left my-auto max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
                 <div className="flex items-center gap-2.5">
@@ -1437,7 +1294,7 @@ export function MyAppointmentsBento() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 font-mono">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono">
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                     <span className="text-[10px] text-slate-400 block">ELEVATOR BANK</span>
                     <span className="font-bold text-slate-800">East Tower Elevators (Express 1-4)</span>

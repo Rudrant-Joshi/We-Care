@@ -147,14 +147,14 @@ export default function HomePage() {
                 variants={heroItemVariants}
                 whileHover={{ scale: 1.03, y: -2 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 rounded-full bg-emerald-50/95 border border-emerald-200/90 text-[#135940] text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2 sm:mb-3 shadow-xs hover:shadow-md hover:shadow-emerald-600/15 backdrop-blur-md cursor-default font-sans select-none transition-shadow text-center"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 rounded-full bg-emerald-50/95 border border-emerald-200/90 text-[#135940] text-[9.5px] sm:text-xs font-bold uppercase tracking-wider mb-2 sm:mb-3 shadow-xs hover:shadow-md hover:shadow-emerald-600/15 backdrop-blur-md cursor-default font-sans select-none transition-shadow text-center max-w-full"
               >
                 <span className="relative flex h-2 w-2 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                 </span>
                 <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#135940] shrink-0" />
-                <span>JCI Accredited • 24/7 Emergency & Specialty Care</span>
+                <span className="truncate sm:whitespace-normal">JCI Accredited • 24/7 Emergency & Specialty Care</span>
               </motion.div>
 
               {/* Main Hospital Headline matching website typography */}
@@ -172,7 +172,7 @@ export default function HomePage() {
               {/* Interactive Primary & Secondary Action CTAs with Spring Physics */}
               <motion.div
                 variants={heroItemVariants}
-                className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 pt-3 sm:pt-4 font-sans w-full sm:w-auto px-4 sm:px-0"
+                className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 pt-3 sm:pt-4 font-sans w-full sm:w-auto px-2 sm:px-0"
               >
                 <motion.button
                   id="home-book-appointment-btn"
@@ -180,7 +180,7 @@ export default function HomePage() {
                   whileHover={{ scale: 1.04, y: -2 }}
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-                  className="w-full sm:w-auto group px-6 sm:px-7 py-3 rounded-full bg-[#135940] hover:bg-[#1b7454] text-white text-xs sm:text-sm font-bold shadow-lg shadow-[#135940]/25 hover:shadow-[#135940]/40 hover:shadow-xl transition-all flex items-center justify-center gap-2.5 cursor-pointer font-sans"
+                  className="w-full sm:w-auto min-h-[44px] group px-6 sm:px-7 py-3 rounded-full bg-[#135940] hover:bg-[#1b7454] text-white text-xs sm:text-sm font-bold shadow-lg shadow-[#135940]/25 hover:shadow-[#135940]/40 hover:shadow-xl transition-all flex items-center justify-center gap-2.5 cursor-pointer font-sans"
                 >
                   <span>Book Appointment</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-200" />
@@ -191,7 +191,7 @@ export default function HomePage() {
                   whileHover={{ scale: 1.04, y: -2, borderColor: '#a7f3d0', color: '#135940' }}
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-                  className="w-full sm:w-auto px-6 sm:px-7 py-3 rounded-full bg-white/95 hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-bold border border-slate-200/90 shadow-sm hover:shadow-md transition-all backdrop-blur-md cursor-pointer font-sans flex items-center justify-center"
+                  className="w-full sm:w-auto min-h-[44px] px-6 sm:px-7 py-3 rounded-full bg-white/95 hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-bold border border-slate-200/90 shadow-sm hover:shadow-md transition-all backdrop-blur-md cursor-pointer font-sans flex items-center justify-center"
                 >
                   Meet Our Specialists
                 </motion.button>

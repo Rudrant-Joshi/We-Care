@@ -159,7 +159,7 @@ export const Navbar = ({ onBookDemoClick: _onBookDemoClick }: NavbarProps) => {
   return (
     <header
       id="vortiq-navbar"
-      className={`relative z-30 w-full max-w-[1720px] mx-auto flex items-center justify-between px-6 sm:px-10 md:px-16 transition-all duration-300 ${isScrolled ? 'py-3 drop-shadow-xs' : 'py-4'
+      className={`relative z-30 w-full max-w-[1720px] mx-auto flex items-center justify-between px-4 sm:px-10 md:px-16 transition-all duration-300 ${isScrolled ? 'py-3 drop-shadow-xs' : 'py-3.5 sm:py-4'
         }`}
     >
       {/* Brand Logo (Left) */}
@@ -167,23 +167,23 @@ export const Navbar = ({ onBookDemoClick: _onBookDemoClick }: NavbarProps) => {
         href="/"
         id="nav-brand-logo"
         onClick={handleLogoClick}
-        className={`group flex items-center gap-3 no-underline transition-opacity hover:opacity-90 ${isAbout ? 'text-slate-900' : 'text-white'
+        className={`group flex items-center gap-2.5 sm:gap-3 no-underline transition-opacity hover:opacity-90 shrink-0 ${isAbout ? 'text-slate-900' : 'text-white'
           }`}
       >
         {/* Brand Pill Tile */}
         <div
-          className={`relative flex items-center justify-center w-10 h-10 rounded-2xl overflow-hidden shadow-sm transition-transform group-hover:scale-[1.03] ${isAbout
+          className={`relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl overflow-hidden shadow-sm transition-transform group-hover:scale-[1.03] shrink-0 ${isAbout
               ? 'bg-[#135940] text-white border border-[#1b7454] shadow-[#135940]/20'
               : 'navbar-brand-pill'
             }`}
         >
           <svg
-            width="22"
-            height="22"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="text-white drop-shadow-[0_1px_4px_rgba(0,60,150,0.5)]"
+            className="text-white drop-shadow-[0_1px_4px_rgba(0,60,150,0.5)] sm:w-[22px] sm:h-[22px]"
           >
             <path
               d="M 5 19 L 12 5 L 19 19 L 14 19 L 12 14 L 10 19 Z"
@@ -193,11 +193,11 @@ export const Navbar = ({ onBookDemoClick: _onBookDemoClick }: NavbarProps) => {
           </svg>
         </div>
 
-        <div className="flex items-center tracking-tight">
-          <span className={`text-2xl font-black tracking-tight ${isAbout ? 'text-slate-900' : 'text-white'}`}>
+        <div className="flex items-center tracking-tight shrink-0">
+          <span className={`text-xl sm:text-2xl font-black tracking-tight ${isAbout ? 'text-slate-900' : 'text-white'}`}>
             We
           </span>
-          <span className={`text-2xl font-bold ml-1 tracking-tight ${isAbout ? 'text-[#135940]' : 'text-white'}`}>
+          <span className={`text-xl sm:text-2xl font-bold ml-1 tracking-tight ${isAbout ? 'text-[#135940]' : 'text-white'}`}>
             Care
           </span>
           <span className={`w-1.5 h-1.5 rounded-full ml-1.5 animate-pulse ${isAbout ? 'bg-[#135940]' : 'bg-sky-300'}`} />
@@ -442,7 +442,7 @@ export const Navbar = ({ onBookDemoClick: _onBookDemoClick }: NavbarProps) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className={`absolute top-full left-6 right-6 mt-2 p-4 rounded-3xl flex flex-col gap-2 md:hidden shadow-2xl ${isAbout
+            className={`absolute top-full left-3 right-3 sm:left-6 sm:right-6 mt-2 p-3 sm:p-4 rounded-2xl sm:rounded-3xl flex flex-col gap-2 md:hidden shadow-2xl z-50 ${isAbout
                 ? 'bg-white border border-slate-200 text-slate-900 shadow-xl'
                 : 'navbar-liquid-island'
               }`}
@@ -455,7 +455,7 @@ export const Navbar = ({ onBookDemoClick: _onBookDemoClick }: NavbarProps) => {
                   setMobileMenuOpen(false);
                   handleNavClick(item);
                 }}
-                className={`w-full py-2.5 px-4 text-left text-sm rounded-xl transition-colors flex items-center justify-between ${activeTab === item.label
+                className={`w-full min-h-[44px] py-2.5 px-4 text-left text-sm rounded-xl transition-colors flex items-center justify-between ${activeTab === item.label
                     ? isAbout
                       ? 'bg-[#135940] text-white font-bold shadow-sm'
                       : 'bg-white text-black font-bold shadow-sm'
@@ -526,7 +526,7 @@ export const Navbar = ({ onBookDemoClick: _onBookDemoClick }: NavbarProps) => {
                   setMobileMenuOpen(false);
                   navigate('/login');
                 }}
-                className={`w-full py-2.5 px-4 text-left text-sm rounded-xl font-semibold flex items-center gap-2 ${isAbout ? 'text-slate-700 hover:bg-slate-100' : 'text-white hover:bg-white/15'
+                className={`w-full min-h-[44px] py-2.5 px-4 text-left text-sm rounded-xl font-semibold flex items-center gap-2 ${isAbout ? 'text-slate-700 hover:bg-slate-100' : 'text-white hover:bg-white/15'
                   }`}
               >
                 <UserIcon className="w-4 h-4 text-sky-400" />
@@ -540,7 +540,7 @@ export const Navbar = ({ onBookDemoClick: _onBookDemoClick }: NavbarProps) => {
                   setMobileMenuOpen(false);
                   handleBookAppointmentClick();
                 }}
-                className={`w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all ${isAbout
+                className={`w-full min-h-[44px] py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all ${isAbout
                     ? isBookAppointment
                       ? 'bg-[#0e4230] text-white ring-2 ring-[#1b7454] ring-offset-1 font-black shadow-lg shadow-[#135940]/35'
                       : 'bg-[#135940] hover:bg-[#1b7454] text-white shadow-[#135940]/25'

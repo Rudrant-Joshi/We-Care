@@ -582,7 +582,7 @@ export default function AuthSectionOne({
                         onFocus={() => setFocusedField("name")}
                         onBlur={() => setFocusedField(null)}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="w-full bg-transparent text-slate-900 outline-none text-xs sm:text-sm font-medium placeholder:text-slate-400"
+                        className="w-full bg-transparent text-slate-900 outline-none text-base sm:text-sm font-medium placeholder:text-slate-400"
                       />
                       <AnimatePresence>
                         {fullName.trim().length >= 2 && (
@@ -665,7 +665,7 @@ export default function AuthSectionOne({
                     onFocus={() => setFocusedField("email")}
                     onBlur={() => setFocusedField(null)}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-transparent text-slate-900 outline-none text-xs sm:text-sm font-medium placeholder:text-slate-400"
+                    className="w-full bg-transparent text-slate-900 outline-none text-base sm:text-sm font-medium placeholder:text-slate-400"
                   />
                   <AnimatePresence>
                     {email.includes("@") && email.includes(".") && (
@@ -760,7 +760,7 @@ export default function AuthSectionOne({
                     onFocus={() => setFocusedField("password")}
                     onBlur={() => setFocusedField(null)}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-transparent text-slate-900 outline-none text-xs sm:text-sm font-medium placeholder:text-slate-400"
+                    className="w-full bg-transparent text-slate-900 outline-none text-base sm:text-sm font-medium placeholder:text-slate-400"
                   />
                   <AnimatePresence>
                     {mode === "register" && password.length >= 6 && (
