@@ -31,7 +31,12 @@ export default function DoctorsPage() {
       />
 
       {/* Section 1: Template Implementation for Doctors with Non-Sticky Navbar */}
-      <section className="relative z-20 w-full">
+      <motion.section
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="relative z-20 w-full"
+      >
         <Demo
           word="DOCTORS"
           navbar={
@@ -56,7 +61,7 @@ export default function DoctorsPage() {
             },
           }}
         />
-      </section>
+      </motion.section>
 
       {/* Main Dedicated Doctors Bento Section with Scroll Reveal */}
       <motion.div

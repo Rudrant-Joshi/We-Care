@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { motion } from "motion/react";
 import GlyphPortal from "@/components/ui/glyph-portal";
 
 export type DemoFeature = {
@@ -459,55 +460,213 @@ export default function Demo({
           interactive={interactive}
           annotations={annotations}
           enterLabel={enterLabel}
+          background={
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {/* Base rich deep clinical green atmosphere */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(circle at 50% 30%, rgba(20, 87, 63, 0.9) 0%, rgba(11, 59, 42, 0.96) 50%, #041a12 100%)",
+                }}
+              />
+              {/* Floating ambient medical emerald glow orb */}
+              <motion.div
+                animate={{
+                  x: [0, 35, -25, 0],
+                  y: [0, -30, 25, 0],
+                  scale: [1, 1.12, 0.96, 1],
+                  opacity: [0.35, 0.55, 0.4, 0.35],
+                }}
+                transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -top-1/4 -left-1/4 w-[75vw] h-[75vw] rounded-full blur-3xl pointer-events-none"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(52, 211, 153, 0.45) 0%, rgba(16, 185, 129, 0.18) 45%, transparent 70%)",
+                }}
+              />
+              {/* Secondary floating clinical cyan glow orb */}
+              <motion.div
+                animate={{
+                  x: [0, -40, 30, 0],
+                  y: [0, 35, -25, 0],
+                  scale: [1, 1.15, 0.92, 1],
+                  opacity: [0.3, 0.5, 0.35, 0.3],
+                }}
+                transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -bottom-1/4 -right-1/4 w-[70vw] h-[70vw] rounded-full blur-3xl pointer-events-none"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(45, 212, 191, 0.4) 0%, rgba(13, 148, 136, 0.15) 50%, transparent 70%)",
+                }}
+              />
+              {/* Architectural precision grid lines */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 opacity-25 pointer-events-none"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px)",
+                  backgroundSize: "36px 36px",
+                }}
+              />
+            </div>
+          }
           front={
             <>
-              <p data-sublime-eyebrow>{resolvedEyebrow}</p>
-              <p data-sublime-support>{resolvedSupport}</p>
-              <span data-sublime-scroll>{scrollNotice}</span>
+              <motion.p
+                data-sublime-eyebrow
+                initial={{ opacity: 0, y: -12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+                className="inline-flex items-center gap-2"
+              >
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)] animate-pulse" />
+                {resolvedEyebrow}
+              </motion.p>
+              <motion.p
+                data-sublime-support
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.65, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {resolvedSupport}
+              </motion.p>
+              <motion.span
+                data-sublime-scroll
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, y: [0, 5, 0] }}
+                transition={{
+                  opacity: { duration: 0.6, delay: 0.25 },
+                  y: { duration: 2.2, repeat: Infinity, ease: "easeInOut" },
+                }}
+                className="inline-flex items-center gap-1.5"
+              >
+                {scrollNotice}
+              </motion.span>
             </>
           }
         >
           {children ?? (
-            <div data-slipstream-copy>
-              {resolvedBadge && <span data-slipstream-badge>{resolvedBadge}</span>}
-              <h2>{resolvedHeadline}</h2>
+            <motion.div
+              data-slipstream-copy
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {resolvedBadge && (
+                <motion.span
+                  data-slipstream-badge
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ scale: 1.05 }}
+                  className="transition-transform duration-200 cursor-default"
+                >
+                  <span className="relative flex h-2 w-2 mr-1">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-300" />
+                  </span>
+                  {resolvedBadge}
+                </motion.span>
+              )}
+              <motion.h2
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {resolvedHeadline}
+              </motion.h2>
               {resolvedSubtitle && (
-                <p data-slipstream-subtitle>{resolvedSubtitle}</p>
+                <motion.p
+                  data-slipstream-subtitle
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {resolvedSubtitle}
+                </motion.p>
               )}
               <div data-slipstream-features>
-                {resolvedFeatures.map((feat) => (
-                  <div key={feat.no} data-slipstream-feature>
-                    <h3>
-                      <span data-slipstream-no>{feat.no}</span>
-                      {feat.title}
+                {resolvedFeatures.map((feat, idx) => (
+                  <motion.div
+                    key={feat.no}
+                    data-slipstream-feature
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{
+                      duration: 0.55,
+                      delay: 0.24 + idx * 0.09,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                    className="group rounded-xl p-3.5 -mx-3.5 transition-all duration-300 hover:bg-white/[0.08] hover:backdrop-blur-sm border border-transparent hover:border-emerald-500/25 cursor-default"
+                  >
+                    <h3 className="flex items-center gap-2">
+                      <span
+                        data-slipstream-no
+                        className="group-hover:text-emerald-300 transition-colors duration-200"
+                      >
+                        {feat.no}
+                      </span>
+                      <span className="group-hover:text-white transition-colors duration-200">
+                        {feat.title}
+                      </span>
                     </h3>
-                    <p>{feat.text}</p>
-                  </div>
+                    <p className="group-hover:text-white/95 transition-colors duration-200">
+                      {feat.text}
+                    </p>
+                  </motion.div>
                 ))}
               </div>
               {(resolvedPrimaryButton || resolvedSecondaryButton) && (
-                <div data-slipstream-actions>
+                <motion.div
+                  data-slipstream-actions
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                >
                   {resolvedPrimaryButton && (
-                    <a
+                    <motion.a
                       data-slipstream-btn-primary
                       href={resolvedPrimaryButton.href ?? "#"}
                       onClick={resolvedPrimaryButton.onClick}
+                      whileHover={{ scale: 1.04, y: -2 }}
+                      whileTap={{ scale: 0.97 }}
+                      transition={{ type: "spring", stiffness: 420, damping: 22 }}
+                      className="group relative overflow-hidden shadow-lg hover:shadow-emerald-950/40"
                     >
-                      <span>{resolvedPrimaryButton.label}</span>
-                    </a>
+                      {/* Shimmer light sweep on hover */}
+                      <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-emerald-100/50 to-transparent pointer-events-none" />
+                      <span className="relative z-10 flex items-center gap-2">
+                        {resolvedPrimaryButton.label}
+                      </span>
+                    </motion.a>
                   )}
                   {resolvedSecondaryButton && (
-                    <a
+                    <motion.a
                       data-slipstream-btn-secondary
                       href={resolvedSecondaryButton.href ?? "#"}
                       onClick={resolvedSecondaryButton.onClick}
+                      whileHover={{ scale: 1.04, y: -2 }}
+                      whileTap={{ scale: 0.97 }}
+                      transition={{ type: "spring", stiffness: 420, damping: 22 }}
+                      className="group relative overflow-hidden"
                     >
-                      <span>{resolvedSecondaryButton.label}</span>
-                    </a>
+                      <span className="relative z-10 flex items-center gap-2">
+                        {resolvedSecondaryButton.label}
+                      </span>
+                    </motion.a>
                   )}
-                </div>
+                </motion.div>
               )}
-            </div>
+            </motion.div>
           )}
         </GlyphPortal>
       ) : (

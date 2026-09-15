@@ -31,7 +31,12 @@ export default function DepartmentsPage() {
       />
 
       {/* Section 1: Template Implementation for Departments with Non-Sticky Navbar */}
-      <section className="relative z-20 w-full">
+      <motion.section
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="relative z-20 w-full"
+      >
         <Demo
           word="DEPARTMENTS"
           navbar={
@@ -56,7 +61,7 @@ export default function DepartmentsPage() {
             },
           }}
         />
-      </section>
+      </motion.section>
 
       {/* Main Dedicated Departments Bento Section with Scroll Reveal */}
       <motion.div
