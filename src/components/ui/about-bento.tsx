@@ -337,17 +337,17 @@ const CLINICAL_PILLARS = [
     description:
       "Uncompromising patient confidentiality, transparent procedures, clear billing, and dedicated patient advocacy at every step.",
     keyPoints: ["Itemized Upfront Estimates", "Biometric Encrypted Records", "Dedicated Patient Advocate"],
-    gradientFrom: "#3b82f6",
-    gradientTo: "#1d4ed8",
-    solid: "text-blue-600",
-    gradientBg: "from-blue-500/10 via-white to-indigo-50/40",
-    border: "border-blue-200/90 hover:border-blue-400 hover:shadow-[0_20px_45px_rgba(37,99,235,0.18)]",
-    iconBg: "bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-md shadow-blue-500/30",
-    tagBadge: "bg-blue-100/90 text-blue-800 border-blue-200",
-    progressBar: "bg-gradient-to-r from-blue-600 to-indigo-700",
-    topAccent: "from-blue-600 to-indigo-700",
-    glowColor: "bg-blue-400/20",
-    spotlight: "rgba(37, 99, 235, 0.2)",
+    gradientFrom: "#135940",
+    gradientTo: "#1b7454",
+    solid: "text-[#135940]",
+    gradientBg: "from-emerald-500/10 via-white to-emerald-50/40",
+    border: "border-emerald-200/90 hover:border-emerald-400 hover:shadow-[0_20px_45px_rgba(19,89,64,0.18)]",
+    iconBg: "bg-gradient-to-br from-[#135940] to-[#1b7454] text-white shadow-md shadow-[#135940]/30",
+    tagBadge: "bg-emerald-100/90 text-[#135940] border-emerald-200",
+    progressBar: "bg-gradient-to-r from-[#135940] to-[#1b7454]",
+    topAccent: "from-[#135940] to-[#1b7454]",
+    glowColor: "bg-emerald-400/20",
+    spotlight: "rgba(19, 89, 64, 0.2)",
   },
 ];
 
@@ -356,29 +356,29 @@ const TIMELINE_MILESTONES = [
     year: "1996",
     title: "Hospital Foundation",
     desc: "Established as a 40-bed family outpatient clinic with personalized bedside care and emergency stabilization.",
-    badgeBg: "from-blue-600 to-blue-700",
-    nodeColor: "bg-blue-600",
+    badgeBg: "from-[#135940] to-[#1b7454]",
+    nodeColor: "bg-[#135940]",
   },
   {
     year: "2005",
     title: "Cardiology Wing & Cath Labs",
     desc: "Expanded to 120 in-patient beds with 2 dedicated state-of-the-art heart surgery suites.",
-    badgeBg: "from-blue-600 to-blue-700",
-    nodeColor: "bg-blue-600",
+    badgeBg: "from-[#135940] to-[#1b7454]",
+    nodeColor: "bg-[#135940]",
   },
   {
     year: "2015",
     title: "Joint Commission Gold Seal",
     desc: "Achieved national accreditation confirming compliance with the highest medical quality benchmarks.",
-    badgeBg: "from-blue-600 to-blue-700",
-    nodeColor: "bg-blue-600",
+    badgeBg: "from-[#135940] to-[#1b7454]",
+    nodeColor: "bg-[#135940]",
   },
   {
     year: "2023",
     title: "Robotic Surgery & Smart EHR",
     desc: "Integrated AI-driven robotic assistance and paperless digital triage booking protocols.",
-    badgeBg: "from-blue-600 to-blue-700",
-    nodeColor: "bg-blue-600",
+    badgeBg: "from-[#135940] to-[#1b7454]",
+    nodeColor: "bg-[#135940]",
   },
 ];
 
@@ -734,7 +734,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
   });
 
   return (
-    <section className="bg-slate-50 py-20 px-4 sm:px-6 font-sans min-h-screen relative overflow-x-clip">
+    <section className="bg-slate-50 py-10 sm:py-16 md:py-20 px-3.5 sm:px-6 font-sans min-h-screen relative overflow-x-clip text-slate-900">
       {/* Subtle elemental background ambient glow orbs */}
       <motion.div
         aria-hidden="true"
@@ -744,7 +744,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
           scale: [1, 1.08, 1],
         }}
         transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-        className="pointer-events-none absolute -top-40 -left-20 w-[550px] h-[550px] rounded-full bg-blue-400/10 blur-[140px]"
+        className="pointer-events-none absolute -top-40 -left-20 w-[550px] h-[550px] rounded-full bg-emerald-400/10 blur-[140px]"
       />
       <motion.div
         aria-hidden="true"
@@ -782,9 +782,9 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
             <motion.div
               whileHover={{ scale: 1.06, y: -2 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200/90 text-blue-700 text-xs font-bold uppercase tracking-wider shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/90 text-[#135940] text-xs font-bold uppercase tracking-wider shadow-2xs cursor-pointer"
             >
-              <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
+              <Sparkles className="w-3.5 h-3.5 text-[#135940] animate-pulse" />
               Our Healthcare Legacy
             </motion.div>
 
@@ -812,14 +812,14 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
             >
               <TiltCard
                 tiltAmount={6}
-                spotlightColor="rgba(59, 130, 246, 0.14)"
-                className="bg-gradient-to-br from-white via-white to-blue-50/40 rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm hover:shadow-2xl hover:border-blue-300 transition-all duration-300 h-full flex flex-col justify-between"
+                spotlightColor="rgba(19, 89, 64, 0.14)"
+                className="bg-gradient-to-br from-white via-white to-emerald-50/40 rounded-3xl p-5 sm:p-8 md:p-12 border border-slate-200 shadow-sm hover:shadow-2xl hover:border-emerald-300 transition-all duration-300 h-full flex flex-col justify-between"
               >
                 {/* Rotating Background Starburst Emblem with smooth interactive hover spin */}
                 <svg
                   width="377"
                   height="368"
-                  className="w-96 fill-blue-50/70 absolute -bottom-16 -right-16 group-hover:rotate-180 duration-1000 ease-out pointer-events-none transition-transform"
+                  className="w-96 fill-emerald-50/70 absolute -bottom-16 -right-16 group-hover:rotate-180 duration-1000 ease-out pointer-events-none transition-transform"
                   viewBox="0 0 377 368"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -830,14 +830,14 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
                 <div className="space-y-6 relative z-10">
                   <motion.div
                     whileHover={{ scale: 1.05 }}
-                    className="inline-flex px-4 py-2 rounded-full bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest shadow-md shadow-blue-500/25"
+                    className="inline-flex px-4 py-2 rounded-full bg-[#135940] text-white text-[10px] font-black uppercase tracking-widest shadow-md shadow-[#135940]/25"
                   >
                     Clinical Heritage Since 1996
                   </motion.div>
-                  <h3 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                  <h3 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
                     HEALING WITHOUT
                     <br />
-                    <span className="text-blue-600">
+                    <span className="text-[#135940]">
                       BOUNDARIES.
                     </span>
                   </h3>
@@ -858,20 +858,20 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
                       className="flex items-center gap-2.5 text-xs font-bold text-amber-900 bg-amber-50/90 px-4 py-2.5 rounded-xl border border-amber-200/80 shadow-2xs hover:border-amber-400 transition-colors"
                     >
                       <Check className="w-4 h-4 text-amber-600 shrink-0" />
-                      Joint Commission Certified
+                      Joint Commission Accredited
                     </motion.div>
                     <motion.div
                       whileHover={{ scale: 1.04, x: 4 }}
-                      className="flex items-center gap-2.5 text-xs font-bold text-rose-900 bg-rose-50/90 px-4 py-2.5 rounded-xl border border-rose-200/80 shadow-2xs hover:border-rose-400 transition-colors"
+                      className="flex items-center gap-2.5 text-xs font-bold text-sky-900 bg-sky-50/90 px-4 py-2.5 rounded-xl border border-sky-200/80 shadow-2xs hover:border-sky-400 transition-colors"
                     >
-                      <Check className="w-4 h-4 text-rose-600 shrink-0" />
-                      24/7 Trauma Emergency Unit
+                      <Check className="w-4 h-4 text-sky-600 shrink-0" />
+                      Robotic Surgery Suites
                     </motion.div>
                     <motion.div
                       whileHover={{ scale: 1.04, x: 4 }}
-                      className="flex items-center gap-2.5 text-xs font-bold text-blue-900 bg-blue-50/90 px-4 py-2.5 rounded-xl border border-blue-200/80 shadow-2xs hover:border-blue-400 transition-colors"
+                      className="flex items-center gap-2.5 text-xs font-bold text-emerald-950 bg-emerald-50/90 px-4 py-2.5 rounded-xl border border-emerald-200/80 shadow-2xs hover:border-emerald-400 transition-colors"
                     >
-                      <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                      <Check className="w-4 h-4 text-[#135940] shrink-0" />
                       Fully Electronic Health Record
                     </motion.div>
                     <motion.div
@@ -897,7 +897,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
               <TiltCard
                 tiltAmount={9}
                 spotlightColor="rgba(255, 255, 255, 0.28)"
-                className="bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 rounded-3xl p-8 sm:p-10 text-white shadow-xl shadow-emerald-600/25 relative overflow-hidden h-full"
+                className="bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 rounded-3xl p-5 sm:p-8 md:p-10 text-white shadow-xl shadow-emerald-600/25 relative overflow-hidden h-full"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black uppercase tracking-widest text-emerald-100">
@@ -911,7 +911,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
                   </motion.div>
                 </div>
                 <div className="space-y-3 my-6">
-                  <div className="text-5xl sm:text-6xl font-black tracking-tight block drop-shadow-lg cursor-default origin-left">
+                  <div className="text-4xl sm:text-6xl font-black tracking-tight block drop-shadow-lg cursor-default origin-left">
                     <AnimatedNumber value={99.4} decimals={1} suffix="%" />
                   </div>
                   <div className="h-2 w-full bg-white/20 rounded-full overflow-hidden">
@@ -940,15 +940,15 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
             >
               <TiltCard
                 tiltAmount={9}
-                spotlightColor="rgba(56, 189, 248, 0.22)"
-                className="bg-gradient-to-br from-slate-900 via-slate-950 to-blue-950 rounded-3xl p-8 sm:p-10 text-white shadow-xl shadow-slate-900/40 border border-slate-800 relative overflow-hidden h-full"
+                spotlightColor="rgba(52, 211, 153, 0.22)"
+                className="bg-gradient-to-br from-slate-900 via-slate-950 to-[#082d22] rounded-3xl p-5 sm:p-8 md:p-10 text-white shadow-xl shadow-slate-900/40 border border-slate-800 relative overflow-hidden h-full"
               >
                 <div className="flex items-center justify-between">
                   <motion.div
                     whileHover={{ scale: 1.2, rotate: 12 }}
-                    className="size-12 rounded-2xl bg-blue-500/20 border border-blue-400/40 flex items-center justify-center shadow-inner cursor-pointer"
+                    className="size-12 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shadow-inner cursor-pointer"
                   >
-                    <Stethoscope className="w-6 h-6 text-sky-400" />
+                    <Stethoscope className="w-6 h-6 text-emerald-400" />
                   </motion.div>
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 text-[10px] font-mono font-bold shadow-xs">
                     <span className="size-1.5 rounded-full bg-emerald-400 animate-ping" />
@@ -980,13 +980,13 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
               <TiltCard
                 tiltAmount={7}
                 onClick={onBookConsultation}
-                spotlightColor="rgba(59, 130, 246, 0.25)"
-                className="rounded-3xl p-6 sm:p-8 border border-blue-600/30 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white shadow-xl shadow-slate-950/30 transition-all duration-300 gap-6 h-full"
+                spotlightColor="rgba(19, 89, 64, 0.3)"
+                className="rounded-3xl p-5 sm:p-8 border border-[#135940]/40 bg-gradient-to-br from-slate-900 via-[#135940] to-slate-900 text-white shadow-xl shadow-slate-950/30 transition-all duration-300 gap-6 h-full"
               >
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-6">
                   <div className="space-y-2.5">
-                    <div className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest font-bold text-sky-300">
-                      <Clock className="w-3.5 h-3.5 text-sky-400" /> 24/7 Priority Emergency &amp; Outpatient
+                    <div className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest font-bold text-emerald-300">
+                      <Clock className="w-3.5 h-3.5 text-emerald-400" /> 24/7 Priority Emergency &amp; Outpatient
                     </div>
                     <h4 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
                       Schedule a Consultation
@@ -998,7 +998,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
                   <motion.div
                     whileHover={{ scale: 1.15, rotate: 45 }}
                     transition={{ type: "spring", stiffness: 450, damping: 18 }}
-                    className="size-16 sm:size-20 rounded-full flex items-center justify-center text-2xl sm:text-3xl bg-blue-600 hover:bg-blue-500 text-white shrink-0 shadow-lg shadow-blue-900/50 transition-colors"
+                    className="size-16 sm:size-20 rounded-full flex items-center justify-center text-2xl sm:text-3xl bg-[#135940] hover:bg-[#1b7454] text-white shrink-0 shadow-lg shadow-[#135940]/50 transition-colors"
                   >
                     <ArrowRight className="w-7 h-7 sm:w-8 sm:h-8" />
                   </motion.div>
@@ -1019,7 +1019,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
             transition={{ duration: 0.6 }}
             className="text-center max-w-2xl mx-auto space-y-3"
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-100/80 text-blue-800 text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100/90 text-[#135940] text-xs font-bold uppercase tracking-wider">
               Specialist Directory
             </div>
             <h3 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
@@ -1082,7 +1082,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-          className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm space-y-8"
+          className="bg-white rounded-3xl p-5 sm:p-8 md:p-12 border border-slate-200 shadow-sm space-y-8"
         >
           <div className="max-w-3xl space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider">
@@ -1113,7 +1113,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
                   className={`p-6 rounded-2xl border transition-all duration-300 cursor-pointer ${
                     isOpen
                       ? "bg-slate-900 text-white border-slate-800 shadow-xl"
-                      : "bg-slate-50 hover:bg-white text-slate-900 border-slate-200/90 hover:border-blue-300 shadow-2xs"
+                      : "bg-slate-50 hover:bg-white text-slate-900 border-slate-200/90 hover:border-emerald-300 shadow-2xs"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -1121,8 +1121,8 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
                       <div
                         className={`size-11 rounded-xl flex items-center justify-center shrink-0 ${
                           isOpen
-                            ? "bg-blue-600 text-white shadow-md shadow-blue-500/30"
-                            : "bg-white text-blue-600 border border-slate-200 shadow-xs"
+                            ? "bg-[#135940] text-white shadow-md shadow-[#135940]/30"
+                            : "bg-white text-[#135940] border border-slate-200 shadow-xs"
                         }`}
                       >
                         <Icon className="w-5 h-5" />
@@ -1130,7 +1130,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
                       <div>
                         <span
                           className={`font-mono text-[10px] font-bold tracking-wider uppercase block ${
-                            isOpen ? "text-sky-300" : "text-blue-600"
+                            isOpen ? "text-emerald-300" : "text-[#135940]"
                           }`}
                         >
                           {protocol.badge}
@@ -1196,13 +1196,13 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
             <TiltCard
               tiltAmount={6}
               spotlightColor="rgba(56, 189, 248, 0.2)"
-              className="bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950 text-white rounded-3xl p-8 sm:p-10 flex flex-col justify-between shadow-2xl border border-slate-800 h-full"
+              className="bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950 text-white rounded-3xl p-5 sm:p-8 md:p-10 flex flex-col justify-between shadow-2xl border border-slate-800 h-full"
             >
               <div className="space-y-3">
                 <div className="inline-flex items-center gap-2 text-xs font-mono text-sky-400 uppercase tracking-widest font-bold">
                   <MapPin className="w-3.5 h-3.5" /> Medical District Campus
                 </div>
-                <h3 className="text-3xl font-black tracking-tight">
+                <h3 className="text-2xl sm:text-3xl font-black tracking-tight">
                   Advanced Clinical Infrastructure
                 </h3>
                 <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
@@ -1212,19 +1212,19 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
               </div>
 
               {/* 4 Colorful Statistics Blocks with Dynamic Roll-up Numbers */}
-              <div className="grid grid-cols-2 gap-4 my-8">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-4 my-6 sm:my-8">
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.93 }}
                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.08, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   whileHover={{ scale: 1.08, y: -4 }}
-                  className="p-5 rounded-2xl bg-gradient-to-br from-sky-950/60 to-slate-900/80 border border-sky-500/35 shadow-md hover:border-sky-400 cursor-pointer"
+                  className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-sky-950/60 to-slate-900/80 border border-sky-500/35 shadow-md hover:border-sky-400 cursor-pointer"
                 >
-                  <span className="text-3xl sm:text-4xl font-black font-mono text-sky-400 block drop-shadow-sm">
+                  <span className="text-2xl sm:text-4xl font-black font-mono text-sky-400 block drop-shadow-sm">
                     <AnimatedNumber value={80} suffix="+" />
                   </span>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block mt-1">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-300 block mt-1">
                     Critical Care Beds
                   </span>
                 </motion.div>
@@ -1234,12 +1234,12 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
                   viewport={{ once: true }}
                   transition={{ delay: 0.16, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   whileHover={{ scale: 1.08, y: -4 }}
-                  className="p-5 rounded-2xl bg-gradient-to-br from-emerald-950/60 to-slate-900/80 border border-emerald-500/35 shadow-md hover:border-emerald-400 cursor-pointer"
+                  className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-950/60 to-slate-900/80 border border-emerald-500/35 shadow-md hover:border-emerald-400 cursor-pointer"
                 >
-                  <span className="text-3xl sm:text-4xl font-black font-mono text-emerald-400 block drop-shadow-sm">
+                  <span className="text-2xl sm:text-4xl font-black font-mono text-emerald-400 block drop-shadow-sm">
                     <AnimatedNumber value={18} />
                   </span>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block mt-1">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-300 block mt-1">
                     Outpatient Depts
                   </span>
                 </motion.div>
@@ -1249,12 +1249,12 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
                   viewport={{ once: true }}
                   transition={{ delay: 0.24, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   whileHover={{ scale: 1.08, y: -4 }}
-                  className="p-5 rounded-2xl bg-gradient-to-br from-amber-950/60 to-slate-900/80 border border-amber-500/35 shadow-md hover:border-amber-400 cursor-pointer"
+                  className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-950/60 to-slate-900/80 border border-amber-500/35 shadow-md hover:border-amber-400 cursor-pointer"
                 >
-                  <span className="text-3xl sm:text-4xl font-black font-mono text-amber-400 block drop-shadow-sm">
+                  <span className="text-2xl sm:text-4xl font-black font-mono text-amber-400 block drop-shadow-sm">
                     <AnimatedNumber value={4200} suffix="+" />
                   </span>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block mt-1">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-300 block mt-1">
                     Annual Surgeries
                   </span>
                 </motion.div>
@@ -1264,18 +1264,18 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
                   viewport={{ once: true }}
                   transition={{ delay: 0.32, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   whileHover={{ scale: 1.08, y: -4 }}
-                  className="p-5 rounded-2xl bg-gradient-to-br from-rose-950/60 to-slate-900/80 border border-rose-500/35 shadow-md hover:border-rose-400 cursor-pointer"
+                  className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-rose-950/60 to-slate-900/80 border border-rose-500/35 shadow-md hover:border-rose-400 cursor-pointer"
                 >
-                  <span className="text-3xl sm:text-4xl font-black font-mono text-rose-400 block drop-shadow-sm">
+                  <span className="text-2xl sm:text-4xl font-black font-mono text-rose-400 block drop-shadow-sm">
                     <AnimatedNumber value={12} />
                   </span>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block mt-1">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-300 block mt-1">
                     Fleet Ambulances
                   </span>
                 </motion.div>
               </div>
 
-              <div className="inline-flex items-center gap-3 px-4 py-2.5 rounded-xl bg-emerald-950/70 border border-emerald-400/40 text-xs text-emerald-300 font-mono font-bold shadow-sm">
+              <div className="inline-flex items-center gap-2.5 sm:gap-3 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-emerald-950/70 border border-emerald-400/40 text-[11px] sm:text-xs text-emerald-300 font-mono font-bold shadow-sm">
                 <span className="size-2.5 rounded-full bg-emerald-400 animate-pulse" />
                 FACILITY STATUS: 24/7 DISPATCH OPERATIONAL
               </div>
@@ -1292,26 +1292,26 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
           >
             <div
               ref={timelineRef}
-              className="bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-sm hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between h-full relative overflow-hidden"
+              className="bg-white rounded-3xl p-5 sm:p-8 md:p-10 border border-slate-200 shadow-sm hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between h-full relative overflow-hidden"
             >
-              <div className="space-y-2 mb-8">
-                <span className="text-xs font-mono uppercase tracking-widest font-bold text-blue-600">
+              <div className="space-y-2 mb-6 sm:mb-8">
+                <span className="text-xs font-mono uppercase tracking-widest font-bold text-[#135940]">
                   Three Decades of Growth
                 </span>
-                <h3 className="text-3xl font-black text-slate-900 tracking-tight">
+                <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   Timeline of Medical Excellence
                 </h3>
               </div>
 
               {/* Elemental Scroll Timeline Track */}
-              <div className="relative space-y-6 pl-6 py-2">
+              <div className="relative space-y-4 sm:space-y-6 pl-5 sm:pl-6 py-2">
                 {/* Static Background Rail */}
                 <div className="absolute left-[7px] top-3 bottom-3 w-[2px] bg-slate-200 rounded-full" />
 
-                {/* Elemental Scroll Animated Laser Beam - Single Solid Medical Blue */}
+                {/* Elemental Scroll Animated Laser Beam - Single Solid Medical Green */}
                 <motion.div
                   style={{ scaleY: laserScaleY, originY: 0 }}
-                  className="absolute left-[6px] top-3 bottom-3 w-[4px] bg-blue-600 rounded-full shadow-[0_0_10px_rgba(37,99,235,0.6)] z-0"
+                  className="absolute left-[6px] top-3 bottom-3 w-[4px] bg-[#135940] rounded-full shadow-[0_0_10px_rgba(19,89,64,0.6)] z-0"
                 />
 
                 {TIMELINE_MILESTONES.map((m, idx) => (
@@ -1322,10 +1322,10 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
                     viewport={{ once: true, amount: 0.15 }}
                     transition={{ delay: 0.08 * idx, duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
                     whileHover={{ x: 8, scale: 1.015 }}
-                    className="relative flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/90 hover:bg-blue-50/70 hover:border-blue-300 transition-all duration-300 shadow-2xs group cursor-default z-10"
+                    className="relative flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/90 hover:bg-emerald-50/70 hover:border-emerald-300 transition-all duration-300 shadow-2xs group cursor-default z-10"
                   >
                     {/* Node Dot with Glow */}
-                    <span className="absolute -left-[23px] top-6 size-3.5 rounded-full bg-blue-600 border-2 border-white shadow-sm group-hover:scale-150 transition-transform" />
+                    <span className="absolute -left-[23px] top-6 size-3.5 rounded-full bg-[#135940] border-2 border-white shadow-sm group-hover:scale-150 transition-transform" />
 
                     <span
                       className={`px-3 py-1.5 rounded-xl bg-gradient-to-r ${m.badgeBg} text-white font-mono font-bold text-sm tracking-tight shrink-0 shadow-md group-hover:scale-105 transition-transform origin-left`}
@@ -1353,7 +1353,7 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={onBookConsultation}
-                  className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/25 flex items-center gap-2 cursor-pointer"
+                  className="px-6 py-2.5 rounded-xl bg-[#135940] hover:bg-[#1b7454] text-white text-xs font-bold transition-all shadow-md shadow-[#135940]/25 flex items-center gap-2 cursor-pointer"
                 >
                   Book Appointment
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -1371,10 +1371,10 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-          className="rounded-3xl bg-gradient-to-r from-blue-900 via-slate-900 to-slate-950 p-8 sm:p-12 text-white border border-blue-800/40 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8"
+          className="rounded-3xl bg-gradient-to-r from-[#135940] via-[#1b7454] to-[#0e4230] p-8 sm:p-12 text-white border border-emerald-800/40 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8"
         >
           <div className="space-y-3 max-w-2xl text-center md:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-sky-300 text-xs font-mono font-bold uppercase tracking-wider border border-blue-400/30">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold uppercase tracking-wider border border-emerald-400/30">
               <Users className="w-3.5 h-3.5" /> Patient Rights &amp; Assurance
             </div>
             <h3 className="text-2xl sm:text-3xl font-black tracking-tight">
@@ -1390,11 +1390,11 @@ export function AboutBento({ onBookConsultation }: AboutBentoProps) {
             whileHover={{ scale: 1.06 }}
             whileTap={{ scale: 0.96 }}
             onClick={onBookConsultation}
-            className="px-8 py-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-950 font-bold text-sm shadow-xl shrink-0 flex items-center gap-3 transition-all cursor-pointer"
+            className="px-8 py-4 rounded-2xl bg-white hover:bg-slate-100 text-[#135940] font-bold text-sm shadow-xl shrink-0 flex items-center gap-3 transition-all cursor-pointer"
           >
-            <Calendar className="w-4 h-4 text-blue-600" />
+            <Calendar className="w-4 h-4 text-[#135940]" />
             Book Initial Consultation
-            <ArrowRight className="w-4 h-4 text-blue-600" />
+            <ArrowRight className="w-4 h-4 text-[#135940]" />
           </motion.button>
         </motion.div>
       </div>

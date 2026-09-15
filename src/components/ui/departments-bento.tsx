@@ -510,13 +510,13 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
   };
 
   return (
-    <section className="bg-slate-50 py-20 px-4 sm:px-6 font-sans min-h-screen relative overflow-x-clip text-slate-900">
+    <section className="bg-slate-50 py-10 sm:py-16 md:py-20 px-3.5 sm:px-6 font-sans min-h-screen relative overflow-x-clip text-slate-900">
       {/* Ambient background glow orbs */}
       <motion.div
         aria-hidden="true"
         animate={{ y: [0, -25, 0], x: [0, 20, 0], scale: [1, 1.08, 1] }}
         transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-        className="pointer-events-none absolute -top-40 -left-20 w-[550px] h-[550px] rounded-full bg-blue-400/10 blur-[140px]"
+        className="pointer-events-none absolute -top-40 -left-20 w-[550px] h-[550px] rounded-full bg-emerald-400/10 blur-[140px]"
       />
       <motion.div
         aria-hidden="true"
@@ -531,7 +531,7 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
         className="pointer-events-none absolute bottom-10 left-1/3 w-[450px] h-[450px] rounded-full bg-emerald-400/8 blur-[140px]"
       />
 
-      <div className="max-w-7xl mx-auto space-y-20 relative z-10">
+      <div className="max-w-7xl mx-auto space-y-12 sm:space-y-16 md:space-y-20 relative z-10">
         {/* ====================================================================
             1. HEADER
             ==================================================================== */}
@@ -540,22 +540,22 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center max-w-3xl mx-auto space-y-4"
+          className="text-center max-w-3xl mx-auto space-y-3 sm:space-y-4"
         >
           <motion.div
             whileHover={{ scale: 1.06, y: -2 }}
             whileTap={{ scale: 0.97 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200/90 text-blue-700 text-xs font-bold uppercase tracking-wider shadow-2xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/90 text-[#135940] text-xs font-bold uppercase tracking-wider shadow-2xs cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
+            <Sparkles className="w-3.5 h-3.5 text-[#135940] animate-pulse" />
             Clinical Roster
           </motion.div>
 
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight">
             Explore Our Medical Departments
           </h2>
-          <p className="text-lg sm:text-xl text-slate-600 leading-relaxed font-normal">
+          <p className="text-base sm:text-xl text-slate-600 leading-relaxed font-normal">
             Eight flagship specialty wards — part of WeCare's wider network of{" "}
             <span className="font-semibold text-slate-900">
               <AnimatedNumber value={18} suffix="+" />
@@ -571,9 +571,9 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.12 }}
           transition={{ duration: 0.4 }}
-          className="relative z-30 flex items-center justify-center pointer-events-auto"
+          className="relative z-30 flex items-center justify-center pointer-events-auto w-full"
         >
-          <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-white/90 backdrop-blur-xl border border-slate-200/90 shadow-md shadow-slate-900/5 overflow-x-auto max-w-full">
+          <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-white/90 backdrop-blur-xl border border-slate-200/90 shadow-md shadow-slate-900/5 overflow-x-auto max-w-full scrollbar-none flex-nowrap justify-start sm:justify-center">
             <button
               type="button"
               onClick={() => {
@@ -581,7 +581,7 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
               }}
               className="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
             >
-              <Building2 className="w-3.5 h-3.5 text-blue-600" />
+              <Building2 className="w-3.5 h-3.5 text-[#135940]" />
               <span>All Specialties ({DEPARTMENTS.length})</span>
             </button>
 
@@ -638,7 +638,7 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
               Choose a Specialty ({DEPARTMENTS.length})
             </span>
             <span className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500">
-              <Building2 className="w-3.5 h-3.5 text-blue-600" />
+              <Building2 className="w-3.5 h-3.5 text-[#135940]" />
               Tap a department to view full details below
             </span>
           </motion.div>
@@ -699,7 +699,7 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -12, scale: 0.985 }}
                 transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-                className="relative z-20 bg-white/50 backdrop-blur-[20px] rounded-3xl border border-slate-200/90 shadow-[0_20px_50px_rgba(0,0,0,0.06),inset_0_1.5px_2px_rgba(255,255,255,0.95)] p-6 sm:p-10 space-y-10 text-slate-900 overflow-hidden transform-gpu will-change-transform"
+                className="relative z-20 bg-white/50 backdrop-blur-[20px] rounded-3xl border border-slate-200/90 shadow-[0_20px_50px_rgba(0,0,0,0.06),inset_0_1.5px_2px_rgba(255,255,255,0.95)] p-4 sm:p-6 lg:p-10 space-y-8 sm:space-y-10 text-slate-900 overflow-hidden transform-gpu will-change-transform"
               >
                 {/* Top accent bar echoing the active department's color */}
                 <div
@@ -730,7 +730,7 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.96 }}
                     onClick={onBookConsultation}
-                    className="px-6 py-3.5 rounded-2xl text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md hover:brightness-110 flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                    className="w-full sm:w-auto px-6 py-3.5 rounded-2xl text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md hover:brightness-110 flex items-center justify-center gap-2 cursor-pointer shrink-0"
                     style={{
                       background: `linear-gradient(135deg, ${activeDept.theme.gradientFrom}, ${activeDept.theme.gradientTo})`,
                       boxShadow: `0 6px 18px ${activeDept.theme.gradientFrom}40`,
@@ -916,11 +916,11 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
             4. CLOSING CONSULTATION BANNER
             ==================================================================== */}
         <div id="dept-routing" className="relative w-full pt-2 scroll-mt-28">
-          {/* Blue Skewed gradient glow backdrop */}
+          {/* Dark Green Skewed gradient glow backdrop */}
           <span
             className="absolute top-2 left-[24px] w-3/4 sm:w-[70%] h-[calc(100%-12px)] rounded-3xl transform skew-x-[6deg] opacity-75 blur-[30px] pointer-events-none z-0"
             style={{
-              background: "linear-gradient(315deg, #3b82f6, #06b6d4)",
+              background: "linear-gradient(315deg, #135940, #1b7454)",
             }}
           />
 
@@ -930,11 +930,11 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
             viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             whileHover={{ y: -6, scale: 1.01 }}
-            className="relative z-20 rounded-3xl bg-white/60 backdrop-blur-[20px] p-8 sm:p-12 text-slate-900 border border-slate-200/90 shadow-[0_16px_40px_rgba(37,99,235,0.08),inset_0_1.5px_2px_rgba(255,255,255,0.95)] flex flex-col md:flex-row items-center justify-between gap-8 transition-shadow hover:shadow-[0_24px_50px_rgba(37,99,235,0.14)] transform-gpu will-change-transform"
+            className="relative z-20 rounded-3xl bg-white/60 backdrop-blur-[20px] p-8 sm:p-12 text-slate-900 border border-slate-200/90 shadow-[0_16px_40px_rgba(19,89,64,0.08),inset_0_1.5px_2px_rgba(255,255,255,0.95)] flex flex-col md:flex-row items-center justify-between gap-8 transition-shadow hover:shadow-[0_24px_50px_rgba(19,89,64,0.14)] transform-gpu will-change-transform"
           >
             <div className="space-y-3 max-w-2xl text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-mono font-bold uppercase tracking-wider border border-blue-200">
-                <BriefcaseMedical className="w-3.5 h-3.5 text-blue-600" /> Not Sure Which Department?
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-[#135940] text-xs font-mono font-bold uppercase tracking-wider border border-emerald-200">
+                <BriefcaseMedical className="w-3.5 h-3.5 text-[#135940]" /> Not Sure Which Department?
               </div>
               <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
                 Talk to Patient Care — We'll Route You Right
@@ -949,7 +949,7 @@ export function DepartmentsBento({ onBookConsultation }: DepartmentsBentoProps) 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.96 }}
               onClick={onBookConsultation}
-              className="px-8 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 shrink-0 flex items-center gap-3 transition-all cursor-pointer"
+              className="px-8 py-4 rounded-2xl bg-[#135940] hover:bg-[#1b7454] text-white font-bold text-sm shadow-lg shadow-[#135940]/25 shrink-0 flex items-center gap-3 transition-all cursor-pointer"
             >
               <Calendar className="w-4 h-4 text-white" />
               Book Initial Consultation

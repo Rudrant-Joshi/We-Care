@@ -212,14 +212,14 @@ export default function AuthSectionOne({
       By {mode === "register" ? "registering" : "signing in"}, you agree to WeCare's{" "}
       <a
         href="#"
-        className="font-medium text-slate-700 underline underline-offset-2 hover:text-blue-600 transition-colors"
+        className="font-medium text-slate-700 underline underline-offset-2 hover:text-[#135940] transition-colors"
       >
         Booking Terms
       </a>{" "}
       and{" "}
       <a
         href="#"
-        className="font-medium text-slate-700 underline underline-offset-2 hover:text-blue-600 transition-colors"
+        className="font-medium text-slate-700 underline underline-offset-2 hover:text-[#135940] transition-colors"
       >
         HIPAA Privacy Policy
       </a>
@@ -228,19 +228,19 @@ export default function AuthSectionOne({
   );
 
   return (
-    <section className="relative min-h-screen lg:h-screen lg:max-h-screen bg-slate-50 p-3 sm:p-4 lg:p-5 xl:p-6 text-slate-900 antialiased font-sans flex flex-col justify-center overflow-x-hidden lg:overflow-hidden">
+    <section className="relative min-h-screen lg:h-screen lg:max-h-screen bg-slate-50 p-2.5 sm:p-4 lg:p-5 xl:p-6 text-slate-900 antialiased font-sans flex flex-col justify-center overflow-x-hidden lg:overflow-hidden">
       {/* Dynamic Ambient Background Glow Orbs */}
       <motion.div
         aria-hidden="true"
         animate={{ y: [0, -25, 0], x: [0, 15, 0], scale: [1, 1.08, 1] }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        className="pointer-events-none fixed -top-32 -left-20 w-[520px] h-[520px] rounded-full bg-blue-400/12 blur-[130px] z-0"
+        className="pointer-events-none fixed -top-32 -left-20 w-[520px] h-[520px] rounded-full bg-emerald-400/12 blur-[130px] z-0"
       />
       <motion.div
         aria-hidden="true"
         animate={{ y: [0, 25, 0], x: [0, -15, 0], scale: [1, 1.06, 1] }}
         transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-        className="pointer-events-none fixed -bottom-32 -right-20 w-[500px] h-[500px] rounded-full bg-sky-400/10 blur-[130px] z-0"
+        className="pointer-events-none fixed -bottom-32 -right-20 w-[500px] h-[500px] rounded-full bg-teal-400/10 blur-[130px] z-0"
       />
 
       {/* Subtle Architectural Dot Grid Canvas */}
@@ -256,7 +256,7 @@ export default function AuthSectionOne({
           initial={{ opacity: 0, x: -28, scale: 0.98 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
           transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col justify-center rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md px-5 py-6 sm:px-8 sm:py-7 lg:px-10 lg:py-6 xl:px-12 xl:py-7 shadow-lg shadow-slate-900/5 overflow-y-auto max-h-full"
+          className="flex flex-col justify-center rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md px-4 py-5 sm:px-8 sm:py-7 lg:px-10 lg:py-6 xl:px-12 xl:py-7 shadow-lg shadow-slate-900/5 overflow-y-auto max-h-full"
         >
           <div className="mx-auto w-full max-w-[480px]">
             
@@ -266,14 +266,14 @@ export default function AuthSectionOne({
                 <motion.div
                   whileHover={{ scale: 1.08, rotate: [0, -5, 5, 0] }}
                   transition={{ duration: 0.3 }}
-                  className="flex items-center justify-center w-8 h-8 rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/25"
+                  className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#135940] text-white shadow-md shadow-[#135940]/25"
                 >
                   <HeartPulse className="w-4 h-4 text-white" />
                 </motion.div>
                 <div className="flex items-center tracking-tight text-lg font-black">
                   <span className="text-slate-900">We</span>
-                  <span className="text-blue-600 ml-0.5">Care</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 ml-1.5 animate-pulse" />
+                  <span className="text-[#135940] ml-0.5">Care</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#135940] ml-1.5 animate-pulse" />
                 </div>
               </a>
 
@@ -289,7 +289,7 @@ export default function AuthSectionOne({
                     }}
                     className={`relative z-10 rounded-lg px-3.5 py-1 text-xs font-bold transition-colors cursor-pointer ${
                       mode === "login"
-                        ? "text-blue-600 font-extrabold"
+                        ? "text-[#135940] font-extrabold"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
@@ -311,7 +311,7 @@ export default function AuthSectionOne({
                     }}
                     className={`relative z-10 rounded-lg px-3.5 py-1 text-xs font-bold transition-colors cursor-pointer ${
                       mode === "register"
-                        ? "text-blue-600 font-extrabold"
+                        ? "text-[#135940] font-extrabold"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
@@ -329,7 +329,7 @@ export default function AuthSectionOne({
                 <motion.a
                   href="/"
                   whileHover={{ x: -2 }}
-                  className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors"
+                  className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-[#135940] transition-colors"
                   title="Return to Home Page"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
@@ -477,7 +477,7 @@ export default function AuthSectionOne({
                           <div>2. Click <strong>Add domain</strong>, paste <code className="bg-amber-100 px-1 py-0.5 rounded text-amber-900 font-mono text-[10.5px] font-bold">{currentHostname}</code> & click <strong>Save</strong></div>
                         </div>
 
-                        <div className="mt-0.5 p-2 rounded-lg bg-blue-50 border border-blue-200/80 text-[11px] text-blue-900 leading-snug">
+                        <div className="mt-0.5 p-2 rounded-lg bg-emerald-50 border border-emerald-200/80 text-[11px] text-[#135940] leading-snug">
                           💡 <strong>Immediate Alternative:</strong> You can also register or sign in with <strong>Email & Password</strong> below right away without needing any Firebase setup!
                         </div>
                       </div>
@@ -486,7 +486,7 @@ export default function AuthSectionOne({
                     {isIp && (
                       <a
                         href={window.location.href.replace("127.0.0.1", "localhost")}
-                        className="w-full py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors no-underline shadow-xs"
+                        className="w-full py-2 px-3 rounded-lg bg-[#135940] hover:bg-[#1b7454] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors no-underline shadow-xs"
                       >
                         <span>Open via http://localhost:5173 for Google Auth</span>
                       </a>
@@ -515,15 +515,32 @@ export default function AuthSectionOne({
                 {mode === "register" && (
                   <motion.div
                     key="field-name"
-                    initial={{ opacity: 0, height: 0, y: -10 }}
-                    animate={{ opacity: 1, height: "auto", y: 0 }}
-                    exit={{ opacity: 0, height: 0, y: -10 }}
-                    transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-                    className="overflow-hidden space-y-1"
+                    initial={{ opacity: 0, height: 0, marginBottom: -12 }}
+                    animate={{
+                      opacity: 1,
+                      height: "auto",
+                      marginBottom: 0,
+                      transition: {
+                        height: { duration: 0.28, ease: [0.16, 1, 0.3, 1] },
+                        opacity: { duration: 0.22, delay: 0.05 },
+                        marginBottom: { duration: 0.28, ease: [0.16, 1, 0.3, 1] },
+                      },
+                    }}
+                    exit={{
+                      opacity: 0,
+                      height: 0,
+                      marginBottom: -12,
+                      transition: {
+                        height: { duration: 0.22, ease: [0.16, 1, 0.3, 1] },
+                        opacity: { duration: 0.16 },
+                        marginBottom: { duration: 0.22, ease: [0.16, 1, 0.3, 1] },
+                      },
+                    }}
+                    className="space-y-1"
                   >
                     <motion.label
                       animate={{
-                        color: focusedField === "name" ? "#2563eb" : "#334155",
+                        color: focusedField === "name" ? "#135940" : "#334155",
                         x: focusedField === "name" ? 2 : 0,
                       }}
                       transition={{ duration: 0.2 }}
@@ -533,16 +550,15 @@ export default function AuthSectionOne({
                     </motion.label>
                     <motion.div
                       animate={{
-                        scale: focusedField === "name" ? 1.012 : 1,
-                        borderColor: focusedField === "name" ? "#3b82f6" : "#e2e8f0",
+                        borderColor: focusedField === "name" ? "#135940" : "#e2e8f0",
                         backgroundColor: focusedField === "name" ? "#ffffff" : "rgba(248, 250, 252, 0.75)",
                         boxShadow: focusedField === "name"
-                          ? "0 0 0 4px rgba(59, 130, 246, 0.14), 0 4px 14px -2px rgba(59, 130, 246, 0.1)"
+                          ? "0 0 0 4px rgba(19, 89, 64, 0.14), 0 4px 14px -2px rgba(19, 89, 64, 0.1)"
                           : "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
                       }}
                       whileHover={{
-                        scale: focusedField === "name" ? 1.012 : 1.006,
-                        borderColor: focusedField === "name" ? "#3b82f6" : "#cbd5e1",
+                        borderColor: focusedField === "name" ? "#135940" : "#cbd5e1",
+                        backgroundColor: focusedField === "name" ? "#ffffff" : "rgba(248, 250, 252, 0.95)",
                       }}
                       transition={{ type: "spring", stiffness: 450, damping: 25 }}
                       className="relative flex h-10 sm:h-11 items-center gap-2 rounded-xl border px-3 text-sm text-slate-900 overflow-hidden"
@@ -550,7 +566,7 @@ export default function AuthSectionOne({
                       <motion.div
                         animate={{
                           scale: focusedField === "name" ? 1.18 : 1,
-                          color: focusedField === "name" ? "#2563eb" : "#94a3b8",
+                          color: focusedField === "name" ? "#135940" : "#94a3b8",
                           rotate: focusedField === "name" ? [0, -8, 6, 0] : 0,
                         }}
                         transition={{ duration: 0.25 }}
@@ -591,7 +607,7 @@ export default function AuthSectionOne({
                           opacity: focusedField === "name" ? 1 : 0,
                         }}
                         transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-sky-400 to-indigo-500 origin-center pointer-events-none"
+                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#135940] via-[#1b7454] to-emerald-500 origin-center pointer-events-none"
                       />
                     </motion.div>
                   </motion.div>
@@ -606,7 +622,7 @@ export default function AuthSectionOne({
               >
                 <motion.label
                   animate={{
-                    color: focusedField === "email" ? "#2563eb" : "#334155",
+                    color: focusedField === "email" ? "#135940" : "#334155",
                     x: focusedField === "email" ? 2 : 0,
                   }}
                   transition={{ duration: 0.2 }}
@@ -617,15 +633,15 @@ export default function AuthSectionOne({
                 <motion.div
                   animate={{
                     scale: focusedField === "email" ? 1.012 : 1,
-                    borderColor: focusedField === "email" ? "#3b82f6" : "#e2e8f0",
+                    borderColor: focusedField === "email" ? "#135940" : "#e2e8f0",
                     backgroundColor: focusedField === "email" ? "#ffffff" : "rgba(248, 250, 252, 0.75)",
                     boxShadow: focusedField === "email"
-                      ? "0 0 0 4px rgba(59, 130, 246, 0.14), 0 4px 14px -2px rgba(59, 130, 246, 0.1)"
+                      ? "0 0 0 4px rgba(19, 89, 64, 0.14), 0 4px 14px -2px rgba(19, 89, 64, 0.1)"
                       : "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
                   }}
                   whileHover={{
                     scale: focusedField === "email" ? 1.012 : 1.006,
-                    borderColor: focusedField === "email" ? "#3b82f6" : "#cbd5e1",
+                    borderColor: focusedField === "email" ? "#135940" : "#cbd5e1",
                   }}
                   transition={{ type: "spring", stiffness: 450, damping: 25 }}
                   className="relative flex h-10 sm:h-11 items-center gap-2 rounded-xl border px-3 text-sm text-slate-900 overflow-hidden"
@@ -633,7 +649,7 @@ export default function AuthSectionOne({
                   <motion.div
                     animate={{
                       scale: focusedField === "email" ? 1.18 : 1,
-                      color: focusedField === "email" ? "#2563eb" : "#94a3b8",
+                      color: focusedField === "email" ? "#135940" : "#94a3b8",
                       rotate: focusedField === "email" ? [0, -8, 6, 0] : 0,
                     }}
                     transition={{ duration: 0.25 }}
@@ -674,7 +690,7 @@ export default function AuthSectionOne({
                       opacity: focusedField === "email" ? 1 : 0,
                     }}
                     transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-sky-400 to-indigo-500 origin-center pointer-events-none"
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#135940] via-[#1b7454] to-emerald-500 origin-center pointer-events-none"
                   />
                 </motion.div>
               </motion.div>
@@ -688,7 +704,7 @@ export default function AuthSectionOne({
                 <div className="flex items-center justify-between">
                   <motion.label
                     animate={{
-                      color: focusedField === "password" ? "#2563eb" : "#334155",
+                      color: focusedField === "password" ? "#135940" : "#334155",
                       x: focusedField === "password" ? 2 : 0,
                     }}
                     transition={{ duration: 0.2 }}
@@ -702,7 +718,7 @@ export default function AuthSectionOne({
                       whileHover={{ scale: 1.04, x: 1 }}
                       whileTap={{ scale: 0.96 }}
                       onClick={handleForgotPassword}
-                      className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
+                      className="text-[11px] font-semibold text-[#135940] hover:text-[#1b7454] hover:underline cursor-pointer"
                     >
                       Forgot password?
                     </motion.button>
@@ -711,15 +727,15 @@ export default function AuthSectionOne({
                 <motion.div
                   animate={{
                     scale: focusedField === "password" ? 1.012 : 1,
-                    borderColor: focusedField === "password" ? "#3b82f6" : "#e2e8f0",
+                    borderColor: focusedField === "password" ? "#135940" : "#e2e8f0",
                     backgroundColor: focusedField === "password" ? "#ffffff" : "rgba(248, 250, 252, 0.75)",
                     boxShadow: focusedField === "password"
-                      ? "0 0 0 4px rgba(59, 130, 246, 0.14), 0 4px 14px -2px rgba(59, 130, 246, 0.1)"
+                      ? "0 0 0 4px rgba(19, 89, 64, 0.14), 0 4px 14px -2px rgba(19, 89, 64, 0.1)"
                       : "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
                   }}
                   whileHover={{
                     scale: focusedField === "password" ? 1.012 : 1.006,
-                    borderColor: focusedField === "password" ? "#3b82f6" : "#cbd5e1",
+                    borderColor: focusedField === "password" ? "#135940" : "#cbd5e1",
                   }}
                   transition={{ type: "spring", stiffness: 450, damping: 25 }}
                   className="relative flex h-10 sm:h-11 items-center gap-2 rounded-xl border px-3 text-sm text-slate-900 overflow-hidden"
@@ -727,7 +743,7 @@ export default function AuthSectionOne({
                   <motion.div
                     animate={{
                       scale: focusedField === "password" ? 1.18 : 1,
-                      color: focusedField === "password" ? "#2563eb" : "#94a3b8",
+                      color: focusedField === "password" ? "#135940" : "#94a3b8",
                       rotate: focusedField === "password" ? [0, -8, 6, 0] : 0,
                     }}
                     transition={{ duration: 0.25 }}
@@ -766,7 +782,7 @@ export default function AuthSectionOne({
                     whileHover={{ scale: 1.15 }}
                     whileTap={{ scale: 0.85, rotate: showPassword ? -15 : 15 }}
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                    className="text-slate-400 hover:text-blue-600 focus:outline-none p-1 transition-colors cursor-pointer shrink-0"
+                    className="text-slate-400 hover:text-[#135940] focus:outline-none p-1 transition-colors cursor-pointer shrink-0"
                     title={showPassword ? "Hide password" : "Show password"}
                   >
                     <AnimatePresence mode="wait" initial={false}>
@@ -778,7 +794,7 @@ export default function AuthSectionOne({
                         transition={{ duration: 0.15 }}
                       >
                         {showPassword ? (
-                          <EyeOff className="w-4 h-4 text-blue-600" />
+                          <EyeOff className="w-4 h-4 text-[#135940]" />
                         ) : (
                           <Eye className="w-4 h-4" />
                         )}
@@ -794,7 +810,7 @@ export default function AuthSectionOne({
                       opacity: focusedField === "password" ? 1 : 0,
                     }}
                     transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-sky-400 to-indigo-500 origin-center pointer-events-none"
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#135940] via-[#1b7454] to-emerald-500 origin-center pointer-events-none"
                   />
                 </motion.div>
               </motion.div>
@@ -806,7 +822,7 @@ export default function AuthSectionOne({
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="size-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20 cursor-pointer"
+                    className="size-3.5 rounded border-slate-300 text-[#135940] focus:ring-[#1b7454]/20 cursor-pointer"
                   />
                   <span className="text-[11.5px]">Stay signed in on this device</span>
                 </label>
@@ -819,10 +835,10 @@ export default function AuthSectionOne({
               <motion.button
                 type="submit"
                 disabled={isSubmitting || isGoogleSubmitting}
-                whileHover={{ scale: 1.015, y: -1, boxShadow: "0 10px 24px -4px rgba(37, 99, 235, 0.38)" }}
+                whileHover={{ scale: 1.015, y: -1, boxShadow: "0 10px 24px -4px rgba(19, 89, 64, 0.38)" }}
                 whileTap={{ scale: 0.985 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                className="mt-1 flex h-10 sm:h-11 w-full items-center justify-center rounded-xl bg-blue-600 text-xs sm:text-sm font-bold text-white transition-colors hover:bg-blue-700 shadow-md shadow-blue-500/20 active:scale-[0.99] cursor-pointer disabled:opacity-50"
+                className="mt-1 flex h-10 sm:h-11 w-full items-center justify-center rounded-xl bg-[#135940] text-xs sm:text-sm font-bold text-white transition-colors hover:bg-[#1b7454] shadow-md shadow-[#135940]/20 active:scale-[0.99] cursor-pointer disabled:opacity-50"
               >
                 {isSubmitting
                   ? "Authenticating..."
@@ -847,7 +863,7 @@ export default function AuthSectionOne({
                         setErrorMsg(null);
                         setSuccessMsg(null);
                       }}
-                      className="font-bold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
+                      className="font-bold text-[#135940] hover:text-[#1b7454] hover:underline cursor-pointer"
                     >
                       Create Patient Account
                     </button>
@@ -862,7 +878,7 @@ export default function AuthSectionOne({
                         setErrorMsg(null);
                         setSuccessMsg(null);
                       }}
-                      className="font-bold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
+                      className="font-bold text-[#135940] hover:text-[#1b7454] hover:underline cursor-pointer"
                     >
                       Sign In
                     </button>
@@ -878,7 +894,7 @@ export default function AuthSectionOne({
                 </span>
                 <a
                   href="/"
-                  className="inline-flex items-center gap-1 font-semibold text-blue-600 hover:text-blue-700 hover:underline text-[11px]"
+                  className="inline-flex items-center gap-1 font-semibold text-[#135940] hover:text-[#1b7454] hover:underline text-[11px]"
                 >
                   <span>Return to Home Page</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -893,7 +909,7 @@ export default function AuthSectionOne({
           initial={{ opacity: 0, x: 28, scale: 0.98 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
           transition={{ duration: 0.55, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-          className="relative hidden lg:flex overflow-hidden rounded-2xl bg-[#070e20] p-7 sm:p-8 lg:p-9 xl:p-11 text-white border border-blue-900/30 shadow-xl h-full max-h-full"
+          className="relative hidden lg:flex overflow-hidden rounded-2xl bg-[#041a13] p-7 sm:p-8 lg:p-9 xl:p-11 text-white border border-emerald-900/30 shadow-xl h-full max-h-full"
         >
           <GrainGradient
             speed={1}
@@ -906,9 +922,9 @@ export default function AuthSectionOne({
             noise={0.25}
             shape="corners"
             frame={2854.5}
-            colors={["#FFFFFF", "#38BDF8", "#2563EB", "#FFFFFF"]}
+            colors={["#FFFFFF", "#34D399", "#135940", "#FFFFFF"]}
             colorBack="#00000000"
-            className="absolute inset-0 bg-[#070e20]"
+            className="absolute inset-0 bg-[#041a13]"
           />
 
           <div className="relative z-10 flex h-full w-full flex-col justify-between">
@@ -919,7 +935,7 @@ export default function AuthSectionOne({
               transition={{ delay: 0.15, duration: 0.4 }}
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-mono font-bold tracking-wider text-white shadow-2xs w-fit"
             >
-              <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping" />
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
               <span>WECARE PATIENT PORTAL</span>
             </motion.div>
 
@@ -954,7 +970,7 @@ export default function AuthSectionOne({
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 backdrop-blur-xs border border-white/15 text-xs text-white/90 cursor-default select-none"
                 >
-                  <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                   Verified Specialists
                 </motion.span>
                 <motion.span
@@ -962,7 +978,7 @@ export default function AuthSectionOne({
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 backdrop-blur-xs border border-white/15 text-xs text-white/90 cursor-default select-none"
                 >
-                  <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                   Instant Clinical Pass
                 </motion.span>
                 <motion.span
@@ -970,7 +986,7 @@ export default function AuthSectionOne({
                   transition={{ type: "spring", stiffness: 400, damping: 20 }}
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/10 backdrop-blur-xs border border-white/15 text-xs text-white/90 cursor-default select-none"
                 >
-                  <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                   In-Person Clinical Care
                 </motion.span>
               </div>
@@ -984,7 +1000,7 @@ export default function AuthSectionOne({
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
               className="inline-flex h-11 items-center gap-2.5 rounded-xl border border-white/25 bg-white/10 px-5 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20 hover:border-white/40 active:scale-[0.98] w-fit"
             >
-              <Calendar className="w-4 h-4 text-sky-300" />
+              <Calendar className="w-4 h-4 text-emerald-300" />
               <span>Book an Appointment</span>
             </motion.a>
           </div>

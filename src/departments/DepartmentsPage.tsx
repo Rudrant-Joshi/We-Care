@@ -3,16 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useNavigate } from 'react-router-dom';
-import { Navbar } from '../components/Navbar';
-import { DepartmentsBento } from '../components/ui/departments-bento';
+"use client";
+
+import { useNavigate } from "react-router-dom";
+import { motion } from "motion/react";
+import { Navbar } from "../components/Navbar";
+import { DepartmentsBento } from "../components/ui/departments-bento";
+import Demo from "@/components/ui/demo";
 
 export default function DepartmentsPage() {
   const navigate = useNavigate();
 
   const handleBookAppointment = () => {
-    navigate('/book-appointment');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigate("/book-appointment");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -20,22 +24,51 @@ export default function DepartmentsPage() {
       id="vortiq-departments-page"
       className="relative min-h-screen w-full bg-slate-50 text-slate-900 flex flex-col justify-between font-sans overflow-x-clip"
     >
-
       {/* Modern Medical Engineering Subtle Architectural Dot Grid Canvas */}
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:28px_28px] opacity-40"
+        className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:28px_28px] opacity-35"
       />
 
-      {/* Clean White Navbar Header Shell matching About section */}
+      {/* Clean White Navbar Header Shell */}
       <div className="bg-white/95 backdrop-blur-md w-full relative z-40 border-b border-slate-200/90 shadow-xs">
         <Navbar onBookDemoClick={handleBookAppointment} />
       </div>
 
-      {/* Main Dedicated Departments Bento Section */}
-      <div className="relative z-20 flex-1">
+      {/* Section 1: Template Implementation for Departments */}
+      <section className="relative z-20 w-full">
+        <Demo
+          word="DEPARTMENTS"
+          primaryButton={{
+            label: "Explore Clinical Divisions ↓",
+            onClick: (e) => {
+              e.preventDefault();
+              document
+                .getElementById("departments-roster")
+                ?.scrollIntoView({ behavior: "smooth" });
+            },
+          }}
+          secondaryButton={{
+            label: "Book Consultation →",
+            onClick: (e) => {
+              e.preventDefault();
+              handleBookAppointment();
+            },
+          }}
+        />
+      </section>
+
+      {/* Main Dedicated Departments Bento Section with Scroll Reveal */}
+      <motion.div
+        id="departments-roster"
+        initial={{ opacity: 0, y: 35 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-20 flex-1 scroll-mt-28"
+      >
         <DepartmentsBento onBookConsultation={handleBookAppointment} />
-      </div>
+      </motion.div>
 
       {/* Light Clean Footer matching Slate-50 background */}
       <footer className="relative z-20 w-full px-8 md:px-14 py-6 flex flex-col sm:flex-row items-center justify-between text-[11.5px] font-mono text-slate-500 border-t border-slate-200 bg-white">

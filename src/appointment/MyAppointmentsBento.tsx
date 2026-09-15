@@ -2,25 +2,29 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, type Variants } from 'motion/react';
 import {
   Calendar as CalendarIcon,
   Clock,
   MapPin,
   Download,
   PlusCircle,
-  Building2,
   ShieldCheck,
   RotateCcw,
   CalendarCheck2,
-  ListFilter,
   CheckCircle2,
-  XCircle,
   X,
   AlertCircle,
   List,
-  LayoutGrid,
-  Sparkles,
+  Search,
+  ArrowRight,
+  QrCode,
+  Activity,
+  Compass,
+  Check,
+  Stethoscope,
+  Info,
+  RefreshCw,
 } from 'lucide-react';
 
 import type { StoredAppointment } from './types';
@@ -33,11 +37,70 @@ import {
   deleteStoredAppointment,
   syncAppointmentsFromFirestore,
   isMockAppointment,
+  getAppointmentCreationTimestamp,
+  sortAppointmentsDescending,
 } from './storage';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
-import { getDepartmentColor } from '../lib/department-colors';
+import { getDepartmentColor, DEPARTMENT_COLORS } from '../lib/department-colors';
 import { useAuth } from '../auth/AuthContext';
+
+/* ==========================================================================
+   Animation Presets & Variants
+   ========================================================================== */
+
+const sectionContainerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.07,
+      delayChildren: 0.03,
+    },
+  },
+};
+
+const sectionItemVariants: Variants = {
+  hidden: { opacity: 0, y: 16, filter: 'blur(4px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: {
+      duration: 0.45,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const viewModeTransitionVariants: Variants = {
+  initial: { opacity: 0, y: 12, scale: 0.99, filter: 'blur(3px)' },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    filter: 'blur(0px)',
+    transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] },
+  },
+  exit: {
+    opacity: 0,
+    y: -10,
+    scale: 0.99,
+    filter: 'blur(3px)',
+    transition: { duration: 0.18, ease: 'easeIn' },
+  },
+};
+
+/* ==========================================================================
+   Types & View Modes
+   ========================================================================== */
+
+type ViewMode = 'passbook' | 'timeline' | 'ledger';
+type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected' | 'completed';
+
+/* ==========================================================================
+   Main MyAppointmentsBento Component
+   ========================================================================== */
 
 export function MyAppointmentsBento() {
   const navigate = useNavigate();
@@ -46,44 +109,53 @@ export function MyAppointmentsBento() {
     currentUser?.role === 'admin' ||
     currentUser?.email?.toLowerCase() === 'rudrant.joshi@gmail.com';
 
+  // Appointments state
   const [appointments, setAppointments] = useState<StoredAppointment[]>(() => {
     const adminCheck =
       currentUser?.role === 'admin' ||
       currentUser?.email?.toLowerCase() === 'rudrant.joshi@gmail.com';
     return adminCheck
-      ? getStoredAppointments().filter((a) => !isMockAppointment(a.bookingId))
-      : getUserAppointments(currentUser).filter((a) => !isMockAppointment(a.bookingId));
+      ? sortAppointmentsDescending(getStoredAppointments().filter((a) => !isMockAppointment(a.bookingId)))
+      : sortAppointmentsDescending(getUserAppointments(currentUser).filter((a) => !isMockAppointment(a.bookingId)));
   });
-  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'completed'>('all');
-  const [viewMode, setViewMode] = useState<'list' | 'cards'>('list');
-  const [cancellingId, setCancellingId] = useState<string | null>(null);
-  const [notification, setNotification] = useState<string | null>(null);
 
+  // UI & View state
+  const [viewMode, setViewMode] = useState<ViewMode>('passbook');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [deptFilter, setDeptFilter] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOrder, setSortOrder] = useState<'latest' | 'upcoming'>('latest');
+
+  // Interactive modal states
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [directionModalAppt, setDirectionModalAppt] = useState<StoredAppointment | null>(null);
+  const [notification, setNotification] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  // Sync / Load helper
   const loadAppointments = useCallback(() => {
     const list = isAdmin
       ? getStoredAppointments().filter((a) => !isMockAppointment(a.bookingId))
       : getUserAppointments(currentUser).filter((a) => !isMockAppointment(a.bookingId));
-    setAppointments(list);
+    setAppointments(sortAppointmentsDescending(list));
   }, [currentUser, isAdmin]);
 
-  // Load appointments: all hospital appointments for admin, personal schedule for patient.
-  // Strictly rejects any fake/mock appointments.
+  // Firestore Real-Time Listener & Telemetry Sync
   useEffect(() => {
     syncAppointmentsFromFirestore().then((cloudList) => {
       const cleanList = (cloudList || []).filter((a) => !isMockAppointment(a.bookingId));
       if (isAdmin) {
-        setAppointments(cleanList.length > 0 ? cleanList : getStoredAppointments());
+        setAppointments(sortAppointmentsDescending(cleanList.length > 0 ? cleanList : getStoredAppointments()));
       } else {
         const userList = cleanList.filter(
           (a) =>
             currentUser?.email &&
             a.email?.toLowerCase().trim() === currentUser.email.toLowerCase().trim()
         );
-        setAppointments(userList.length > 0 ? userList : getUserAppointments(currentUser));
+        setAppointments(sortAppointmentsDescending(userList.length > 0 ? userList : getUserAppointments(currentUser)));
       }
     });
 
-    // Real-time Firestore synchronization for live patient booking telemetry
     let unsubscribeFirestore: (() => void) | null = null;
     try {
       unsubscribeFirestore = onSnapshot(collection(db, 'appointments'), (snapshot) => {
@@ -101,26 +173,24 @@ export function MyAppointmentsBento() {
           localStorage.setItem('wecare_user_appointments_v2', JSON.stringify(merged));
 
           if (isAdmin) {
-            setAppointments(merged);
+            setAppointments(sortAppointmentsDescending(merged));
           } else {
             const userList = merged.filter(
               (a) =>
                 currentUser?.email &&
                 a.email?.toLowerCase().trim() === currentUser.email.toLowerCase().trim()
             );
-            setAppointments(userList);
+            setAppointments(sortAppointmentsDescending(userList));
           }
         } else {
           loadAppointments();
         }
       });
     } catch {
-      // Fallback
+      // Fallback local storage sync
     }
 
-    const handleSync = () => {
-      loadAppointments();
-    };
+    const handleSync = () => loadAppointments();
     window.addEventListener('wecare_appointments_changed', handleSync);
     window.addEventListener('wecare_auth_state_changed', handleSync);
     window.addEventListener('storage', handleSync);
@@ -145,32 +215,64 @@ export function MyAppointmentsBento() {
     return { total, pending, approved, rejected, completed };
   }, [appointments]);
 
-  // Filtered list
-  const filteredAppointments = useMemo(() => {
-    if (filter === 'pending') {
-      return appointments.filter((a) => a.status === 'pending');
-    }
-    if (filter === 'approved') {
-      return appointments.filter((a) => a.status === 'approved' || a.status === 'upcoming');
-    }
-    if (filter === 'rejected') {
-      return appointments.filter((a) => a.status === 'rejected');
-    }
-    if (filter === 'completed') {
-      return appointments.filter((a) => a.status === 'completed');
-    }
-    return appointments;
-  }, [appointments, filter]);
+  // Next upcoming consultation spotlight
+  const nextAppointment = useMemo(() => {
+    const upcoming = appointments.filter(
+      (a) => a.status === 'approved' || a.status === 'upcoming' || a.status === 'pending'
+    );
+    return upcoming.length > 0 ? upcoming[0] : null;
+  }, [appointments]);
 
-  // Handle clinical approval by admin
+  // Filtered & Searched Appointments
+  const filteredAppointments = useMemo(() => {
+    let list = [...appointments];
+
+    // Status filter
+    if (statusFilter === 'pending') {
+      list = list.filter((a) => a.status === 'pending');
+    } else if (statusFilter === 'approved') {
+      list = list.filter((a) => a.status === 'approved' || a.status === 'upcoming');
+    } else if (statusFilter === 'rejected') {
+      list = list.filter((a) => a.status === 'rejected');
+    } else if (statusFilter === 'completed') {
+      list = list.filter((a) => a.status === 'completed');
+    }
+
+    // Department filter
+    if (deptFilter !== 'all') {
+      list = list.filter((a) => a.departmentId === deptFilter);
+    }
+
+    // Text search query
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter(
+        (a) =>
+          a.bookingId?.toLowerCase().includes(q) ||
+          a.doctorName?.toLowerCase().includes(q) ||
+          a.patientName?.toLowerCase().includes(q) ||
+          a.departmentName?.toLowerCase().includes(q) ||
+          a.specialty?.toLowerCase().includes(q) ||
+          a.email?.toLowerCase().includes(q)
+      );
+    }
+
+    // Sort
+    if (sortOrder === 'latest') {
+      return sortAppointmentsDescending(list);
+    } else {
+      return list.sort((a, b) => getAppointmentCreationTimestamp(a) - getAppointmentCreationTimestamp(b));
+    }
+  }, [appointments, statusFilter, deptFilter, searchQuery, sortOrder]);
+
+  // Actions
   const handleApprove = (bookingId: string) => {
     approveStoredAppointment(bookingId);
     loadAppointments();
-    setNotification(`Appointment ${bookingId} has been approved.`);
+    setNotification(`Appointment ${bookingId} approved and confirmed.`);
     setTimeout(() => setNotification(null), 4000);
   };
 
-  // Handle rejection by admin
   const handleReject = (bookingId: string) => {
     rejectStoredAppointment(bookingId);
     loadAppointments();
@@ -178,26 +280,39 @@ export function MyAppointmentsBento() {
     setTimeout(() => setNotification(null), 4000);
   };
 
-  // Handle appointment cancellation
   const handleConfirmCancel = (bookingId: string) => {
     cancelStoredAppointment(bookingId);
     loadAppointments();
     setCancellingId(null);
-    setNotification(`Appointment ${bookingId} has been successfully cancelled.`);
+    setNotification(`Appointment ${bookingId} has been cancelled.`);
     setTimeout(() => setNotification(null), 4000);
   };
 
-  // Handle appointment deletion from history
-  const handleDeleteAppointment = (bookingId: string) => {
+  const handleDelete = (bookingId: string) => {
     deleteStoredAppointment(bookingId);
     loadAppointments();
     setNotification(`Appointment record ${bookingId} removed from history.`);
     setTimeout(() => setNotification(null), 4000);
   };
 
-  // Download ICS helper
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    try {
+      const list = await syncAppointmentsFromFirestore();
+      if (list) setAppointments(sortAppointmentsDescending(list));
+      setNotification('Appointments synchronized with hospital cloud.');
+    } catch {
+      setNotification('Refreshed local records.');
+    } finally {
+      setTimeout(() => {
+        setIsSyncing(false);
+        setTimeout(() => setNotification(null), 3000);
+      }, 600);
+    }
+  };
+
   const handleDownloadIcs = (appt: StoredAppointment) => {
-    const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:WeCare Clinical Appointment - ${appt.doctorName}\nDESCRIPTION:${appt.specialty} with ${appt.doctorName}. Booking ID: ${appt.bookingId}.\nSTATUS:CONFIRMED\nEND:VEVENT\nEND:VCALENDAR`;
+    const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:WeCare Specialist Consultation - ${appt.doctorName}\nDESCRIPTION:${appt.specialty} with ${appt.doctorName}. Booking ID: ${appt.bookingId}.\nLOCATION:${appt.location || 'WeCare Medical Tower 4, Suite 800'}\nSTATUS:CONFIRMED\nEND:VEVENT\nEND:VCALENDAR`;
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -209,1036 +324,1177 @@ export function MyAppointmentsBento() {
   };
 
   return (
-    <section id="my-appointments-section" className="relative w-full max-w-[1720px] mx-auto px-4 sm:px-8 md:px-14 py-8 md:py-16">
+    <motion.section
+      id="my-appointments-section"
+      variants={sectionContainerVariants}
+      initial="hidden"
+      animate="visible"
+      className="relative w-full max-w-[1720px] mx-auto px-3.5 sm:px-8 md:px-14 py-6 md:py-14 font-sans"
+    >
       
-      {/* Top Section Header with Animated Telemetry & CTA */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-8 border-b border-slate-200/90 relative"
-      >
-        <div>
-          {isAdmin ? (
-            <>
-              <motion.div
-                whileHover={{ scale: 1.04, y: -1 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-purple-100 via-indigo-50 to-purple-100 border border-purple-300 text-purple-800 text-xs font-mono font-bold uppercase tracking-wider mb-3 shadow-xs cursor-default"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-purple-600 animate-pulse" />
-                <span>ALL PATIENT APPOINTMENTS &bull; CHIEF ADMIN CLEARANCE</span>
-              </motion.div>
-
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.1] mb-2">
-                All Hospital{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
-                  Appointments
-                </span>
-              </h2>
-
-              <p className="text-slate-600 text-sm sm:text-base max-w-2xl leading-relaxed">
-                Full hospital clinical ledger. Review, verify, and monitor scheduled consultations across all registered patients and clinical departments.
-              </p>
-            </>
-          ) : (
-            <>
-              <motion.div
-                whileHover={{ scale: 1.04, y: -1 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-50 via-sky-50 to-indigo-50 border border-blue-200/90 text-blue-800 text-xs font-mono font-bold uppercase tracking-wider mb-3 shadow-xs cursor-default"
-              >
-                <span className="relative flex size-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-80"></span>
-                  <span className="relative inline-flex rounded-full size-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
-                </span>
-                <span>PATIENT CLINICAL SCHEDULE REPOSITORY &bull; LIVE SYNC</span>
-              </motion.div>
-
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.1] mb-2">
-                My Scheduled{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500">
-                  Appointments
-                </span>
-              </h2>
-
-              <p className="text-slate-600 text-sm sm:text-base max-w-2xl leading-relaxed">
-                Manage your clinical appointments, view digital hospital admission passes, and schedule consultations with WeCare board-certified specialists.
-              </p>
-            </>
-          )}
-        </div>
-
-        {/* Primary CTA: Book Another Appointment */}
-        <div className="shrink-0 flex items-center gap-3">
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.05, y: -2, boxShadow: "0 14px 28px -4px rgba(37, 99, 235, 0.4)" }}
-            whileTap={{ scale: 0.96 }}
-            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-            onClick={() => navigate('/book-appointment')}
-            className="px-6 py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:brightness-110 transition-all shadow-lg shadow-blue-500/25 flex items-center gap-2.5 cursor-pointer transform-gpu"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>Book New Appointment</span>
-          </motion.button>
-        </div>
-      </motion.div>
-
-      {/* Global Notification Banner */}
-      <AnimatePresence>
-        {notification && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="mb-8 p-4 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-300 text-emerald-900 text-xs sm:text-sm font-semibold flex items-center justify-between shadow-xs"
-          >
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>{notification}</span>
+      {/* ====================================================================
+          1. EXECUTIVE PATIENT TELEMETRY HEADER & COUNTDOWN HERO
+          ==================================================================== */}
+      <motion.div variants={sectionItemVariants} className="relative mb-8 pb-8 border-b border-slate-200/90">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          {/* Greeting & Identity */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/90 text-[#135940] text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider shadow-2xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#135940] animate-pulse" />
+                {isAdmin ? 'CHIEF CLINICAL LEDGER' : 'VERIFIED PATIENT SCHEDULE'}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-mono font-bold">
+                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                LIVE SYNC
+              </span>
             </div>
-            <button
-              onClick={() => setNotification(null)}
-              className="text-emerald-700 hover:text-emerald-900 font-bold text-xs cursor-pointer"
-            >
-              Dismiss
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* STATS BENTO ROW: 3-column rich chromatic overview with floating frosted badges */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
-        
-        {/* Total Appointments Count (Blue / Sky Theme) */}
-        <motion.div
-          initial={{ opacity: 0, y: 14, scale: 0.99 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true, amount: 0.05 }}
-          transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-          className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-white via-blue-50/50 to-sky-100/30 border border-blue-200/90 shadow-sm relative overflow-hidden group hover:border-blue-400 hover:shadow-md transition-all duration-200 cursor-default"
-        >
-          {/* Glowing background panel */}
-          <span className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-400/10 via-sky-300/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.1]">
+              {isAdmin ? (
+                <>
+                  Hospital Patient{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-[#135940] to-[#1b7454]">
+                    Ledger
+                  </span>
+                </>
+              ) : (
+                <>
+                  Clinical Passes &{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#135940] via-[#1b7454] to-emerald-600">
+                    Appointments
+                  </span>
+                </>
+              )}
+            </h1>
 
-          {/* Top color bar */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 via-sky-400 to-indigo-500" />
-          
-          <div className="relative z-20 flex items-center justify-between mb-3.5">
-            <span className="text-[11px] font-mono font-bold text-blue-900 uppercase tracking-wider">
-              {isAdmin ? 'Total Bookings' : 'Total Appointments'}
-            </span>
-            <div className="size-10 rounded-xl bg-gradient-to-br from-blue-600 to-sky-600 text-white shadow-md shadow-blue-500/30 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
-              <CalendarCheck2 className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="relative z-20 flex items-baseline gap-2.5">
-            <span className="text-3xl sm:text-4xl font-black text-slate-900 tabular-nums">
-              {stats.total}
-            </span>
-            <span className="text-xs font-mono font-bold text-blue-800 bg-blue-100/90 px-2.5 py-0.5 rounded-full border border-blue-200">
-              all bookings
-            </span>
-          </div>
-          <div className="relative z-20 mt-2.5 text-[11px] text-slate-600 flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)] animate-pulse" />
-            <span>{isAdmin ? 'Hospital ledger records' : 'Your clinical appointment history'}</span>
-          </div>
-        </motion.div>
-
-        {/* Pending Approval Count (Amber / Gold Theme) */}
-        <motion.div
-          initial={{ opacity: 0, y: 14, scale: 0.99 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true, amount: 0.05 }}
-          transition={{ delay: 0.03, duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-          className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-white via-amber-50/70 to-orange-100/35 border border-amber-300/90 shadow-sm relative overflow-hidden group hover:border-amber-400 hover:shadow-md transition-all duration-200 cursor-default"
-        >
-          {/* Glowing background panel */}
-          <span className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-amber-400/10 via-orange-300/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
-
-          {/* Top color bar */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-orange-400 to-amber-600" />
-
-          <div className="relative z-20 flex items-center justify-between mb-3.5">
-            <span className="text-[11px] font-mono font-bold text-amber-900 uppercase tracking-wider">
-              Pending Approval
-            </span>
-            <div className="size-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/30 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
-              <Clock className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="relative z-20 flex items-baseline gap-2.5">
-            <span className="text-3xl sm:text-4xl font-black text-amber-600 tabular-nums">
-              {stats.pending}
-            </span>
-            <span className="text-xs font-mono font-bold text-amber-900 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300">
-              {isAdmin ? 'Action Required' : 'Awaiting Review'}
-            </span>
-          </div>
-          <div className="relative z-20 mt-2.5 text-[11px] text-amber-800 flex items-center gap-1.5 font-medium">
-            <span className="relative flex size-2 mr-0.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full size-2 bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
-            </span>
-            <span>{isAdmin ? 'Approve or reject patient slots' : 'Pending clinic admin review'}</span>
-          </div>
-        </motion.div>
-
-        {/* Approved & Active Consultations (Emerald / Teal Theme) */}
-        <motion.div
-          initial={{ opacity: 0, y: 14, scale: 0.99 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true, amount: 0.05 }}
-          transition={{ delay: 0.06, duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-          className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-white via-emerald-50/70 to-teal-100/35 border border-emerald-300/90 shadow-sm relative overflow-hidden group hover:border-emerald-400 hover:shadow-md transition-all duration-200 cursor-default"
-        >
-          {/* Glowing background panel */}
-          <span className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-emerald-400/10 via-teal-300/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
-
-          {/* Top color bar */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600" />
-
-          <div className="relative z-20 flex items-center justify-between mb-3.5">
-            <span className="text-[11px] font-mono font-bold text-emerald-900 uppercase tracking-wider">
-              Approved & Active
-            </span>
-            <div className="size-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/30 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="relative z-20 flex items-baseline gap-2.5">
-            <span className="text-3xl sm:text-4xl font-black text-emerald-600 tabular-nums">
-              {stats.approved}
-            </span>
-            <span className="text-xs font-mono font-bold text-emerald-900 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
-              Confirmed
-            </span>
-          </div>
-          <div className="relative z-20 mt-2.5 text-[11px] text-emerald-800 flex items-center gap-1.5 font-medium">
-            <span className="relative flex size-2 mr-0.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full size-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
-            </span>
-            <span>{isAdmin ? 'Confirmed patient consultations' : 'Confirmed hospital admission passes'}</span>
-          </div>
-        </motion.div>
-
-      </div>
-
-      {/* Filter Tabs Bar with Sliding Layout Pill */}
-      <div className="relative z-30 flex flex-wrap items-center justify-between gap-4 mb-8 p-3.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-md shadow-slate-900/5">
-        {/* Top vibrant accent border */}
-        <div className="absolute top-0 left-6 right-6 h-[2px] bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500 rounded-full opacity-80" />
-
-        <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-slate-100 border border-slate-200/80">
-          {(
-            [
-              { id: 'all', label: `All (${stats.total})`, activeGradient: 'from-blue-600 to-indigo-600' },
-              { id: 'pending', label: `Pending (${stats.pending})`, activeGradient: 'from-amber-500 to-orange-600' },
-              { id: 'approved', label: `Approved (${stats.approved})`, activeGradient: 'from-emerald-600 to-teal-600' },
-              { id: 'rejected', label: `Rejected (${stats.rejected})`, activeGradient: 'from-rose-600 to-red-600' },
-            ] as const
-          ).map((tab) => {
-            const isActive = filter === tab.id;
-            return (
-              <motion.button
-                key={tab.id}
-                type="button"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setFilter(tab.id)}
-                className={`relative px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
-                  isActive ? 'text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-                }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="active-appointments-filter-pill"
-                    className={`absolute inset-0 rounded-lg bg-gradient-to-r ${tab.activeGradient} shadow-sm`}
-                    transition={{ type: 'spring', stiffness: 600, damping: 35 }}
-                  />
-                )}
-                <span className="relative z-10 font-extrabold">
-                  {tab.label}
-                </span>
-              </motion.button>
-            );
-          })}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="text-xs font-mono text-slate-600 hidden sm:flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
-            <ListFilter className="w-3.5 h-3.5 text-blue-600" />
-            <span>Showing <strong className="text-slate-900 font-bold">{filteredAppointments.length}</strong> record{filteredAppointments.length === 1 ? '' : 's'}</span>
+            <p className="text-slate-600 text-xs sm:text-base max-w-2xl leading-relaxed">
+              {isAdmin
+                ? 'Central hospital records. Authorize pending consultations, review admission passes, and triage clinical schedules.'
+                : `Welcome ${currentUser?.name ? currentUser.name : 'back'}. Access your digital hospital admission passes, upcoming physician visits, and consultation itineraries.`}
+            </p>
           </div>
 
-          {/* View Mode Switcher: Simple List vs Cards with Fluid Sliding Pill */}
-          <div className="relative flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200 text-xs">
+          {/* Quick Actions Strip */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3 shrink-0">
             <motion.button
               type="button"
-              whileTap={{ scale: 0.96 }}
-              onClick={() => setViewMode('list')}
-              className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors cursor-pointer select-none ${
-                viewMode === 'list' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
-              }`}
-              title="Simple List View"
+              whileHover={{ scale: 1.05, y: -2, borderColor: '#a7f3d0', color: '#135940' }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+              disabled={isSyncing}
+              onClick={handleManualSync}
+              className="px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
+              title="Sync latest records from cloud"
             >
-              {viewMode === 'list' && (
+              <RefreshCw className={`w-3.5 h-3.5 text-[#135940] ${isSyncing ? 'animate-spin' : ''}`} />
+              <span>{isSyncing ? 'Syncing...' : 'Sync Cloud'}</span>
+            </motion.button>
+
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.05, y: -2, boxShadow: '0 14px 28px -4px rgba(19, 89, 64, 0.45)' }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+              onClick={() => navigate('/book-appointment')}
+              className="px-6 py-3.5 rounded-2xl text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-[#135940]/25 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
+              style={{
+                background: 'linear-gradient(135deg, #135940, #1b7454)',
+              }}
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>Book Consultation</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Spotlight Next Upcoming Appointment Ticket (if exists) */}
+        {nextAppointment && (() => {
+          const nextDeptColor = getDepartmentColor(nextAppointment.departmentId);
+
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -4, scale: 1.008 }}
+              whileTap={{ scale: 0.99 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              className="mt-6 p-4 sm:p-5 md:p-6 rounded-3xl bg-gradient-to-r from-emerald-50/90 via-teal-50/70 to-white border border-emerald-200/80 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-5"
+            >
+              <div className="flex items-start sm:items-center gap-3.5 sm:gap-4 min-w-0 flex-1">
+                {/* Doctor Avatar with Department Color Ring */}
+                <div
+                  className="relative size-14 sm:size-16 rounded-2xl overflow-hidden shrink-0 border-2 bg-slate-100 shadow-sm"
+                  style={{ borderColor: `${nextDeptColor.gradientFrom}60` }}
+                >
+                  <img
+                    src={(nextAppointment.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${nextAppointment.doctorId || 'iron-man'}.jpg`}
+                    alt={nextAppointment.doctorName}
+                    className="w-full h-full object-cover object-[center_25%] transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.dataset.fallback) {
+                        target.dataset.fallback = '1';
+                        target.src = `/doctor-images/${nextAppointment.doctorId || 'iron-man'}.jpg`;
+                      }
+                    }}
+                  />
+                  <span
+                    className="absolute bottom-0 right-0 size-3.5 rounded-full border-2 border-white shadow-xs"
+                    style={{ backgroundColor: nextDeptColor.gradientFrom }}
+                  />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span
+                      className="px-2.5 py-0.5 rounded-md text-white font-mono font-bold text-[10px] uppercase tracking-wider shadow-2xs"
+                      style={{
+                        background: `linear-gradient(135deg, ${nextDeptColor.gradientFrom}, ${nextDeptColor.gradientTo})`,
+                      }}
+                    >
+                      NEXT UPCOMING VISIT
+                    </span>
+                    <span
+                      className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border"
+                      style={{
+                        borderColor: `${nextDeptColor.gradientFrom}40`,
+                        color: nextDeptColor.gradientFrom,
+                        backgroundColor: `${nextDeptColor.gradientFrom}15`,
+                      }}
+                    >
+                      {nextAppointment.departmentName}
+                    </span>
+                    <span className="text-xs font-mono font-bold text-slate-500">
+                      Pass: {nextAppointment.bookingId}
+                    </span>
+                  </div>
+
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 truncate flex items-center gap-2 flex-wrap">
+                    <span>{nextAppointment.doctorName}</span>
+                    <span className="text-slate-300 hidden sm:inline">&bull;</span>
+                    <span
+                      className="font-bold text-xs sm:text-sm"
+                      style={{ color: nextDeptColor.gradientFrom }}
+                    >
+                      {nextAppointment.specialty || nextAppointment.departmentName}
+                    </span>
+                  </h3>
+
+                  <div className="flex items-center gap-2 sm:gap-3 text-xs text-slate-600 mt-1.5 flex-wrap">
+                    <div
+                      className="flex items-center gap-1.5 font-bold font-mono px-2.5 py-1 rounded-xl text-xs border shadow-2xs"
+                      style={{
+                        backgroundColor: `${nextDeptColor.gradientFrom}10`,
+                        borderColor: `${nextDeptColor.gradientFrom}35`,
+                        color: nextDeptColor.gradientFrom,
+                      }}
+                    >
+                      <CalendarIcon className="w-3.5 h-3.5" />
+                      <span>{nextAppointment.date}</span>
+                    </div>
+
+                    <div
+                      className="flex items-center gap-1.5 font-bold font-mono px-2.5 py-1 rounded-xl text-xs border shadow-2xs"
+                      style={{
+                        backgroundColor: `${nextDeptColor.gradientTo}10`,
+                        borderColor: `${nextDeptColor.gradientTo}35`,
+                        color: nextDeptColor.gradientTo,
+                      }}
+                    >
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{nextAppointment.time}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-slate-600 text-xs px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-200/80">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{nextAppointment.location || 'WeCare Tower 4, Suite 800'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 w-full md:w-auto shrink-0 pt-2 md:pt-0">
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.03, y: -1 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setDirectionModalAppt(nextAppointment)}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-slate-300 hover:bg-white text-slate-800 shadow-2xs w-full md:w-auto"
+                >
+                  <Compass className="w-3.5 h-3.5 text-[#135940]" />
+                  <span>Floor Map</span>
+                </motion.button>
+
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.03, y: -1 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => handleDownloadIcs(nextAppointment)}
+                  className="px-5 py-2.5 rounded-xl text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer w-full md:w-auto"
+                  style={{
+                    background: `linear-gradient(135deg, ${nextDeptColor.gradientFrom}, ${nextDeptColor.gradientTo})`,
+                    boxShadow: `0 4px 14px ${nextDeptColor.gradientFrom}40`,
+                  }}
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Add to Calendar</span>
+                </motion.button>
+              </div>
+            </motion.div>
+          );
+        })()}
+      </motion.div>
+
+      {/* ====================================================================
+          2. TELEMETRY METRIC CUBES
+          ==================================================================== */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mb-8">
+        
+        {/* Metric 1: Total Consultations */}
+        <motion.div
+          variants={sectionItemVariants}
+          whileHover={{ y: -4, scale: 1.015 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase text-slate-500">
+              Total Visits
+            </span>
+            <div className="size-8 sm:size-9 rounded-xl bg-emerald-50 text-[#135940] flex items-center justify-center shadow-xs">
+              <CalendarCheck2 className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">
+            {stats.total}
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+            <span className="size-1.5 rounded-full bg-[#135940] animate-pulse" />
+            <span>Lifetime schedule repository</span>
+          </div>
+        </motion.div>
+
+        {/* Metric 2: Pending Triage Review */}
+        <motion.div
+          variants={sectionItemVariants}
+          whileHover={{ y: -4, scale: 1.015 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase text-amber-800">
+              Pending Review
+            </span>
+            <div className="size-8 sm:size-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-xs">
+              <Clock className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl sm:text-3xl font-black text-amber-600 tabular-nums">
+            {stats.pending}
+          </div>
+          <div className="text-[11px] text-amber-700 mt-1 flex items-center gap-1 font-medium">
+            <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
+            <span>Under hospital triage review</span>
+          </div>
+        </motion.div>
+
+        {/* Metric 3: Approved & Confirmed Passes */}
+        <motion.div
+          variants={sectionItemVariants}
+          whileHover={{ y: -4, scale: 1.015 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase text-emerald-800">
+              Active Passes
+            </span>
+            <div className="size-8 sm:size-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-xs">
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl sm:text-3xl font-black text-emerald-600 tabular-nums">
+            {stats.approved}
+          </div>
+          <div className="text-[11px] text-emerald-700 mt-1 flex items-center gap-1 font-medium">
+            <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Suites allocated & confirmed</span>
+          </div>
+        </motion.div>
+
+        {/* Metric 4: Completed Consultations */}
+        <motion.div
+          variants={sectionItemVariants}
+          whileHover={{ y: -4, scale: 1.015 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase text-slate-500">
+              Completed Care
+            </span>
+            <div className="size-8 sm:size-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-xs">
+              <Activity className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl sm:text-3xl font-black text-indigo-600 tabular-nums">
+            {stats.completed}
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+            <span className="size-1.5 rounded-full bg-indigo-500" />
+            <span>Consultation notes archived</span>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ====================================================================
+          3. ADVANCED CONTROLS: SEARCH, FILTERS & 3-WAY VIEW SWITCHER
+          ==================================================================== */}
+      <motion.div variants={sectionItemVariants} className="p-3.5 sm:p-4 rounded-3xl bg-white border border-slate-200/90 shadow-sm mb-6 space-y-3 sm:space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
+          
+          {/* Search Input with Clear Button */}
+          <div className="relative flex-1 min-w-[240px] group">
+            <Search className="w-4 h-4 text-slate-400 group-hover:text-[#135940] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by doctor, specialty, pass ID, or clinical reason..."
+              className="w-full h-11 pl-10 pr-9 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm font-medium hover:bg-slate-100/70 focus:bg-white focus:border-[#135940] focus:ring-4 focus:ring-[#135940]/15 outline-none transition-all"
+            />
+            {searchQuery && (
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer p-1"
+              >
+                <X className="w-3.5 h-3.5" />
+              </motion.button>
+            )}
+          </div>
+
+          {/* Sort Order Toggle */}
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.05, y: -1, borderColor: '#a7f3d0', color: '#135940' }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+            onClick={() => setSortOrder((prev) => (prev === 'latest' ? 'upcoming' : 'latest'))}
+            className="h-11 px-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-700 text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer select-none shrink-0"
+            title="Toggle sort order"
+          >
+            <motion.div
+              animate={{ rotate: sortOrder === 'latest' ? 0 : 180 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-[#135940]" />
+            </motion.div>
+            <span>{sortOrder === 'latest' ? 'Newest First' : 'Earliest First'}</span>
+          </motion.button>
+
+          {/* View Mode Switcher: Passbook vs Timeline vs Ledger */}
+          <div className="flex items-center bg-slate-100 rounded-2xl p-1 border border-slate-200 text-xs w-full lg:w-auto shrink-0 justify-between sm:justify-start">
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.06, y: -1 }}
+              whileTap={{ scale: 0.94 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+              onClick={() => setViewMode('passbook')}
+              className={`flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer select-none ${
+                viewMode === 'passbook' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {viewMode === 'passbook' && (
                 <motion.div
-                  layoutId="active-view-mode-pill"
-                  className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 shadow-xs"
-                  transition={{ type: 'spring', stiffness: 600, damping: 35 }}
+                  layoutId="active-view-pill"
+                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#135940] to-[#1b7454] shadow-md shadow-[#135940]/25"
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                />
+              )}
+              <QrCode className="w-3.5 h-3.5 relative z-10" />
+              <span className="relative z-10">Passbook</span>
+            </motion.button>
+
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.06, y: -1 }}
+              whileTap={{ scale: 0.94 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+              onClick={() => setViewMode('timeline')}
+              className={`flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer select-none ${
+                viewMode === 'timeline' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {viewMode === 'timeline' && (
+                <motion.div
+                  layoutId="active-view-pill"
+                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#135940] to-[#1b7454] shadow-md shadow-[#135940]/25"
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                />
+              )}
+              <Activity className="w-3.5 h-3.5 relative z-10" />
+              <span className="relative z-10">Timeline</span>
+            </motion.button>
+
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.06, y: -1 }}
+              whileTap={{ scale: 0.94 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+              onClick={() => setViewMode('ledger')}
+              className={`flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer select-none ${
+                viewMode === 'ledger' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {viewMode === 'ledger' && (
+                <motion.div
+                  layoutId="active-view-pill"
+                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#135940] to-[#1b7454] shadow-md shadow-[#135940]/25"
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 />
               )}
               <List className="w-3.5 h-3.5 relative z-10" />
-              <span className="relative z-10">Simple List</span>
-            </motion.button>
-            <motion.button
-              type="button"
-              whileTap={{ scale: 0.96 }}
-              onClick={() => setViewMode('cards')}
-              className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors cursor-pointer select-none ${
-                viewMode === 'cards' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
-              }`}
-              title="Cards View"
-            >
-              {viewMode === 'cards' && (
-                <motion.div
-                  layoutId="active-view-mode-pill"
-                  className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 shadow-xs"
-                  transition={{ type: 'spring', stiffness: 600, damping: 35 }}
-                />
-              )}
-              <LayoutGrid className="w-3.5 h-3.5 relative z-10" />
-              <span className="relative z-10">Cards</span>
+              <span className="relative z-10">Ledger</span>
             </motion.button>
           </div>
         </div>
-      </div>
 
-      {/* APPOINTMENT RECORDS WITH ANIMATE PRESENCE */}
-      <AnimatePresence mode="wait">
-        {filteredAppointments.length > 0 ? (
-          viewMode === 'list' ? (
-            /* SIMPLE & SWEET LIST VIEW */
-            <motion.div
-              key={`list-${filter}`}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.15 }}
-              className="space-y-3"
-            >
-              {filteredAppointments.map((appt) => {
-                const isPending = appt.status === 'pending';
-                const isApproved = appt.status === 'approved' || appt.status === 'upcoming';
-                const isRejected = appt.status === 'rejected';
-                const isCompleted = appt.status === 'completed';
-                const isCancelled = appt.status === 'cancelled';
-                const deptColor = getDepartmentColor(appt.departmentId);
-
-                return (
-                  <motion.div
-                    key={appt.bookingId}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ y: -2, scale: 1.006 }}
-                    transition={{ type: 'spring', stiffness: 550, damping: 28 }}
-                    className="group p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-white via-white to-slate-50/70 border border-slate-200/90 shadow-2xs hover:shadow-lg hover:border-slate-300 transition-all duration-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative overflow-hidden"
-                    style={{
-                      borderLeftWidth: '5px',
-                      borderLeftColor: deptColor.gradientFrom,
-                    }}
-                  >
-                    {/* Subtle top/bottom color glow on hover */}
-                    <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none"
-                      style={{
-                        background: `radial-gradient(ellipse at top left, ${deptColor.gradientFrom}14, transparent 70%)`,
-                      }}
+        {/* Status Tabs Bar with Native App Pill Slider */}
+        <div className="flex items-center justify-between gap-3 pt-1 border-t border-slate-100 flex-wrap">
+          <div className="flex items-center gap-1 sm:gap-1.5 p-1 rounded-2xl bg-slate-100 border border-slate-200/80 overflow-x-auto scrollbar-none max-w-full">
+            {(
+              [
+                { id: 'all', label: `All (${stats.total})`, color: '#135940' },
+                { id: 'pending', label: `Pending (${stats.pending})`, color: '#d97706' },
+                { id: 'approved', label: `Active (${stats.approved})`, color: '#059669' },
+                { id: 'rejected', label: `Rejected (${stats.rejected})`, color: '#e11d48' },
+                { id: 'completed', label: `Completed (${stats.completed})`, color: '#4f46e5' },
+              ] as const
+            ).map((tab) => {
+              const isActive = statusFilter === tab.id;
+              return (
+                <motion.button
+                  key={tab.id}
+                  type="button"
+                  whileHover={{ scale: 1.06, y: -1 }}
+                  whileTap={{ scale: 0.94 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 20 }}
+                  onClick={() => setStatusFilter(tab.id)}
+                  className={`shrink-0 relative px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer select-none ${
+                    isActive ? 'text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="active-status-tab"
+                      className="absolute inset-0 rounded-xl shadow-md shadow-slate-900/10"
+                      style={{ backgroundColor: tab.color }}
+                      transition={{ type: 'spring', stiffness: 550, damping: 30 }}
                     />
+                  )}
+                  <span className="relative z-10 font-bold">{tab.label}</span>
+                </motion.button>
+              );
+            })}
+          </div>
 
-                    {/* Left: Doctor & Patient Info */}
-                    <div className="flex items-start sm:items-center gap-4 min-w-0 flex-1 relative z-10">
-                      {/* Doctor Avatar with department color ring */}
-                      <div
-                        className="relative size-13 rounded-xl overflow-hidden shrink-0 border-2 bg-slate-100 shadow-sm"
-                        style={{ borderColor: `${deptColor.gradientFrom}55` }}
-                      >
-                        <img
-                          src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
-                          alt={appt.doctorName}
-                          className="w-full h-full object-cover object-[center_25%] transition-transform duration-500 group-hover:scale-110"
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            if (!target.dataset.fallback) {
-                              target.dataset.fallback = '1';
-                              target.src = `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`;
-                            }
-                          }}
-                        />
-                        <span
-                          className="absolute bottom-0 right-0 size-3 rounded-full border-2 border-white shadow-xs"
-                          style={{ backgroundColor: deptColor.gradientFrom }}
-                        />
-                      </div>
+          {/* Department Filter Selector */}
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+            <span className="hidden sm:inline">Specialty:</span>
+            <select
+              value={deptFilter}
+              onChange={(e) => setDeptFilter(e.target.value)}
+              className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold outline-none cursor-pointer hover:bg-white transition-colors"
+            >
+              <option value="all">All Specialties</option>
+              {Object.entries(DEPARTMENT_COLORS).map(([id, conf]) => (
+                <option key={id} value={id}>
+                  {conf.badge}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </motion.div>
 
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wide">
-                            ID: {appt.bookingId}
-                          </span>
+      {/* ====================================================================
+          4. MAIN VIEW RENDERING: PASSBOOK / TIMELINE / LEDGER
+          ==================================================================== */}
+      <AnimatePresence mode="wait">
+        {filteredAppointments.length === 0 ? (
+          /* Empty State with Floating Micro-animation */
+          <motion.div
+            key="empty-schedule-view"
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -15 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            className="p-8 sm:p-14 text-center rounded-3xl bg-white border border-slate-200 shadow-sm max-w-xl mx-auto my-8 relative overflow-hidden"
+          >
+            {/* Ambient Background Radial Glow */}
+            <div
+              aria-hidden="true"
+              className="absolute -top-16 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-emerald-400/10 blur-3xl pointer-events-none"
+            />
+
+            <motion.div
+              animate={{ y: [0, -7, 0] }}
+              transition={{ repeat: Infinity, duration: 2.6, ease: 'easeInOut' }}
+              className="size-16 sm:size-20 mx-auto mb-4 rounded-3xl bg-emerald-50 text-[#135940] flex items-center justify-center shadow-xs border border-emerald-100/80"
+            >
+              <CalendarIcon className="w-8 h-8 sm:w-10 sm:h-10" />
+            </motion.div>
+            <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-2">
+              {appointments.length === 0 ? 'No Scheduled Appointments' : 'No Matching Appointments Found'}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 mb-6 max-w-sm mx-auto leading-relaxed">
+              {appointments.length === 0
+                ? 'Your personal consultation schedule is currently blank. Schedule a visit with our board-certified clinical specialists to generate your digital hospital admission pass.'
+                : 'No clinical appointments matched your current search keywords or category filters. Try clearing your filters or search terms.'}
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              {appointments.length > 0 && (
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.05, y: -1 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                  onClick={() => {
+                    setSearchQuery('');
+                    setStatusFilter('all');
+                    setDeptFilter('all');
+                  }}
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  Clear Filters
+                </motion.button>
+              )}
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.05, y: -1 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                onClick={() => navigate('/book-appointment')}
+                className="px-6 py-2.5 rounded-xl bg-[#135940] hover:bg-[#1b7454] text-white text-xs font-bold transition-all shadow-md shadow-[#135940]/25 flex items-center gap-2 cursor-pointer"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>Book Appointment</span>
+              </motion.button>
+            </div>
+          </motion.div>
+        ) : viewMode === 'passbook' ? (
+          /* ================================================================
+             VIEW 1: LUXURY MEDICAL BOARDING PASSBOOK (Default)
+             ================================================================ */
+          <motion.div
+            key={`view-passbook-${statusFilter}-${deptFilter}`}
+            variants={viewModeTransitionVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch"
+          >
+            {filteredAppointments.map((appt, idx) => {
+              const deptColor = getDepartmentColor(appt.departmentId);
+              const isPending = appt.status === 'pending';
+              const isApproved = appt.status === 'approved' || appt.status === 'upcoming';
+              const isRejected = appt.status === 'rejected';
+              const isCompleted = appt.status === 'completed';
+
+              return (
+                <motion.div
+                  key={appt.bookingId}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.05 }}
+                  transition={{ delay: (idx % 3) * 0.04, duration: 0.35 }}
+                  whileHover={{ y: -5 }}
+                  className="group relative w-full flex flex-col justify-between rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all duration-300 overflow-hidden"
+                >
+                  {/* Top Colored Signature Strip */}
+                  <div
+                    className="h-2 w-full"
+                    style={{
+                      background: `linear-gradient(90deg, ${deptColor.gradientFrom}, ${deptColor.gradientTo})`,
+                    }}
+                  />
+
+                  {/* Main Pass Container */}
+                  <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-5">
+                      {/* Pass Header: Department, Booking ID, Status Badge */}
+                      <div>
+                        <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100/90 mb-3.5">
                           <span
-                            className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider text-white shadow-xs"
+                            className="px-2.5 py-0.5 rounded-md text-[10.5px] font-mono font-bold uppercase tracking-wider text-white shadow-2xs"
                             style={{
                               background: `linear-gradient(135deg, ${deptColor.gradientFrom}, ${deptColor.gradientTo})`,
-                              boxShadow: `0 2px 8px ${deptColor.gradientFrom}40`,
                             }}
                           >
                             {appt.departmentName}
                           </span>
 
-                          {/* Status Badges */}
                           {isPending && (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-gradient-to-r from-amber-50 to-orange-50 text-amber-900 border border-amber-300 shadow-2xs">
-                              <span className="relative flex size-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full size-2 bg-amber-500"></span>
-                              </span>
-                              <span>Pending Admin Approval</span>
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-amber-50 text-amber-800 border border-amber-300">
+                              <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
+                              Pending Review
                             </span>
                           )}
                           {isApproved && (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-900 border border-emerald-300 shadow-2xs">
-                              <span className="relative flex size-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full size-2 bg-emerald-500"></span>
-                              </span>
-                              <span>Approved & Confirmed</span>
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-emerald-50 text-emerald-800 border border-emerald-300">
+                              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                              Confirmed Pass
                             </span>
                           )}
                           {isRejected && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-gradient-to-r from-rose-50 to-red-50 text-rose-900 border border-rose-300 shadow-2xs">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-rose-50 text-rose-800 border border-rose-200">
                               <X className="w-3 h-3 text-rose-600" />
-                              <span>Rejected by Clinic</span>
+                              Rejected
                             </span>
                           )}
                           {isCompleted && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-slate-100 text-slate-800 border border-slate-300">
-                              <span>Completed</span>
-                            </span>
-                          )}
-                          {isCancelled && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-rose-100 text-rose-700 border border-rose-200">
-                              <span>Cancelled</span>
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-slate-100 text-slate-800 border border-slate-200">
+                              Completed
                             </span>
                           )}
                         </div>
 
-                        {/* Patient Name (prominent for Admin) */}
-                        {isAdmin && (
-                          <div className="flex flex-wrap items-center gap-1.5 mb-1 p-1 px-2 rounded-lg bg-purple-50 border border-purple-200/80 w-fit">
-                            <span className="font-extrabold text-purple-900 text-xs">
-                              Patient: {appt.patientName}
-                            </span>
-                            <span className="text-[11px] text-purple-700">
-                              &bull; {appt.email} &bull; {appt.phone}
+                        {/* Doctor Profile Header with Hover Spring Zoom */}
+                        <div className="flex items-center gap-3.5">
+                          <motion.div
+                            whileHover={{ scale: 1.08, rotate: 2 }}
+                            transition={{ type: 'spring', stiffness: 350, damping: 20 }}
+                            className="relative size-14 sm:size-16 rounded-2xl overflow-hidden shrink-0 border-2 bg-slate-100 shadow-sm"
+                            style={{ borderColor: `${deptColor.gradientFrom}50` }}
+                          >
+                            <img
+                              src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
+                              alt={appt.doctorName}
+                              className="w-full h-full object-cover object-[center_25%]"
+                              onError={(e) => {
+                                const target = e.currentTarget;
+                                if (!target.dataset.fallback) {
+                                  target.dataset.fallback = '1';
+                                  target.src = `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`;
+                                }
+                              }}
+                            />
+                          </motion.div>
+
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-base sm:text-lg font-black text-slate-900 tracking-tight truncate">
+                              {appt.doctorName}
+                            </h4>
+                            <p className="text-xs text-slate-500 truncate font-medium">
+                              {appt.specialty}
+                            </p>
+                            <span className="text-[11px] font-mono font-bold text-slate-400 block mt-0.5">
+                              Pass: {appt.bookingId}
                             </span>
                           </div>
-                        )}
-
-                        {/* Doctor Name & Specialty */}
-                        <div className="text-xs sm:text-sm font-semibold text-slate-700 flex flex-wrap items-center gap-1.5">
-                          <span className="text-slate-900 font-extrabold">{appt.doctorName}</span>
-                          <span className="text-slate-400">&bull;</span>
-                          <span className="text-slate-600 font-normal">{appt.specialty}</span>
-                        </div>
-
-                        {appt.reason && (
-                          <p className="text-xs text-slate-500 mt-1 line-clamp-1 italic">
-                            <span className="font-medium text-slate-600 not-italic">Intake Reason:</span> &ldquo;{appt.reason}&rdquo;
-                          </p>
-                        )}
-                        {isPending && (
-                          <p className="text-[11px] text-amber-800 font-semibold mt-1 flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                            <span>This request is awaiting clinic administrative review and confirmation.</span>
-                          </p>
-                        )}
-                        {isRejected && appt.rejectionReason && (
-                          <p className="text-[11px] text-rose-600 font-medium mt-1 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3 text-rose-500 shrink-0" />
-                            <span>Note: {appt.rejectionReason}</span>
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Right: Date, Time, Location & Actions */}
-                    <div className="flex flex-wrap sm:flex-nowrap items-center justify-between lg:justify-end gap-3.5 sm:gap-5 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 relative z-10">
-                      {/* Schedule Chips */}
-                      <div className="flex flex-wrap items-center gap-2">
-                        <div className="flex items-center gap-1.5 font-bold text-blue-900 font-mono bg-blue-50/90 border border-blue-200/80 px-2.5 py-1.5 rounded-xl shadow-2xs text-xs">
-                          <CalendarIcon className="w-3.5 h-3.5 text-blue-600" />
-                          <span>{appt.date}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 font-bold text-sky-900 font-mono bg-sky-50/90 border border-sky-200/80 px-2.5 py-1.5 rounded-xl shadow-2xs text-xs">
-                          <Clock className="w-3.5 h-3.5 text-sky-600" />
-                          <span>{appt.time}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-emerald-900 font-medium bg-emerald-50/80 border border-emerald-200/80 px-2.5 py-1.5 rounded-xl shadow-2xs text-[11px]">
-                          <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                          <span className="truncate max-w-[170px]">{appt.location || 'Clinical Suite'}</span>
                         </div>
                       </div>
 
-                      {/* Actions */}
-                      <div className="flex items-center gap-2">
-                        {/* Admin Direct Actions on Pending */}
+                      {/* Schedule Ticket Matrix */}
+                      <div className="grid grid-cols-2 gap-2 p-3 rounded-2xl bg-slate-50/80 border border-slate-200/70 text-xs font-mono">
+                        <div>
+                          <span className="text-[10px] text-slate-400 block mb-0.5">CONSULTATION DATE</span>
+                          <span className="font-bold text-slate-900 flex items-center gap-1 truncate">
+                            <CalendarIcon className="w-3 h-3 text-emerald-600 shrink-0" />
+                            {appt.date}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-400 block mb-0.5">TIME WINDOW</span>
+                          <span className="font-bold text-slate-900 flex items-center gap-1 truncate">
+                            <Clock className="w-3 h-3 text-emerald-600 shrink-0" />
+                            {appt.time}
+                          </span>
+                        </div>
+                        <div className="col-span-2 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
+                          <span className="text-slate-500 flex items-center gap-1 truncate">
+                            <MapPin className="w-3 h-3 text-emerald-600 shrink-0" />
+                            Tower 4, Suite 800
+                          </span>
+                          <span className="font-bold text-slate-700 shrink-0">
+                            {appt.insuranceProvider ? 'In-Network' : 'Self-Pay'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Admin Triage Feedback Note (if rejected) */}
+                      {isRejected && appt.rejectionReason && (
+                        <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-start gap-1.5">
+                          <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                          <span>Clinic note: {appt.rejectionReason}</span>
+                        </div>
+                      )}
+
+                      {/* Perforated Seam Line */}
+                      <div className="relative py-1">
+                        <div className="border-t border-dashed border-slate-300" />
+                        <div className="absolute -left-7 top-1/2 -translate-y-1/2 size-4 rounded-full bg-slate-50 border-r border-slate-200" />
+                        <div className="absolute -right-7 top-1/2 -translate-y-1/2 size-4 rounded-full bg-slate-50 border-l border-slate-200" />
+                      </div>
+
+                      {/* Action Bar with Motion Micro-interactions */}
+                      <div className="space-y-2">
                         {isAdmin && isPending && (
-                          <div className="flex items-center gap-1.5">
-                            <button
+                          <div className="grid grid-cols-2 gap-2">
+                            <motion.button
                               type="button"
+                              whileHover={{ scale: 1.04, y: -1 }}
+                              whileTap={{ scale: 0.96 }}
+                              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                               onClick={() => handleApprove(appt.bookingId)}
-                              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-105 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm shadow-emerald-500/20"
-                              title="Approve this appointment"
+                              className="py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
                             >
-                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <Check className="w-3.5 h-3.5" />
                               <span>Approve</span>
-                            </button>
-                            <button
+                            </motion.button>
+                            <motion.button
                               type="button"
+                              whileHover={{ scale: 1.04, y: -1 }}
+                              whileTap={{ scale: 0.96 }}
+                              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                               onClick={() => handleReject(appt.bookingId)}
-                              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:brightness-105 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm shadow-rose-500/20"
-                              title="Reject this appointment"
+                              className="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
                             >
-                              <XCircle className="w-3.5 h-3.5" />
+                              <X className="w-3.5 h-3.5" />
                               <span>Reject</span>
-                            </button>
+                            </motion.button>
                           </div>
                         )}
 
-                        <button
-                          type="button"
-                          onClick={() => handleDownloadIcs(appt)}
-                          className="p-2.5 rounded-xl border border-blue-200 text-blue-700 bg-blue-50/70 hover:bg-blue-100 hover:text-blue-800 transition-colors cursor-pointer shadow-2xs"
-                          title="Download Calendar (.ics)"
-                        >
-                          <Download className="w-4 h-4" />
-                        </button>
-
-                        {(isApproved || isPending) && (
-                          cancellingId === appt.bookingId ? (
-                            <div className="flex items-center gap-1">
-                              <span className="text-xs text-rose-600 font-bold">Cancel?</span>
-                              <button
-                                type="button"
-                                onClick={() => handleConfirmCancel(appt.bookingId)}
-                                className="px-2 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs cursor-pointer"
-                              >
-                                Yes
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setCancellingId(null)}
-                                className="px-1 text-slate-500 hover:text-slate-800 text-xs cursor-pointer"
-                              >
-                                No
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => setCancellingId(appt.bookingId)}
-                              className="px-3 py-2 rounded-xl border border-rose-200 bg-rose-50/60 text-rose-700 hover:bg-rose-100 text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
-                              title="Cancel Consultation"
-                            >
-                              Cancel
-                            </button>
-                          )
-                        )}
-
-                        {/* Delete from history if completed, cancelled or rejected */}
-                        {(isCompleted || isCancelled || isRejected) && (
-                          <button
+                        <div className="flex items-center gap-2">
+                          <motion.button
                             type="button"
-                            onClick={() => handleDeleteAppointment(appt.bookingId)}
-                            className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                            title="Remove from history"
+                            whileHover={{ scale: 1.02, y: -1 }}
+                            whileTap={{ scale: 0.98 }}
+                            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                            onClick={() => setDirectionModalAppt(appt)}
+                            className="flex-1 py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                           >
-                            <RotateCcw className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          ) : (
-            /* BENTO CARDS GRID */
-            <motion.div
-              key={`cards-${filter}`}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
-              className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch"
-            >
-              {filteredAppointments.map((appt, idx) => {
-                const isPending = appt.status === 'pending';
-                const isApproved = appt.status === 'approved' || appt.status === 'upcoming';
-                const isRejected = appt.status === 'rejected';
-                const isCompleted = appt.status === 'completed';
-                const isCancelled = appt.status === 'cancelled';
-                const deptColor = getDepartmentColor(appt.departmentId);
-                const gradFrom = deptColor.gradientFrom;
-                const gradTo = deptColor.gradientTo;
-
-              return (
-                <motion.div
-                  key={appt.bookingId}
-                  initial={{ opacity: 0, y: 14, scale: 0.98 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, amount: 0.05 }}
-                  transition={{ duration: 0.22, delay: (idx % 3) * 0.03, ease: [0.16, 1, 0.3, 1] }}
-                  whileHover={{ y: -6, scale: 1.015 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="group relative w-full rounded-2xl transition-all duration-200 transform-gpu flex flex-col justify-between will-change-transform"
-                >
-                  {/* 1. Skewed gradient backing panel with canonical department colors */}
-                  <span
-                    className="absolute -top-1.5 left-[10px] w-[calc(100%-12px)] h-full rounded-2xl transform skew-x-[6deg] opacity-90 group-hover:skew-x-[2deg] group-hover:opacity-100 transition-transform duration-200 pointer-events-none z-0 transform-gpu"
-                    style={{
-                      background: `linear-gradient(315deg, ${gradFrom}, ${gradTo})`,
-                    }}
-                  />
-
-                  {/* 2. Blurred vibrant neon glow shadow */}
-                  <span
-                    className="absolute -top-1 left-[10px] w-[calc(100%-12px)] h-full rounded-2xl transform skew-x-[6deg] opacity-55 blur-[24px] group-hover:skew-x-[2deg] group-hover:opacity-80 group-hover:blur-[30px] transition-all duration-200 pointer-events-none z-0 transform-gpu"
-                    style={{
-                      background: `linear-gradient(315deg, ${gradFrom}, ${gradTo})`,
-                    }}
-                  />
-
-                  {/* 3. Animated floating frosted glass blur badges on hover */}
-                  <span className="pointer-events-none absolute inset-0 z-10 overflow-visible">
-                    <span
-                      className="absolute top-0 left-0 size-0 rounded-xl opacity-0 bg-white/75 backdrop-blur-[10px] shadow-[0_5px_15px_rgba(0,0,0,0.06)] border border-white/90 transition-all duration-150 animate-blob-fast group-hover:top-[-14px] group-hover:left-[20px] group-hover:size-12 group-hover:opacity-100"
-                    />
-                    <span
-                      className="absolute bottom-0 right-0 size-0 rounded-xl opacity-0 bg-white/75 backdrop-blur-[10px] shadow-[0_5px_15px_rgba(0,0,0,0.06)] border border-white/90 transition-all duration-200 animate-blob-fast animation-delay-1000 group-hover:bottom-[-14px] group-hover:right-[20px] group-hover:size-12 group-hover:opacity-100"
-                    />
-                  </span>
-
-                {/* 4. Foreground Liquid Glass Content Panel with color-infused tint */}
-                <div
-                  className="relative z-20 h-full p-5 sm:p-6 backdrop-blur-md rounded-2xl border text-slate-900 transition-all duration-200 flex flex-col justify-between transform-gpu overflow-hidden bg-white"
-                  style={{
-                    background: `linear-gradient(175deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.92) 55%, ${gradFrom}14 100%)`,
-                    borderColor: `${gradFrom}45`,
-                    boxShadow: `0 10px 28px -6px ${gradFrom}28, 0 4px 12px rgba(0,0,0,0.03), inset 0 1px 2px rgba(255,255,255,0.95)`,
-                  }}
-                >
-                  {/* Top colored accent line */}
-                  <div
-                    className="absolute top-0 left-0 right-0 h-1.5 rounded-t-2xl pointer-events-none"
-                    style={{
-                      background: `linear-gradient(90deg, ${gradFrom}, ${gradTo})`,
-                    }}
-                  />
-
-                  {/* Header: Booking ID + Status Badge */}
-                  <div>
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 mb-3.5">
-                      <span className="text-[11px] font-mono font-bold tracking-wider text-slate-600 uppercase">
-                        ID: {appt.bookingId}
-                      </span>
-
-                      {/* Status Indicator */}
-                      {isPending && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs">
-                          <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
-                          <span>PENDING APPROVAL</span>
-                        </span>
-                      )}
-                      {isApproved && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">
-                          <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          <span>APPROVED & ACTIVE</span>
-                        </span>
-                      )}
-                      {isRejected && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-rose-100 text-rose-800 border border-rose-200">
-                          <X className="w-3 h-3 text-rose-600" />
-                          <span>REJECTED</span>
-                        </span>
-                      )}
-                      {isCompleted && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200">
-                          <span>COMPLETED</span>
-                        </span>
-                      )}
-                      {isCancelled && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-rose-100 text-rose-700 border border-rose-200">
-                          <span>CANCELLED</span>
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Admin Mode: Patient Identity Pill */}
-                    {isAdmin && (
-                      <div className="mb-3.5 p-2.5 rounded-xl bg-purple-50/90 border border-purple-200/80 flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <div className="size-6 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold text-[11px] shrink-0">
-                            {appt.patientName ? appt.patientName.charAt(0).toUpperCase() : 'P'}
-                          </div>
-                          <div className="min-w-0">
-                            <span className="font-bold text-slate-900 block truncate">{appt.patientName}</span>
-                            <span className="text-slate-500 block text-[10px] truncate">{appt.email} &bull; {appt.phone}</span>
-                          </div>
-                        </div>
-                        <span className="shrink-0 px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 text-[9.5px] font-mono font-bold">
-                          PATIENT
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Doctor Info Row */}
-                    <div className="flex items-center gap-3.5 mb-4 p-3 rounded-xl bg-white/80 border border-slate-200/70 shadow-2xs">
-                      <div className="relative size-14 rounded-xl overflow-hidden shrink-0 border border-slate-200/80 bg-slate-100">
-                        <img
-                          src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
-                          alt={appt.doctorName}
-                          className="w-full h-full object-cover object-[center_25%]"
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            if (!target.dataset.fallback) {
-                              target.dataset.fallback = '1';
-                              target.src = `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`;
-                            }
-                          }}
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <span
-                          className="text-[10px] font-mono font-bold uppercase tracking-wider block truncate"
-                          style={{ color: gradFrom }}
-                        >
-                          {appt.departmentName} &bull; {appt.specialty}
-                        </span>
-                        <h4 className="text-base font-black text-slate-900 truncate">
-                          {appt.doctorName}
-                        </h4>
-                        <p className="text-[11px] text-slate-500 truncate">
-                          {appt.doctorRole}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Schedule & Location Matrix */}
-                    <div className="space-y-2 text-xs mb-4">
-                      <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50/90 border border-slate-200/70 font-mono">
-                        <div className="flex items-center gap-2 text-slate-700">
-                          <CalendarIcon className="w-3.5 h-3.5" style={{ color: gradFrom }} />
-                          <span className="font-bold">{appt.date}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-slate-600">
-                          <Clock className="w-3.5 h-3.5" style={{ color: gradFrom }} />
-                          <span className="font-bold">{appt.time}</span>
-                        </div>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-slate-50/90 border border-slate-200/70 text-slate-700 flex items-start gap-2">
-                        <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: gradFrom }} />
-                        <div className="min-w-0">
-                          <span className="font-bold block leading-tight">
-                            In-Person Clinical Consultation
-                          </span>
-                          <span className="text-[11px] text-slate-500 truncate block">
-                            {appt.location || 'WeCare Clinical Tower 4, Suite 800'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {appt.reason && (
-                        <div
-                          className="p-2.5 rounded-xl border text-[11px] text-slate-600"
-                          style={{
-                            backgroundColor: `${gradFrom}0a`,
-                            borderColor: `${gradFrom}28`,
-                          }}
-                        >
-                          <span className="font-bold block mb-0.5" style={{ color: gradFrom }}>
-                            Clinical Reason:
-                          </span>
-                          <p className="line-clamp-2">{appt.reason}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Actions Bar */}
-                  <div className="pt-3.5 border-t border-slate-200/80 space-y-2">
-                    
-                    {/* Primary Action Button */}
-                    {isApproved && (
-                      <div className="flex items-center gap-2">
-                        <motion.button
-                          type="button"
-                          whileHover={{ scale: 1.025, y: -1 }}
-                          whileTap={{ scale: 0.975 }}
-                          transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                          onClick={() => alert(`Directions to WeCare Clinical Tower 4, Suite 800:\nCheck in at 8th Floor Reception with Reference: ${appt.bookingId}`)}
-                          className="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs hover:brightness-105 transform-gpu"
-                          style={{
-                            background: `linear-gradient(135deg, ${gradFrom}, ${gradTo})`,
-                            boxShadow: `0 4px 14px ${gradFrom}35`,
-                          }}
-                        >
-                          <Building2 className="w-3.5 h-3.5" />
-                          <span>Clinic Directions</span>
-                        </motion.button>
-
-                        <motion.button
-                          type="button"
-                          whileHover={{ scale: 1.08 }}
-                          whileTap={{ scale: 0.92 }}
-                          transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                          onClick={() => handleDownloadIcs(appt)}
-                          title="Download Calendar (.ics)"
-                          className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer transform-gpu"
-                        >
-                          <Download className="w-4 h-4" />
-                        </motion.button>
-                      </div>
-                    )}
-
-                    {/* Admin Direct Action Buttons on Pending Cards */}
-                    {isAdmin && isPending && (
-                      <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-100">
-                        <button
-                          type="button"
-                          onClick={() => handleApprove(appt.bookingId)}
-                          className="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
-                          title="Approve this appointment"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Approve</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleReject(appt.bookingId)}
-                          className="py-2 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
-                          title="Reject this appointment"
-                        >
-                          <XCircle className="w-3.5 h-3.5" />
-                          <span>Reject</span>
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Secondary Actions: Reschedule / Cancel / Delete */}
-                    <div className="flex items-center justify-between text-[11px] pt-2 mt-2 border-t border-slate-100">
-                      {(isApproved || isPending) ? (
-                        <>
-                          <button
+                            <Compass className="w-3.5 h-3.5 text-[#135940]" />
+                            <span>Clinic Map</span>
+                          </motion.button>
+                          <motion.button
                             type="button"
-                            onClick={() => navigate('/book-appointment')}
-                            className="font-bold flex items-center gap-1 cursor-pointer hover:underline"
-                            style={{ color: gradFrom }}
+                            whileHover={{ scale: 1.08, y: -1, rotate: -3 }}
+                            whileTap={{ scale: 0.94 }}
+                            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+                            onClick={() => handleDownloadIcs(appt)}
+                            className="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-[#135940] text-xs font-bold transition-colors flex items-center justify-center cursor-pointer shadow-2xs"
+                            title="Download Calendar (.ics)"
                           >
-                            <RotateCcw className="w-3 h-3" />
-                            <span>Reschedule</span>
-                          </button>
+                            <Download className="w-4 h-4" />
+                          </motion.button>
+                        </div>
 
-                          {cancellingId === appt.bookingId ? (
-                            <div className="flex items-center gap-2">
-                              <span className="text-rose-600 font-bold text-[10px]">Sure?</span>
-                              <button
+                        {/* Cancel / Reschedule footer links */}
+                        <div className="flex items-center justify-between pt-2 text-[11px] text-slate-500 font-medium">
+                          {isApproved || isPending ? (
+                            <>
+                              <motion.button
                                 type="button"
-                                onClick={() => handleConfirmCancel(appt.bookingId)}
-                                className="px-2 py-0.5 rounded bg-rose-600 text-white font-bold text-[10px] cursor-pointer"
+                                whileHover={{ scale: 1.05, x: 2 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => navigate('/book-appointment')}
+                                className="text-[#135940] hover:underline cursor-pointer flex items-center gap-1 font-semibold"
                               >
-                                Yes, Cancel
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setCancellingId(null)}
-                                className="text-slate-500 text-[10px] hover:text-slate-800"
-                              >
-                                Back
-                              </button>
-                            </div>
+                                <RotateCcw className="w-3 h-3" />
+                                <span>Reschedule</span>
+                              </motion.button>
+
+                              {cancellingId === appt.bookingId ? (
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-rose-600 font-bold">Cancel?</span>
+                                  <motion.button
+                                    type="button"
+                                    whileHover={{ scale: 1.08 }}
+                                    whileTap={{ scale: 0.92 }}
+                                    onClick={() => handleConfirmCancel(appt.bookingId)}
+                                    className="px-2 py-0.5 rounded bg-rose-600 text-white font-bold text-[10px] cursor-pointer shadow-2xs"
+                                  >
+                                    Yes
+                                  </motion.button>
+                                  <motion.button
+                                    type="button"
+                                    whileHover={{ scale: 1.08 }}
+                                    whileTap={{ scale: 0.92 }}
+                                    onClick={() => setCancellingId(null)}
+                                    className="text-slate-400 hover:text-slate-700 text-[10px] cursor-pointer"
+                                  >
+                                    No
+                                  </motion.button>
+                                </div>
+                              ) : (
+                                <motion.button
+                                  type="button"
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  onClick={() => setCancellingId(appt.bookingId)}
+                                  className="text-rose-600 hover:text-rose-700 cursor-pointer font-semibold"
+                                >
+                                  Cancel Pass
+                                </motion.button>
+                              )}
+                            </>
                           ) : (
-                            <button
-                              type="button"
-                              onClick={() => setCancellingId(appt.bookingId)}
-                              className="text-rose-600 hover:text-rose-800 font-medium cursor-pointer"
-                            >
-                              Cancel Booking
-                            </button>
+                            <>
+                              <motion.button
+                                type="button"
+                                whileHover={{ scale: 1.05, x: 2 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => navigate('/book-appointment')}
+                                className="text-[#135940] hover:underline cursor-pointer flex items-center gap-1 font-semibold"
+                              >
+                                <PlusCircle className="w-3 h-3" />
+                                <span>Rebook Visit</span>
+                              </motion.button>
+
+                              <motion.button
+                                type="button"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => handleDelete(appt.bookingId)}
+                                className="text-slate-400 hover:text-rose-600 cursor-pointer"
+                              >
+                                Remove Pass
+                              </motion.button>
+                            </>
                           )}
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => navigate('/book-appointment')}
-                            className="font-bold flex items-center gap-1 cursor-pointer hover:underline"
-                            style={{ color: gradFrom }}
-                          >
-                            <PlusCircle className="w-3 h-3" />
-                            <span>Book New Slot</span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteAppointment(appt.bookingId)}
-                            className="text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
-                          >
-                            Remove Record
-                          </button>
-                        </>
-                      )}
+                        </div>
                     </div>
-
                   </div>
-
-                </div>
                 </motion.div>
               );
             })}
           </motion.div>
-        )) : appointments.length === 0 ? (
-          /* Empty State for New User / Blank Schedule */
+        ) : viewMode === 'timeline' ? (
+          /* ================================================================
+             VIEW 2: CLINICAL JOURNEY TIMELINE
+             ================================================================ */
           <motion.div
-            key="empty-no-appointments"
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.2 }}
-            className="relative p-10 sm:p-14 text-center rounded-3xl bg-gradient-to-b from-white via-blue-50/30 to-indigo-50/40 border border-blue-200/90 shadow-xl max-w-xl mx-auto my-6 overflow-hidden transform-gpu"
+            key="view-timeline"
+            variants={viewModeTransitionVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="relative max-w-3xl mx-auto py-6 space-y-6"
           >
-            {/* Top accent gradient bar */}
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500" />
-            
-            {/* Ambient colorful glow halo */}
-            <div className="absolute -top-10 left-1/2 -translate-x-1/2 size-48 rounded-full bg-gradient-to-br from-blue-400/20 via-sky-300/20 to-purple-400/15 blur-2xl pointer-events-none animate-blob-fast" />
+            {/* Center Track Line with Animated Glow */}
+            <div className="absolute top-6 bottom-6 left-6 sm:left-8 w-0.5 bg-gradient-to-b from-[#135940] via-emerald-600 to-slate-200" />
 
-            {/* Animated floating calendar icon with glowing rings */}
-            <div className="relative size-24 mx-auto mb-6 flex items-center justify-center">
-              <span className="absolute inset-0 rounded-3xl bg-blue-500/20 blur-xl animate-pulse" />
-              <motion.div
-                animate={{ y: [-4, 5, -4], rotate: [-1.5, 1.5, -1.5] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                className="relative size-20 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-xl shadow-blue-500/35 border border-white/40"
-              >
-                <CalendarIcon className="w-10 h-10 text-white" />
-              </motion.div>
-            </div>
+            {filteredAppointments.map((appt) => {
+              const deptColor = getDepartmentColor(appt.departmentId);
 
-            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2 tracking-tight">
-              {isAdmin ? 'No Hospital Appointments On Record' : 'No Appointments Booked Yet'}
-            </h3>
+              return (
+                <div key={appt.bookingId} className="relative flex items-start gap-4 sm:gap-6 pl-2 group">
+                  {/* Timeline Node Icon with Magnetic Spring Hover */}
+                  <motion.div
+                    whileHover={{ scale: 1.25, rotate: 12 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: 'spring', stiffness: 450, damping: 20 }}
+                    className="relative z-10 size-10 sm:size-12 rounded-2xl flex items-center justify-center text-white shadow-md shrink-0 border-2 border-white cursor-pointer"
+                    style={{
+                      background: `linear-gradient(135deg, ${deptColor.gradientFrom}, ${deptColor.gradientTo})`,
+                      boxShadow: `0 4px 14px ${deptColor.gradientFrom}45`,
+                    }}
+                  >
+                    <Stethoscope className="w-5 h-5 text-white" />
+                  </motion.div>
 
-            <p className="text-sm text-slate-600 mb-6 max-w-md mx-auto leading-relaxed">
-              {isAdmin
-                ? 'There are currently no patient consultation bookings registered in the hospital system ledger.'
-                : currentUser
-                  ? `Hello ${currentUser.name}, your schedule is currently blank. Schedule your consultation with our board-certified specialists and your booking telemetry will appear here.`
-                  : 'Your clinical schedule is currently blank. Sign in or register to book and manage consultations with our verified medical specialists.'}
-            </p>
+                  {/* Card Content with Slide & Lift Micro-interaction */}
+                  <motion.div
+                    whileHover={{ x: 6, scale: 1.01 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    className="flex-1 p-4 sm:p-5 rounded-3xl backdrop-blur-md border transition-all duration-300"
+                    style={{
+                      background: `linear-gradient(175deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.94) 65%, ${deptColor.gradientFrom}08 100%)`,
+                      borderColor: `${deptColor.gradientFrom}35`,
+                      boxShadow: `0 6px 20px -4px ${deptColor.gradientFrom}18, 0 2px 8px rgba(0,0,0,0.03)`,
+                    }}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-slate-500">
+                          {appt.date} &bull; {appt.time}
+                        </span>
+                        <span
+                          className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase text-white shadow-2xs"
+                          style={{ backgroundColor: deptColor.gradientFrom }}
+                        >
+                          {appt.departmentName}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-mono text-slate-400 font-bold">
+                        ID: {appt.bookingId}
+                      </span>
+                    </div>
 
-            {/* Quick Colored Guarantees Bar with Spring Hover */}
-            <div className="flex flex-wrap items-center justify-center gap-2.5 mb-7">
-              <motion.span
-                whileHover={{ scale: 1.06, y: -2 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-100/90 border border-blue-300 text-blue-900 text-xs font-bold shadow-2xs cursor-default select-none"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                <span>Zero Wait-Time Triage</span>
-              </motion.span>
-              <motion.span
-                whileHover={{ scale: 1.06, y: -2 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-100/90 border border-emerald-300 text-emerald-900 text-xs font-bold shadow-2xs cursor-default select-none"
-              >
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Board-Certified Specialists</span>
-              </motion.span>
-              <motion.span
-                whileHover={{ scale: 1.06, y: -2 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-purple-100/90 border border-purple-300 text-purple-900 text-xs font-bold shadow-2xs cursor-default select-none"
-              >
-                <Building2 className="w-3.5 h-3.5 text-purple-600" />
-                <span>Hospital In-Person Suites</span>
-              </motion.span>
-            </div>
+                    <h4 className="text-base font-black text-slate-900">
+                      {appt.doctorName},{' '}
+                      <span className="text-slate-500 font-medium text-sm">{appt.specialty}</span>
+                    </h4>
 
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.04, y: -2, boxShadow: "0 14px 28px -4px rgba(37, 99, 235, 0.45)" }}
-              whileTap={{ scale: 0.96 }}
-              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-              onClick={() => navigate('/book-appointment')}
-              className="py-3.5 px-8 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:brightness-110 transition-all inline-flex items-center gap-2 cursor-pointer shadow-lg shadow-blue-500/30 transform-gpu"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>Book Your First Appointment</span>
-            </motion.button>
+                    {appt.reason && (
+                      <p className="text-xs text-slate-600 mt-1 italic">
+                        &ldquo;{appt.reason}&rdquo;
+                      </p>
+                    )}
+
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2 text-xs">
+                      <span className="text-slate-500 flex items-center gap-1 font-mono text-[11px]">
+                        <MapPin className="w-3.5 h-3.5 text-[#135940]" />
+                        WeCare Medical Tower 4, Suite 800
+                      </span>
+
+                      <div className="flex items-center gap-2">
+                        <motion.button
+                          type="button"
+                          whileHover={{ scale: 1.05, y: -1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setDirectionModalAppt(appt)}
+                          className="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs cursor-pointer shadow-2xs"
+                        >
+                          Directions
+                        </motion.button>
+                        <motion.button
+                          type="button"
+                          whileHover={{ scale: 1.05, y: -1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleDownloadIcs(appt)}
+                          className="px-3 py-1.5 rounded-xl bg-emerald-50 text-[#135940] hover:bg-emerald-100 font-bold text-xs cursor-pointer flex items-center gap-1 shadow-2xs"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>.ICS</span>
+                        </motion.button>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              );
+            })}
           </motion.div>
         ) : (
-          /* Empty Filter State */
+          /* ================================================================
+             VIEW 3: EXECUTIVE HIGH-DENSITY LEDGER
+             ================================================================ */
           <motion.div
-            key="empty-filter-state"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.16 }}
-            className="relative p-10 text-center rounded-3xl bg-gradient-to-b from-white via-slate-50 to-blue-50/20 border border-slate-200/90 shadow-sm max-w-xl mx-auto my-6 overflow-hidden"
+            key="view-ledger"
+            variants={viewModeTransitionVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="rounded-3xl bg-white border border-slate-200/90 shadow-sm overflow-hidden"
           >
-            <div className="size-16 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-500 flex items-center justify-center mx-auto mb-4 border border-slate-300 shadow-inner">
-              <CalendarIcon className="w-8 h-8 text-slate-600" />
-            </div>
-            <h3 className="text-xl font-extrabold text-slate-900 mb-1.5">
-              No Appointments in this Category
-            </h3>
-            <p className="text-sm text-slate-600 mb-6 max-w-sm mx-auto leading-relaxed">
-              {isAdmin
-                ? `No hospital patient appointments currently match the "${filter}" filter status.`
-                : `You currently have no consultations matching the "${filter}" filter. Schedule a new appointment or switch filter tabs.`}
-            </p>
-            <div className="flex items-center justify-center gap-2.5">
-              <motion.button
-                type="button"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setFilter('all')}
-                className="py-2.5 px-5 rounded-xl font-bold text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-2xs"
-              >
-                <span>View All Appointments</span>
-              </motion.button>
-              <motion.button
-                type="button"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => navigate('/book-appointment')}
-                className="py-2.5 px-5 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:brightness-105 transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-md shadow-blue-500/20"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Book New</span>
-              </motion.button>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50 text-slate-500 font-mono text-[11px] uppercase tracking-wider">
+                    <th className="py-3.5 px-4 font-bold">Pass ID</th>
+                    <th className="py-3.5 px-4 font-bold">Physician & Specialty</th>
+                    <th className="py-3.5 px-4 font-bold">Scheduled Time</th>
+                    <th className="py-3.5 px-4 font-bold">Patient</th>
+                    <th className="py-3.5 px-4 font-bold">Status</th>
+                    <th className="py-3.5 px-4 font-bold text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredAppointments.map((appt) => {
+                    const deptColor = getDepartmentColor(appt.departmentId);
+                    return (
+                      <motion.tr
+                        key={appt.bookingId}
+                        whileHover={{
+                          backgroundColor: 'rgba(248, 250, 252, 0.95)',
+                          scale: 1.002,
+                          transition: { duration: 0.15 },
+                        }}
+                        className="transition-colors group"
+                      >
+                        <td className="py-3.5 px-4 font-mono font-bold text-slate-800">
+                          {appt.bookingId}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <div className="font-extrabold text-slate-900 group-hover:text-[#135940] transition-colors">
+                            {appt.doctorName}
+                          </div>
+                          <span
+                            className="text-[10px] font-mono font-bold uppercase"
+                            style={{ color: deptColor.gradientFrom }}
+                          >
+                            {appt.departmentName} &bull; {appt.specialty}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 font-mono text-slate-700">
+                          <div className="font-bold">{appt.date}</div>
+                          <div className="text-[11px] text-slate-400">{appt.time}</div>
+                        </td>
+                        <td className="py-3.5 px-4 font-medium text-slate-800">
+                          <div>{appt.patientName}</div>
+                          <div className="text-[11px] text-slate-400">{appt.email}</div>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-slate-100 text-slate-800 border border-slate-200">
+                            {appt.status}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <motion.button
+                              type="button"
+                              whileHover={{ scale: 1.15, rotate: -4 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => handleDownloadIcs(appt)}
+                              className="p-1.5 rounded-lg text-slate-600 hover:text-[#135940] hover:bg-emerald-50 cursor-pointer"
+                              title="Download Calendar"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                            </motion.button>
+                            <motion.button
+                              type="button"
+                              whileHover={{ scale: 1.15, rotate: 4 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => setDirectionModalAppt(appt)}
+                              className="p-1.5 rounded-lg text-slate-600 hover:text-[#135940] hover:bg-emerald-50 cursor-pointer"
+                              title="Floor Directions"
+                            >
+                              <Compass className="w-3.5 h-3.5" />
+                            </motion.button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-    </section>
+      {/* ====================================================================
+          5. INTERACTIVE HOSPITAL FLOOR MAP & DIRECTIONS MODAL
+          ==================================================================== */}
+      <AnimatePresence>
+        {directionModalAppt && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+              className="relative w-full max-w-xl rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-slate-200 overflow-hidden text-left"
+            >
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="size-10 rounded-xl bg-emerald-50 text-[#135940] flex items-center justify-center shadow-xs">
+                    <Compass className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-slate-900 tracking-tight">
+                      Hospital Wing & Suite Directions
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      WeCare Medical Tower &bull; Pass {directionModalAppt.bookingId}
+                    </p>
+                  </div>
+                </div>
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.1, rotate: 90 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setDirectionModalAppt(null)}
+                  className="size-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </motion.button>
+              </div>
+
+              {/* Wayfinding Beacon Details */}
+              <div className="space-y-4 text-xs">
+                <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 space-y-1">
+                  <div className="font-bold text-emerald-950 text-sm flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-[#135940]" />
+                    Clinical Tower 4 &bull; 8th Floor Reception
+                  </div>
+                  <p className="text-slate-600 leading-relaxed">
+                    Check in at the 8th Floor concierge desk with Reference Code{' '}
+                    <strong className="text-slate-900 font-mono font-bold">{directionModalAppt.bookingId}</strong>.
+                    An admission nurse will escort you directly to Suite 800 for your consultation with{' '}
+                    <strong className="text-slate-900">{directionModalAppt.doctorName}</strong>.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 font-mono">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] text-slate-400 block">ELEVATOR BANK</span>
+                    <span className="font-bold text-slate-800">East Tower Elevators (Express 1-4)</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] text-slate-400 block">PARKING VALET</span>
+                    <span className="font-bold text-slate-800">Complimentary Plaza Parking Gate B</span>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex items-start gap-2">
+                  <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <span>Please arrive 10 minutes prior to your scheduled consultation window ({directionModalAppt.time}) with your insurance card and photo ID.</span>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.04, y: -1 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => setDirectionModalAppt(null)}
+                  className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs cursor-pointer shadow-sm"
+                >
+                  Got It, Thanks
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Status Notification Toast */}
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-900 text-white shadow-2xl text-xs sm:text-sm font-medium border border-slate-700 backdrop-blur-md"
+          >
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>{notification}</span>
+            <button
+              type="button"
+              onClick={() => setNotification(null)}
+              className="ml-2 text-slate-400 hover:text-white cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+    </motion.section>
   );
 }
+
+export default MyAppointmentsBento;

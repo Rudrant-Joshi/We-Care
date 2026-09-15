@@ -62,24 +62,24 @@ export default function BookAppointmentPage() {
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="w-full rounded-3xl border border-slate-200 bg-white p-6 sm:p-10 md:p-12 shadow-xl shadow-slate-200/50 relative overflow-hidden"
             >
-              {/* Subtle blue ambient floating aura */}
-              <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/15 rounded-full blur-3xl pointer-events-none animate-blob" />
-              <div className="absolute bottom-0 left-0 w-80 h-80 bg-sky-400/15 rounded-full blur-3xl pointer-events-none animate-blob [animation-delay:4s]" />
+              {/* Subtle green ambient floating aura matching template */}
+              <div className="absolute top-0 right-0 w-80 h-80 bg-[#135940]/15 rounded-full blur-3xl pointer-events-none animate-blob" />
+              <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#1b7454]/15 rounded-full blur-3xl pointer-events-none animate-blob [animation-delay:4s]" />
 
               <div className="relative z-10 flex flex-col items-center text-center">
                 {/* Security Badge */}
                 <motion.div
                   whileHover={{ scale: 1.04, y: -1 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-mono font-bold uppercase tracking-wider mb-6 cursor-default"
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#135940] text-xs font-mono font-bold uppercase tracking-wider mb-6 cursor-default"
                 >
-                  <Lock className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
+                  <Lock className="w-3.5 h-3.5 text-[#135940] animate-pulse" />
                   <span>AUTHENTICATION REQUIRED BEFORE BOOKING</span>
                 </motion.div>
 
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-[1.15] mb-4 max-w-2xl">
                   Sign In to Reserve Your{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-600 to-indigo-600">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#135940] via-[#1b7454] to-emerald-600">
                     Specialist Appointment
                   </span>
                 </h1>
@@ -92,11 +92,11 @@ export default function BookAppointmentPage() {
                 <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full max-w-md">
                   <motion.button
                     type="button"
-                    whileHover={{ scale: 1.03, y: -1, boxShadow: "0 10px 24px -4px rgba(37, 99, 235, 0.35)" }}
+                    whileHover={{ scale: 1.03, y: -1, boxShadow: "0 10px 24px -4px rgba(19, 89, 64, 0.35)" }}
                     whileTap={{ scale: 0.97 }}
                     transition={{ type: 'spring', stiffness: 450, damping: 24 }}
                     onClick={() => navigate('/login?redirect=/book-appointment')}
-                    className="w-full sm:w-1/2 h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition-colors cursor-pointer"
+                    className="w-full sm:w-1/2 h-12 rounded-xl bg-[#135940] hover:bg-[#1b7454] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#135940]/25 transition-colors cursor-pointer"
                   >
                     <LogIn className="w-4 h-4" />
                     <span>Sign In</span>
@@ -104,13 +104,13 @@ export default function BookAppointmentPage() {
 
                   <motion.button
                     type="button"
-                    whileHover={{ scale: 1.03, y: -1, borderColor: "#93c5fd" }}
+                    whileHover={{ scale: 1.03, y: -1, borderColor: "#a7f3d0" }}
                     whileTap={{ scale: 0.97 }}
                     transition={{ type: 'spring', stiffness: 450, damping: 24 }}
                     onClick={() => navigate('/register?redirect=/book-appointment')}
                     className="w-full sm:w-1/2 h-12 rounded-xl border border-slate-300 bg-slate-50 hover:bg-white text-slate-800 font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                   >
-                    <UserPlus className="w-4 h-4 text-blue-600" />
+                    <UserPlus className="w-4 h-4 text-[#135940]" />
                     <span>Create Account</span>
                   </motion.button>
                 </div>
@@ -126,9 +126,9 @@ export default function BookAppointmentPage() {
                     whileTap={{ scale: 0.96 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                     onClick={handleDemoAccess}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-xs font-bold text-blue-700 transition-colors cursor-pointer shadow-2xs"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-xs font-bold text-[#135940] transition-colors cursor-pointer shadow-2xs"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                    <Sparkles className="w-3.5 h-3.5 text-[#135940]" />
                     <span>Instant Demo Patient Access (Alex Morgan)</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </motion.button>
@@ -138,7 +138,7 @@ export default function BookAppointmentPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-8 w-full text-left pt-6 border-t border-slate-100">
                   <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
                     <div className="flex items-center gap-2 text-xs font-bold text-slate-900 mb-1">
-                      <Stethoscope className="w-4 h-4 text-blue-600" />
+                      <Stethoscope className="w-4 h-4 text-[#135940]" />
                       <span>12 Specialties</span>
                     </div>
                     <p className="text-[11.5px] text-slate-600 leading-snug">

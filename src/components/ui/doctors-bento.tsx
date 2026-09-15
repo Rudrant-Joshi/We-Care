@@ -797,12 +797,12 @@ function DoctorDetailModal({
             </div>
 
           {/* Modal Footer CTA */}
-          <div className="p-4 sm:px-8 sm:py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+          <div className="p-3.5 sm:px-8 sm:py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
             <div className="text-xs text-slate-500 hidden sm:block">
               Immediate consultation bookings available today
             </div>
 
-            <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={onClose}
@@ -855,17 +855,17 @@ function FeaturedDoctorBanner({
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-      className="relative w-full pt-4 pb-2 transform-gpu will-change-transform"
+      className="relative w-full pt-2 sm:pt-4 pb-2 transform-gpu will-change-transform"
     >
       {/* Skewed gradient backdrop - Enhanced */}
       <span
-        className="absolute top-1 left-[16px] w-[calc(100%-20px)] sm:w-[85%] h-[calc(100%-8px)] rounded-3xl transform skew-x-[4deg] sm:skew-x-[6deg] opacity-90 pointer-events-none z-0"
+        className="absolute top-1 left-[8px] sm:left-[16px] w-[calc(100%-12px)] sm:w-[85%] h-[calc(100%-8px)] rounded-3xl transform skew-x-[2deg] sm:skew-x-[6deg] opacity-90 pointer-events-none z-0"
         style={{
           background: `linear-gradient(315deg, ${doc.gradientFrom}, ${doc.gradientTo})`,
         }}
       />
       <span
-        className="absolute top-1 left-[16px] w-[calc(100%-20px)] sm:w-[85%] h-[calc(100%-8px)] rounded-3xl transform skew-x-[4deg] sm:skew-x-[6deg] opacity-60 blur-[32px] pointer-events-none z-0 transform-gpu"
+        className="absolute top-1 left-[8px] sm:left-[16px] w-[calc(100%-12px)] sm:w-[85%] h-[calc(100%-8px)] rounded-3xl transform skew-x-[2deg] sm:skew-x-[6deg] opacity-60 blur-[32px] pointer-events-none z-0 transform-gpu"
         style={{
           background: `linear-gradient(315deg, ${doc.gradientFrom}, ${doc.gradientTo})`,
         }}
@@ -873,7 +873,7 @@ function FeaturedDoctorBanner({
 
       {/* Foreground glass panel with color tint */}
       <div
-        className="relative z-20 sm:backdrop-blur-md rounded-3xl border p-6 sm:p-10 text-slate-900 overflow-hidden transform-gpu"
+        className="relative z-20 sm:backdrop-blur-md rounded-3xl border p-5 sm:p-10 text-slate-900 overflow-hidden transform-gpu"
         style={{
           background: `linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.88) 50%, ${doc.gradientFrom}14 100%)`,
           borderColor: `${doc.gradientFrom}50`,
@@ -888,14 +888,14 @@ function FeaturedDoctorBanner({
           }}
         />
 
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 sm:gap-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 w-full md:w-auto">
             <div
               className="relative shrink-0 cursor-pointer group/img"
               onClick={() => onSelectDoctor?.(doc)}
               title="Click to view full details"
             >
-              <div className="size-24 sm:size-32 rounded-2xl overflow-hidden shadow-xl ring-4 ring-white/90 bg-slate-100 transition-transform group-hover/img:scale-105 duration-200">
+              <div className="size-20 sm:size-32 rounded-2xl overflow-hidden shadow-xl ring-4 ring-white/90 bg-slate-100 transition-transform group-hover/img:scale-105 duration-200">
                 <img
                   src={doc.image}
                   alt={doc.name}
@@ -905,18 +905,18 @@ function FeaturedDoctorBanner({
               <motion.div
                 whileHover={{ rotate: [-6, 6, 0], scale: 1.1 }}
                 transition={{ duration: 0.35, ease: "easeOut" }}
-                className="absolute -bottom-2 -right-2 size-10 rounded-xl flex items-center justify-center text-white shadow-lg border-2 border-white"
+                className="absolute -bottom-2 -right-2 size-8 sm:size-10 rounded-xl flex items-center justify-center text-white shadow-lg border-2 border-white"
                 style={{
                   background: `linear-gradient(135deg, ${doc.gradientFrom}, ${doc.gradientTo})`,
                 }}
               >
-                <Icon className="w-5 h-5 text-white" />
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </motion.div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 flex-1">
               <div className="flex items-center gap-3 flex-wrap">
                 <span
-                  className="inline-flex items-center px-3 py-1 rounded-full text-white text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs"
+                  className="inline-flex items-center px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-white text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs"
                   style={{
                     background: `linear-gradient(135deg, ${doc.gradientFrom}, ${doc.gradientTo})`,
                   }}
@@ -930,22 +930,22 @@ function FeaturedDoctorBanner({
               </div>
               <h3
                 onClick={() => onSelectDoctor?.(doc)}
-                className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight cursor-pointer"
+                className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight cursor-pointer"
                 title="Click to view full details"
               >
                 {doc.name}, {doc.degree}
               </h3>
-              <p className="text-sm font-semibold text-slate-500">
+              <p className="text-xs sm:text-sm font-semibold text-slate-500">
                 {doc.role} &bull; {doc.department}
               </p>
-              <p className="text-sm text-slate-600 leading-relaxed max-w-xl">
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
                 {doc.bio}
               </p>
-              <div className="flex flex-wrap gap-2 pt-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1 sm:pt-2">
                 {doc.highlights.map((h, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-1 text-[11px] font-mono font-semibold px-2.5 py-1 rounded-md bg-white/80 border border-slate-200/80 text-slate-700 shadow-2xs"
+                    className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-mono font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md bg-white/80 border border-slate-200/80 text-slate-700 shadow-2xs"
                   >
                     <Check className="w-3 h-3" style={{ color: doc.gradientFrom }} />
                     {h}
@@ -955,12 +955,12 @@ function FeaturedDoctorBanner({
             </div>
           </div>
 
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full md:w-auto">
             <motion.button
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               onClick={() => onSelectDoctor?.(doc)}
-              className="px-5 py-3.5 rounded-2xl bg-white/95 border border-slate-200 text-slate-800 text-xs font-bold uppercase tracking-wider transition-all shadow-xs hover:bg-slate-50 flex items-center justify-center gap-2 cursor-pointer shrink-0"
+              className="px-5 py-3 rounded-2xl bg-white/95 border border-slate-200 text-slate-800 text-xs font-bold uppercase tracking-wider transition-all shadow-xs hover:bg-slate-50 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto shrink-0"
             >
               View Full Details
             </motion.button>
@@ -968,7 +968,7 @@ function FeaturedDoctorBanner({
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.96 }}
               onClick={() => onSelectDoctor?.(doc)}
-              className="px-6 py-3.5 rounded-2xl text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md hover:brightness-110 flex items-center justify-center gap-2 cursor-pointer shrink-0"
+              className="px-6 py-3 rounded-2xl text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md hover:brightness-110 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto shrink-0"
               style={{
                 background: `linear-gradient(135deg, ${doc.gradientFrom}, ${doc.gradientTo})`,
                 boxShadow: `0 6px 18px ${doc.gradientFrom}40`,
@@ -995,11 +995,11 @@ export function DoctorsBento({ onBookConsultation }: DoctorsBentoProps) {
   const featuredDoctor = ALL_DOCTORS[0]; // Dr. Tony Stark — Medical Director
 
   return (
-    <section className="bg-slate-50 py-20 px-4 sm:px-6 font-sans min-h-screen relative overflow-x-clip text-slate-900">
+    <section className="bg-slate-50 py-10 sm:py-16 md:py-20 px-3.5 sm:px-6 font-sans min-h-screen relative overflow-x-clip text-slate-900">
       {/* Ambient background glow orbs - GPU-composited static gradients for 60-120fps scrolling */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-40 -left-20 w-[500px] h-[500px] rounded-full bg-blue-400/8 blur-[100px] transform-gpu"
+        className="pointer-events-none absolute -top-40 -left-20 w-[500px] h-[500px] rounded-full bg-emerald-400/8 blur-[100px] transform-gpu"
       />
       <div
         aria-hidden="true"
@@ -1010,7 +1010,7 @@ export function DoctorsBento({ onBookConsultation }: DoctorsBentoProps) {
         className="pointer-events-none absolute bottom-10 left-1/3 w-[400px] h-[400px] rounded-full bg-emerald-400/6 blur-[100px] transform-gpu"
       />
 
-      <div className="max-w-7xl mx-auto space-y-20 relative z-10">
+      <div className="max-w-7xl mx-auto space-y-12 sm:space-y-16 md:space-y-20 relative z-10">
         {/* ====================================================================
             1. HERO HEADER
             ==================================================================== */}
@@ -1019,19 +1019,19 @@ export function DoctorsBento({ onBookConsultation }: DoctorsBentoProps) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center max-w-3xl mx-auto space-y-4"
+          className="text-center max-w-3xl mx-auto space-y-3 sm:space-y-4"
         >
           <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200/90 text-blue-700 text-xs font-bold uppercase tracking-wider shadow-2xs cursor-pointer transition-transform duration-200 hover:scale-105"
+            className="inline-flex items-center gap-2 px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full bg-emerald-50 border border-emerald-200/90 text-[#135940] text-xs font-bold uppercase tracking-wider shadow-2xs cursor-pointer transition-transform duration-200 hover:scale-105"
           >
-            <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
+            <Sparkles className="w-3.5 h-3.5 text-[#135940] animate-pulse" />
             Specialist Directory
           </div>
 
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight">
             Meet Our Medical Specialists
           </h2>
-          <p className="text-lg sm:text-xl text-slate-600 leading-relaxed font-normal">
+          <p className="text-sm sm:text-lg md:text-xl text-slate-600 leading-relaxed font-normal">
             Board-certified clinicians and surgeons across{" "}
             <span className="font-semibold text-slate-900">
               <AnimatedNumber value={ALL_DOCTORS.length} />
@@ -1056,22 +1056,22 @@ export function DoctorsBento({ onBookConsultation }: DoctorsBentoProps) {
         {/* ====================================================================
             3. ALL MEDICAL SPECIALISTS GRID (Non-Sticky Clean Roster)
             ==================================================================== */}
-        <div id="doctors-roster" className="space-y-8 scroll-mt-28">
+        <div id="doctors-roster" className="space-y-6 sm:space-y-8 scroll-mt-28">
           <div className="flex items-center justify-between flex-wrap gap-3 pb-2 border-b border-slate-200/80">
             <div className="flex items-center gap-2.5">
-              <span className="size-2 rounded-full bg-blue-600 animate-pulse" />
-              <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              <span className="size-2 rounded-full bg-[#135940] animate-pulse" />
+              <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
                 All Medical Specialists
               </h3>
             </div>
-            <span className="inline-flex items-center gap-2 text-xs font-mono font-bold text-slate-600 uppercase tracking-wider bg-white px-3.5 py-1.5 rounded-full border border-slate-200 shadow-2xs">
-              <Award className="w-3.5 h-3.5 text-blue-600" />
+            <span className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-mono font-bold text-slate-600 uppercase tracking-wider bg-white px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-slate-200 shadow-2xs">
+              <Award className="w-3.5 h-3.5 text-[#135940]" />
               {ALL_DOCTORS.length} Board-Certified Specialists
             </span>
           </div>
 
           {/* Doctors Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-7">
             {ALL_DOCTORS.map((doc, idx) => (
               <DoctorCard
                 key={doc.id}
@@ -1087,11 +1087,11 @@ export function DoctorsBento({ onBookConsultation }: DoctorsBentoProps) {
             4. CLOSING CONSULTATION BANNER
             ==================================================================== */}
         <div className="relative w-full pt-2">
-          {/* Blue Skewed gradient glow backdrop */}
+          {/* Green Skewed gradient glow backdrop */}
           <span
-            className="absolute top-2 left-[24px] w-3/4 sm:w-[70%] h-[calc(100%-12px)] rounded-3xl transform skew-x-[6deg] opacity-75 blur-[24px] pointer-events-none z-0 transform-gpu"
+            className="absolute top-2 left-[12px] sm:left-[24px] w-[calc(100%-24px)] sm:w-[70%] h-[calc(100%-12px)] rounded-3xl transform skew-x-[2deg] sm:skew-x-[6deg] opacity-75 blur-[24px] pointer-events-none z-0 transform-gpu"
             style={{
-              background: "linear-gradient(315deg, #3b82f6, #06b6d4)",
+              background: "linear-gradient(315deg, #135940, #1b7454)",
             }}
           />
 
@@ -1101,16 +1101,16 @@ export function DoctorsBento({ onBookConsultation }: DoctorsBentoProps) {
             viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             whileHover={{ y: -6, scale: 1.01 }}
-            className="relative z-20 rounded-3xl bg-white/85 sm:backdrop-blur-md p-8 sm:p-12 text-slate-900 border border-slate-200/90 shadow-[0_16px_40px_rgba(37,99,235,0.06),inset_0_1.5px_2px_rgba(255,255,255,0.95)] flex flex-col md:flex-row items-center justify-between gap-8 transition-shadow hover:shadow-[0_24px_50px_rgba(37,99,235,0.12)] transform-gpu will-change-transform"
+            className="relative z-20 rounded-3xl bg-white/85 sm:backdrop-blur-md p-5 sm:p-12 text-slate-900 border border-slate-200/90 shadow-[0_16px_40px_rgba(19,89,64,0.08),inset_0_1.5px_2px_rgba(255,255,255,0.95)] flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 transition-shadow hover:shadow-[0_24px_50px_rgba(19,89,64,0.14)] transform-gpu will-change-transform"
           >
-            <div className="space-y-3 max-w-2xl text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-mono font-bold uppercase tracking-wider border border-blue-200">
-                <BriefcaseMedical className="w-3.5 h-3.5 text-blue-600" /> Need Help Choosing a Specialist?
+            <div className="space-y-2 sm:space-y-3 max-w-2xl text-center md:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-[#135940] text-xs font-mono font-bold uppercase tracking-wider border border-emerald-200">
+                <BriefcaseMedical className="w-3.5 h-3.5 text-[#135940]" /> Need Help Choosing a Specialist?
               </div>
-              <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              <h3 className="text-xl sm:text-3xl font-black tracking-tight text-slate-900">
                 Schedule a Consultation — We'll Match You Right
               </h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
+              <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
                 Our front-desk clinical coordinators can match your symptoms to the
                 correct specialist in under five minutes, no referral required.
               </p>
@@ -1120,7 +1120,7 @@ export function DoctorsBento({ onBookConsultation }: DoctorsBentoProps) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.96 }}
               onClick={onBookConsultation}
-              className="px-8 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 shrink-0 flex items-center gap-3 transition-all cursor-pointer"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-[#135940] hover:bg-[#1b7454] text-white font-bold text-xs sm:text-sm shadow-lg shadow-[#135940]/25 shrink-0 flex items-center justify-center gap-3 transition-all cursor-pointer"
             >
               <Calendar className="w-4 h-4 text-white" />
               Book Initial Consultation

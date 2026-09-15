@@ -3,16 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useNavigate } from 'react-router-dom';
-import { Navbar } from '../components/Navbar';
-import { DoctorsBento } from '../components/ui/doctors-bento';
+"use client";
+
+import { useNavigate } from "react-router-dom";
+import { motion } from "motion/react";
+import { Navbar } from "../components/Navbar";
+import { DoctorsBento } from "../components/ui/doctors-bento";
+import Demo from "@/components/ui/demo";
 
 export default function DoctorsPage() {
   const navigate = useNavigate();
 
   const handleBookAppointment = () => {
-    navigate('/book-appointment');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigate("/book-appointment");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -20,7 +24,6 @@ export default function DoctorsPage() {
       id="vortiq-doctors-page"
       className="relative min-h-screen w-full bg-slate-50 text-slate-900 flex flex-col justify-between font-sans overflow-x-clip"
     >
-
       {/* Modern Medical Engineering Subtle Architectural Dot Grid Canvas */}
       <div
         aria-hidden="true"
@@ -32,10 +35,40 @@ export default function DoctorsPage() {
         <Navbar onBookDemoClick={handleBookAppointment} />
       </div>
 
-      {/* Main Dedicated Doctors Bento Section */}
-      <div className="relative z-20 flex-1">
+      {/* Section 1: Template Implementation for Doctors */}
+      <section className="relative z-20 w-full">
+        <Demo
+          word="DOCTORS"
+          primaryButton={{
+            label: "Browse Doctor Roster ↓",
+            onClick: (e) => {
+              e.preventDefault();
+              document
+                .getElementById("doctors-roster")
+                ?.scrollIntoView({ behavior: "smooth" });
+            },
+          }}
+          secondaryButton={{
+            label: "Book Appointment →",
+            onClick: (e) => {
+              e.preventDefault();
+              handleBookAppointment();
+            },
+          }}
+        />
+      </section>
+
+      {/* Main Dedicated Doctors Bento Section with Scroll Reveal */}
+      <motion.div
+        id="doctors-roster"
+        initial={{ opacity: 0, y: 35 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-20 flex-1 scroll-mt-28"
+      >
         <DoctorsBento onBookConsultation={handleBookAppointment} />
-      </div>
+      </motion.div>
 
       {/* Light Clean Footer matching Slate-50 background */}
       <footer className="relative z-20 w-full px-8 md:px-14 py-6 flex flex-col sm:flex-row items-center justify-between text-[11.5px] font-mono text-slate-500 border-t border-slate-200 bg-white">

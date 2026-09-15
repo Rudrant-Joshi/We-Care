@@ -594,12 +594,12 @@ export default function AdminPortalPage() {
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none max-w-full py-1">
             <button
               type="button"
               disabled={isRefreshing}
               onClick={handleManualRefresh}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-all active:scale-95 cursor-pointer disabled:opacity-60"
+              className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-all active:scale-95 cursor-pointer disabled:opacity-60"
               title="Sync appointments with Cloud Firestore & local storage"
             >
               <RefreshCw className={`w-3.5 h-3.5 text-purple-400 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -609,7 +609,7 @@ export default function AdminPortalPage() {
             <button
               type="button"
               onClick={() => setIsNewBookingModalOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-md shadow-purple-600/25 active:scale-95 cursor-pointer"
+              className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-md shadow-purple-600/25 active:scale-95 cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Schedule Patient</span>
@@ -618,7 +618,7 @@ export default function AdminPortalPage() {
             <button
               type="button"
               onClick={handleExportCSV}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-all active:scale-95 cursor-pointer"
+              className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-all active:scale-95 cursor-pointer"
             >
               <Download className="w-4 h-4 text-purple-400" />
               <span>Export CSV</span>
@@ -627,7 +627,7 @@ export default function AdminPortalPage() {
             <button
               type="button"
               onClick={() => navigate('/appointments')}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-all cursor-pointer"
+              className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-all cursor-pointer"
             >
               <Calendar className="w-4 h-4 text-sky-400" />
               <span>Patient View</span>
@@ -639,10 +639,10 @@ export default function AdminPortalPage() {
                 logout();
                 navigate('/login');
               }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-semibold transition-all cursor-pointer"
+              className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-semibold transition-all cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Log Out</span>
+              <span>Log Out</span>
             </button>
           </div>
         </div>
@@ -1383,7 +1383,7 @@ export default function AdminPortalPage() {
                     onClick={() => handleStatusChange(selectedAppointment.bookingId, 'completed')}
                     className={`px-3 py-1.5 rounded-lg font-bold cursor-pointer transition-all ${
                       selectedAppointment.status === 'completed'
-                        ? 'bg-blue-600 text-white shadow-xs'
+                        ? 'bg-[#135940] text-white shadow-xs'
                         : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                     }`}
                   >

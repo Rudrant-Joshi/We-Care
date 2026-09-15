@@ -29,10 +29,10 @@ export default function AppointmentsPage() {
 
       {/* Dynamic Ambient Colorful Floating Gradient Orbs */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden z-0">
-        <div className="absolute -top-32 -left-20 w-[620px] h-[620px] rounded-full bg-gradient-to-br from-blue-500/20 via-sky-300/20 to-transparent blur-3xl transform-gpu animate-blob opacity-80" />
-        <div className="absolute top-1/4 -right-24 w-[650px] h-[650px] rounded-full bg-gradient-to-bl from-indigo-500/20 via-purple-300/15 to-transparent blur-3xl transform-gpu animate-blob [animation-delay:4s] opacity-75" />
+        <div className="absolute -top-32 -left-20 w-[620px] h-[620px] rounded-full bg-gradient-to-br from-emerald-500/20 via-teal-300/20 to-transparent blur-3xl transform-gpu animate-blob opacity-80" />
+        <div className="absolute top-1/4 -right-24 w-[650px] h-[650px] rounded-full bg-gradient-to-bl from-emerald-600/15 via-teal-400/15 to-transparent blur-3xl transform-gpu animate-blob [animation-delay:4s] opacity-75" />
         <div className="absolute bottom-20 left-1/4 w-[550px] h-[550px] rounded-full bg-gradient-to-tr from-emerald-400/20 via-teal-300/15 to-transparent blur-3xl transform-gpu animate-blob [animation-delay:8s] opacity-70" />
-        <div className="absolute top-2/3 right-1/3 w-[480px] h-[480px] rounded-full bg-gradient-to-r from-amber-400/15 via-sky-300/15 to-transparent blur-3xl transform-gpu animate-blob [animation-delay:12s] opacity-65" />
+        <div className="absolute top-2/3 right-1/3 w-[480px] h-[480px] rounded-full bg-gradient-to-r from-emerald-400/15 via-teal-200/15 to-transparent blur-3xl transform-gpu animate-blob [animation-delay:12s] opacity-65" />
       </div>
 
       {/* Clean White Navbar Header Shell */}

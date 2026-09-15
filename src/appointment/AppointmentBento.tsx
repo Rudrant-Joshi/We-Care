@@ -563,11 +563,11 @@ export function AppointmentBento() {
   };
 
   return (
-    <section id="appointment-bento-section" className="relative w-full max-w-[1720px] mx-auto px-4 sm:px-8 md:px-14 py-8 md:py-16 overflow-hidden">
+    <section id="appointment-bento-section" className="relative w-full max-w-[1720px] mx-auto px-3.5 sm:px-8 md:px-14 py-6 md:py-16 overflow-hidden">
       {/* Dynamic Ambient Colorful Floating Gradient Orbs */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden z-0">
-        <div className="absolute top-10 -left-10 w-[520px] h-[520px] rounded-full bg-gradient-to-br from-blue-400/15 via-sky-300/10 to-transparent blur-3xl transform-gpu animate-blob opacity-70" />
-        <div className="absolute top-1/2 -right-10 w-[540px] h-[540px] rounded-full bg-gradient-to-bl from-indigo-400/15 via-purple-300/10 to-transparent blur-3xl transform-gpu animate-blob [animation-delay:4s] opacity-60" />
+        <div className="absolute top-10 -left-10 w-[520px] h-[520px] rounded-full bg-gradient-to-br from-emerald-500/15 via-teal-300/10 to-transparent blur-3xl transform-gpu animate-blob opacity-70" />
+        <div className="absolute top-1/2 -right-10 w-[540px] h-[540px] rounded-full bg-gradient-to-bl from-emerald-600/12 via-teal-400/10 to-transparent blur-3xl transform-gpu animate-blob [animation-delay:4s] opacity-60" />
         <div className="absolute bottom-10 left-1/3 w-[460px] h-[460px] rounded-full bg-gradient-to-tr from-emerald-400/12 via-teal-300/10 to-transparent blur-3xl transform-gpu animate-blob [animation-delay:8s] opacity-50" />
       </div>
 
@@ -577,38 +577,38 @@ export function AppointmentBento() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.12 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="text-center max-w-3xl mx-auto mb-10 md:mb-14"
+        className="text-center max-w-3xl mx-auto mb-6 sm:mb-10 md:mb-14"
       >
         {/* Top Tag */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-mono font-bold uppercase tracking-wider mb-4 shadow-2xs">
-          <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
+        <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-[#135940] text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider mb-3 sm:mb-4 shadow-2xs">
+          <Sparkles className="w-3.5 h-3.5 text-[#135940] animate-pulse" />
           <span>INSTANT CLINICAL RESERVATION</span>
         </div>
 
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.1] mb-4">
+        <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.1] mb-3 sm:mb-4">
           Book an Appointment with{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-600 to-cyan-600">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#135940] via-[#1b7454] to-emerald-600">
             WeCare Specialists
           </span>
         </h2>
 
-        <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+        <p className="text-slate-600 text-xs sm:text-base leading-relaxed">
           Schedule in-person clinical consultations with board-certified hospital specialists.
           Select your specialty, choose your doctor, and receive immediate clinical confirmation.
         </p>
 
         {/* Quick Highlights Bar */}
-        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-6 pt-4 border-t border-slate-200/80 text-xs font-mono font-semibold text-slate-600">
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-slate-200/80 text-[11px] sm:text-xs font-mono font-semibold text-slate-600">
           <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
             <span>Zero-Wait Digital Triage</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-blue-600" />
+            <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#135940]" />
             <span>Board-Certified Specialists</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-indigo-600" />
+            <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-600" />
             <span>40+ Insurers Accepted</span>
           </div>
         </div>
@@ -623,10 +623,10 @@ export function AppointmentBento() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.3 }}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
+            className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start"
           >
             {/* LEFT 7 COLS: Selection Steps Form */}
-            <div className="lg:col-span-7 xl:col-span-8 space-y-8">
+            <div className="lg:col-span-7 xl:col-span-8 space-y-6 sm:space-y-8">
               
               {/* STEP 1: Select Medical Department */}
               <motion.div
@@ -635,7 +635,7 @@ export function AppointmentBento() {
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
                 transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                className="scroll-mt-28 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm transform-gpu will-change-transform"
+                className="scroll-mt-28 bg-white rounded-2xl p-4 sm:p-6 border border-slate-200/90 shadow-sm transform-gpu will-change-transform"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2.5">
@@ -740,7 +740,7 @@ export function AppointmentBento() {
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
                 transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                className="scroll-mt-28 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm transform-gpu will-change-transform"
+                className="scroll-mt-28 bg-white rounded-2xl p-4 sm:p-6 border border-slate-200/90 shadow-sm transform-gpu will-change-transform"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2.5">
@@ -767,7 +767,7 @@ export function AppointmentBento() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5 sm:gap-3">
                   {availableDoctors.map((doc, idx) => {
                     const isSelected = activeDoctor.id === doc.id;
                     const docColor = doc.gradientFrom || activeDept.gradientFrom;
@@ -783,7 +783,7 @@ export function AppointmentBento() {
                         whileHover={{ y: -3, scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setSelectedDoctorId(doc.id)}
-                        className={`relative p-3 rounded-xl border text-left transition-colors duration-200 cursor-pointer flex items-center gap-3 transform-gpu ${
+                        className={`relative p-2.5 sm:p-3 rounded-xl border text-left transition-colors duration-200 cursor-pointer flex items-center gap-3 transform-gpu ${
                           isSelected
                             ? 'shadow-xs ring-2'
                             : 'bg-white hover:bg-slate-50/80 border-slate-200/90 hover:border-slate-300'
@@ -856,7 +856,7 @@ export function AppointmentBento() {
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
                 transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                className="scroll-mt-28 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm transform-gpu will-change-transform"
+                className="scroll-mt-28 bg-white rounded-2xl p-4 sm:p-6 border border-slate-200/90 shadow-sm transform-gpu will-change-transform"
               >
                 <div className="flex items-center gap-2.5 mb-4">
                   <span
@@ -883,7 +883,7 @@ export function AppointmentBento() {
                   <label className="block text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider mb-2">
                     Select Day
                   </label>
-                  <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                  <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 sm:gap-2">
                     {dateOptions.map((date) => {
                       const isSelected = selectedDate === date.fullDate;
                       return (
@@ -894,7 +894,7 @@ export function AppointmentBento() {
                           whileTap={{ scale: 0.96 }}
                           transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                           onClick={() => setSelectedDate(date.fullDate)}
-                          className={`p-2.5 rounded-xl border text-center transition-colors duration-200 cursor-pointer flex flex-col items-center transform-gpu ${
+                          className={`p-2 sm:p-2.5 rounded-xl border text-center transition-colors duration-200 cursor-pointer flex flex-col items-center transform-gpu ${
                             isSelected
                               ? 'text-white shadow-md'
                               : 'bg-slate-50/70 hover:bg-white text-slate-800 border-slate-200 hover:border-slate-300'
@@ -910,17 +910,17 @@ export function AppointmentBento() {
                           }
                         >
                           <span
-                            className={`text-[10px] font-mono font-semibold uppercase ${
+                            className={`text-[9.5px] sm:text-[10px] font-mono font-semibold uppercase ${
                               isSelected ? 'text-white' : 'text-slate-500'
                             }`}
                           >
                             {date.dayName}
                           </span>
-                          <span className="text-base font-extrabold my-0.5">
+                          <span className="text-sm sm:text-base font-extrabold my-0.5">
                             {date.dayNumber}
                           </span>
                           <span
-                            className={`text-[10px] font-mono ${
+                            className={`text-[9.5px] sm:text-[10px] font-mono ${
                               isSelected ? 'text-slate-300' : 'text-slate-400'
                             }`}
                           >
@@ -943,7 +943,7 @@ export function AppointmentBento() {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5 sm:gap-2">
                     {TIME_SLOTS.map((slot) => {
                       const isSelected = selectedTime === slot.time;
                       return (
@@ -954,7 +954,7 @@ export function AppointmentBento() {
                           whileTap={{ scale: 0.95 }}
                           transition={{ type: 'spring', stiffness: 450, damping: 25 }}
                           onClick={() => setSelectedTime(slot.time)}
-                          className={`py-2 px-2 rounded-lg text-xs font-mono font-bold transition-colors duration-200 cursor-pointer text-center border transform-gpu ${
+                          className={`py-2 px-1.5 sm:px-2 rounded-lg text-[11px] sm:text-xs font-mono font-bold transition-colors duration-200 cursor-pointer text-center border transform-gpu ${
                             isSelected
                               ? 'shadow-xs'
                               : 'bg-slate-50/80 hover:bg-white text-slate-700 border-slate-200 hover:border-slate-300'
@@ -985,7 +985,7 @@ export function AppointmentBento() {
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, amount: 0.12, margin: "0px 0px -40px 0px" }}
                 transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                className="scroll-mt-28 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm transform-gpu will-change-transform"
+                className="scroll-mt-28 bg-white rounded-2xl p-4 sm:p-6 border border-slate-200/90 shadow-sm transform-gpu will-change-transform"
               >
                 <div className="flex items-center gap-2.5 mb-5">
                   <span
@@ -1025,7 +1025,7 @@ export function AppointmentBento() {
                           onFocus={handleInputFocus}
                           onBlur={handleInputBlur}
                           placeholder="e.g. Eleanor Vance"
-                          className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:outline-none transition-all"
+                          className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-base sm:text-sm focus:bg-white focus:outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -1045,7 +1045,7 @@ export function AppointmentBento() {
                           onFocus={handleInputFocus}
                           onBlur={handleInputBlur}
                           placeholder="e.g. eleanor@example.com"
-                          className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:outline-none transition-all"
+                          className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-base sm:text-sm focus:bg-white focus:outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -1065,7 +1065,7 @@ export function AppointmentBento() {
                           onFocus={handleInputFocus}
                           onBlur={handleInputBlur}
                           placeholder="e.g. (415) 890-2341"
-                          className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:outline-none transition-all"
+                          className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-base sm:text-sm focus:bg-white focus:outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -1080,7 +1080,7 @@ export function AppointmentBento() {
                         onChange={(e) => setInsurance(e.target.value)}
                         onFocus={handleInputFocus}
                         onBlur={handleInputBlur}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm focus:bg-white focus:outline-none transition-all cursor-pointer"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-sm focus:bg-white focus:outline-none transition-all cursor-pointer"
                       >
                         {INSURANCE_PROVIDERS.map((ins) => (
                           <option key={ins} value={ins}>
@@ -1103,7 +1103,7 @@ export function AppointmentBento() {
                       onFocus={handleInputFocus}
                       onBlur={handleInputBlur}
                       placeholder="Briefly describe your symptoms, recent tests, or consultation goals..."
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:outline-none transition-all resize-none"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-base sm:text-sm focus:bg-white focus:outline-none transition-all resize-none"
                     />
                   </div>
 
@@ -1148,7 +1148,7 @@ export function AppointmentBento() {
             </div>
 
             {/* RIGHT 5 COLS: Live Interactive Appointment Pass & Info Bento */}
-            <div id="step-pass" className="lg:col-span-5 xl:col-span-4 sticky top-6 space-y-6 scroll-mt-28">
+            <div id="step-pass" className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-6 space-y-6 scroll-mt-28">
               
               {/* Modern Clinical Pass Card with WeCare Signature Backing Shade & Ambient Glow (GPU Accelerated) */}
               <motion.div
@@ -1162,7 +1162,7 @@ export function AppointmentBento() {
                 
                 {/* 1. Skewed gradient backing panel - High visibility shade (GPU transform only) */}
                 <span
-                  className="absolute -top-1.5 left-[10px] w-[calc(100%-12px)] h-full rounded-2xl transform skew-x-[6deg] opacity-90 group-hover:skew-x-[2deg] group-hover:opacity-100 transition-transform duration-300 pointer-events-none z-0 transform-gpu"
+                  className="absolute -top-1.5 left-[6px] sm:left-[10px] w-[calc(100%-10px)] sm:w-[calc(100%-12px)] h-full rounded-2xl transform skew-x-[3deg] sm:skew-x-[6deg] opacity-90 group-hover:skew-x-[2deg] group-hover:opacity-100 transition-transform duration-300 pointer-events-none z-0 transform-gpu"
                   style={{
                     background: `linear-gradient(315deg, ${activeDept.gradientFrom}, ${activeDept.gradientTo})`,
                   }}
@@ -1170,7 +1170,7 @@ export function AppointmentBento() {
 
                 {/* 2. Blurred vibrant neon glow shadow (GPU transform only) */}
                 <span
-                  className="absolute -top-1 left-[10px] w-[calc(100%-12px)] h-full rounded-2xl transform skew-x-[6deg] opacity-55 blur-[24px] group-hover:skew-x-[2deg] group-hover:opacity-80 group-hover:blur-[30px] transition-all duration-300 pointer-events-none z-0 transform-gpu"
+                  className="absolute -top-1 left-[6px] sm:left-[10px] w-[calc(100%-10px)] sm:w-[calc(100%-12px)] h-full rounded-2xl transform skew-x-[3deg] sm:skew-x-[6deg] opacity-55 blur-[24px] group-hover:skew-x-[2deg] group-hover:opacity-80 group-hover:blur-[30px] transition-all duration-300 pointer-events-none z-0 transform-gpu"
                   style={{
                     background: `linear-gradient(315deg, ${activeDept.gradientFrom}, ${activeDept.gradientTo})`,
                   }}
@@ -1178,7 +1178,7 @@ export function AppointmentBento() {
 
                 {/* 3. Foreground Liquid Glass Content Panel with color-infused tint */}
                 <div
-                  className="relative z-20 h-full p-6 backdrop-blur-md rounded-2xl border text-slate-900 transition-all duration-300 flex flex-col justify-between transform-gpu overflow-hidden"
+                  className="relative z-20 h-full p-4 sm:p-6 backdrop-blur-md rounded-2xl border text-slate-900 transition-all duration-300 flex flex-col justify-between transform-gpu overflow-hidden"
                   style={{
                     background: `linear-gradient(175deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.92) 55%, ${activeDept.gradientFrom}14 100%)`,
                     borderColor: `${activeDept.gradientFrom}45`,
@@ -1195,7 +1195,7 @@ export function AppointmentBento() {
 
                   {/* Pass Header */}
                   <div>
-                    <div className="flex items-center justify-between pb-4 border-b border-slate-200/80">
+                    <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-200/80">
                       <div className="flex items-center gap-2">
                         <div
                           className="size-7 rounded-lg flex items-center justify-center text-white shadow-2xs"
@@ -1205,7 +1205,7 @@ export function AppointmentBento() {
                         >
                           <activeDept.icon className="w-4 h-4 text-white" />
                         </div>
-                        <span className="text-xs font-mono font-bold tracking-wider text-slate-900 uppercase">
+                        <span className="text-[11px] sm:text-xs font-mono font-bold tracking-wider text-slate-900 uppercase">
                           APPOINTMENT SUMMARY
                         </span>
                       </div>
@@ -1215,11 +1215,11 @@ export function AppointmentBento() {
                     </div>
 
                     {/* Doctor Preview Box */}
-                    <div className="flex items-center gap-3.5 my-4 p-3 rounded-xl bg-white/80 border border-slate-200/70 shadow-2xs">
+                    <div className="flex items-center gap-3 sm:gap-3.5 my-3 sm:my-4 p-2.5 sm:p-3 rounded-xl bg-white/80 border border-slate-200/70 shadow-2xs">
                       <img
                         src={activeDoctor.image || `/doctor-images/${activeDoctor.id}.jpg`}
                         alt={activeDoctor.name}
-                        className="size-14 rounded-xl object-cover object-[center_25%] border border-slate-200/80 shrink-0"
+                        className="size-12 sm:size-14 rounded-xl object-cover object-[center_25%] border border-slate-200/80 shrink-0"
                         onError={(e) => {
                           const target = e.currentTarget;
                           if (!target.dataset.fallback) {
@@ -1245,9 +1245,9 @@ export function AppointmentBento() {
                     </div>
 
                     {/* Schedule Ticket Grid */}
-                    <div className="grid grid-cols-2 gap-2.5 my-4">
-                      <div className="p-3 rounded-xl bg-slate-50/90 border border-slate-200/80">
-                        <div className="flex items-center gap-1.5 text-slate-500 text-[11px] font-mono mb-1">
+                    <div className="grid grid-cols-2 gap-2 sm:gap-2.5 my-3 sm:my-4">
+                      <div className="p-2.5 sm:p-3 rounded-xl bg-slate-50/90 border border-slate-200/80">
+                        <div className="flex items-center gap-1.5 text-slate-500 text-[10px] sm:text-[11px] font-mono mb-1">
                           <CalendarIcon className="w-3.5 h-3.5" style={{ color: activeDept.gradientFrom }} />
                           <span>DATE</span>
                         </div>
@@ -1256,8 +1256,8 @@ export function AppointmentBento() {
                         </span>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-slate-50/90 border border-slate-200/80">
-                        <div className="flex items-center gap-1.5 text-slate-500 text-[11px] font-mono mb-1">
+                      <div className="p-2.5 sm:p-3 rounded-xl bg-slate-50/90 border border-slate-200/80">
+                        <div className="flex items-center gap-1.5 text-slate-500 text-[10px] sm:text-[11px] font-mono mb-1">
                           <Clock className="w-3.5 h-3.5" style={{ color: activeDept.gradientFrom }} />
                           <span>TIME</span>
                         </div>
@@ -1266,8 +1266,8 @@ export function AppointmentBento() {
                         </span>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-slate-50/90 border border-slate-200/80 col-span-2">
-                        <div className="flex items-center gap-1.5 text-slate-500 text-[11px] font-mono mb-1">
+                      <div className="p-2.5 sm:p-3 rounded-xl bg-slate-50/90 border border-slate-200/80 col-span-2">
+                        <div className="flex items-center gap-1.5 text-slate-500 text-[10px] sm:text-[11px] font-mono mb-1">
                           <MapPin className="w-3.5 h-3.5" style={{ color: activeDept.gradientFrom }} />
                           <span>MODALITY & LOCATION</span>
                         </div>
@@ -1278,20 +1278,20 @@ export function AppointmentBento() {
                     </div>
 
                     {/* Financial / Insurance Transparency */}
-                    <div className="p-3 rounded-xl bg-slate-50/90 border border-slate-200/80 flex items-center justify-between text-xs mb-4">
+                    <div className="p-2.5 sm:p-3 rounded-xl bg-slate-50/90 border border-slate-200/80 flex items-center justify-between text-xs mb-3 sm:mb-4">
                       <div className="flex items-center gap-2">
                         <ShieldCheck className="w-4 h-4" style={{ color: activeDept.gradientFrom }} />
                         <div>
-                          <span className="block font-bold text-slate-900">
+                          <span className="block font-bold text-slate-900 text-xs">
                             {insurance}
                           </span>
                           <span className="text-[10px] text-slate-500">
-                            Direct In-Network Claims Processing
+                            Direct In-Network Claims
                           </span>
                         </div>
                       </div>
                       <span
-                        className="text-[11px] font-mono font-bold px-2 py-0.5 rounded border"
+                        className="text-[10px] sm:text-[11px] font-mono font-bold px-2 py-0.5 rounded border shrink-0"
                         style={{
                           color: activeDept.gradientFrom,
                           backgroundColor: `${activeDept.gradientFrom}15`,
@@ -1304,7 +1304,7 @@ export function AppointmentBento() {
                   </div>
 
                   {/* Bottom Security Assurance */}
-                  <div className="pt-3 border-t border-slate-200/70 flex items-center justify-between text-[11px] font-mono text-slate-500">
+                  <div className="pt-3 border-t border-slate-200/70 flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-slate-500">
                     <span className="flex items-center gap-1">
                       <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
                       <span>HIPAA & HL7 ENCRYPTED</span>
@@ -1376,7 +1376,7 @@ export function AppointmentBento() {
             transition={{ duration: 0.35 }}
             className="max-w-2xl mx-auto"
           >
-            <div className="relative rounded-3xl p-6 sm:p-8 bg-white border border-slate-200 shadow-xl overflow-hidden">
+            <div className="relative rounded-2xl sm:rounded-3xl p-4 sm:p-8 bg-white border border-slate-200 shadow-xl overflow-hidden">
               
               {/* Top Accent Gradient Bar */}
               <div
@@ -1387,37 +1387,37 @@ export function AppointmentBento() {
               />
 
               {/* Success Badge */}
-              <div className="text-center pb-6 border-b border-slate-200">
+              <div className="text-center pb-5 sm:pb-6 border-b border-slate-200">
                 <div
-                  className="size-16 rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner"
+                  className="size-14 sm:size-16 rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner"
                   style={{
                     backgroundColor: `${confirmedBooking.gradientFrom}18`,
                     color: confirmedBooking.gradientFrom,
                   }}
                 >
-                  <CheckCircle2 className="w-9 h-9" />
+                  <CheckCircle2 className="w-8 h-8 sm:w-9 sm:h-9" />
                 </div>
                 <span
-                  className="inline-block px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider mb-2 border bg-amber-50 text-amber-800 border-amber-300"
+                  className="inline-block px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-mono font-bold uppercase tracking-normal sm:tracking-wider mb-2 border bg-amber-50 text-amber-800 border-amber-300 max-w-full truncate"
                 >
-                  REQUEST CODE: {confirmedBooking.bookingId} &bull; PENDING ADMIN APPROVAL
+                  REQUEST: {confirmedBooking.bookingId} &bull; PENDING ADMIN APPROVAL
                 </span>
-                <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                <h3 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   Appointment Request Submitted!
                 </h3>
-                <p className="text-slate-600 text-sm max-w-md mx-auto mt-1">
+                <p className="text-slate-600 text-xs sm:text-sm max-w-md mx-auto mt-1">
                   Your appointment request has been dispatched to hospital administration and is <strong className="text-amber-700">pending admin approval</strong>. A notification will update upon confirmation.
                 </p>
               </div>
 
               {/* Booking Summary Pass */}
-              <div className="py-6 space-y-4">
+              <div className="py-5 sm:py-6 space-y-3.5 sm:space-y-4">
                 {/* Doctor Row */}
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
                   <img
                     src={(confirmedBooking.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${confirmedBooking.doctorId || 'iron-man'}.jpg`}
                     alt={confirmedBooking.doctorName}
-                    className="size-16 rounded-xl object-cover object-[center_25%] border border-slate-200 shadow-sm"
+                    className="size-14 sm:size-16 rounded-xl object-cover object-[center_25%] border border-slate-200 shadow-sm shrink-0"
                     onError={(e) => {
                       const target = e.currentTarget;
                       if (!target.dataset.fallback) {

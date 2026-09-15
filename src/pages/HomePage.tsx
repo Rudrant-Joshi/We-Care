@@ -119,8 +119,8 @@ export default function HomePage() {
         className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:28px_28px] opacity-35"
       />
 
-      {/* Hero Viewport Container - Exactly 100svh so Section 2 is only visible on scroll */}
-      <div className="relative z-10 w-full h-[100svh] min-h-[100svh] max-h-[100svh] flex flex-col justify-between overflow-hidden bg-white">
+      {/* Hero Viewport Container - Exactly 100svh on desktop so Section 2 is only visible on scroll */}
+      <div className="relative z-10 w-full min-h-[100svh] lg:h-[100svh] lg:max-h-[100svh] flex flex-col justify-between overflow-x-clip lg:overflow-hidden bg-white">
         {/* Navigation Bar in White Theme */}
         <div className="relative z-30 w-full border-b border-slate-100/80 bg-white/90 backdrop-blur-md shadow-xs font-sans shrink-0">
           <Navbar />
@@ -140,31 +140,31 @@ export default function HomePage() {
               variants={heroContainerVariants}
               initial="hidden"
               animate="visible"
-              className="px-6 pointer-events-auto flex flex-col items-center max-w-4xl mx-auto mt-1 sm:mt-2 font-sans"
+              className="px-4 sm:px-6 pointer-events-auto flex flex-col items-center max-w-4xl mx-auto mt-1 sm:mt-2 font-sans w-full"
             >
               {/* JCI Quality & Clinical Accreditation Badge with Live Pulse */}
               <motion.div
                 variants={heroItemVariants}
                 whileHover={{ scale: 1.03, y: -2 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50/95 border border-blue-200/90 text-blue-700 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-2.5 sm:mb-3 shadow-xs hover:shadow-md hover:shadow-blue-500/15 backdrop-blur-md cursor-default font-sans select-none transition-shadow"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 rounded-full bg-emerald-50/95 border border-emerald-200/90 text-[#135940] text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2 sm:mb-3 shadow-xs hover:shadow-md hover:shadow-emerald-600/15 backdrop-blur-md cursor-default font-sans select-none transition-shadow text-center"
               >
                 <span className="relative flex h-2 w-2 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                 </span>
-                <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 shrink-0" />
-                <span>JCI Accredited Hospital • 24/7 Emergency & Specialty Care</span>
+                <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#135940] shrink-0" />
+                <span>JCI Accredited • 24/7 Emergency & Specialty Care</span>
               </motion.div>
 
               {/* Main Hospital Headline matching website typography */}
               <motion.h1
                 variants={heroItemVariants}
-                className="text-balance text-3xl sm:text-4xl md:text-5xl lg:text-[58px] font-black tracking-tight text-slate-900 leading-[1.08] max-w-4xl mx-auto font-sans"
+                className="text-balance text-2xl sm:text-4xl md:text-5xl lg:text-[58px] font-black tracking-tight text-slate-900 leading-[1.14] sm:leading-[1.08] max-w-4xl mx-auto font-sans"
               >
                 World-Class Healthcare,
                 <br />
-                <span className="bg-gradient-to-r from-blue-700 via-blue-600 to-sky-500 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#135940] via-[#1b7454] to-emerald-600 bg-clip-text text-transparent">
                   Centered Around You.
                 </span>
               </motion.h1>
@@ -172,7 +172,7 @@ export default function HomePage() {
               {/* Interactive Primary & Secondary Action CTAs with Spring Physics */}
               <motion.div
                 variants={heroItemVariants}
-                className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-3 sm:pt-4 font-sans"
+                className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 pt-3 sm:pt-4 font-sans w-full sm:w-auto px-4 sm:px-0"
               >
                 <motion.button
                   id="home-book-appointment-btn"
@@ -180,7 +180,7 @@ export default function HomePage() {
                   whileHover={{ scale: 1.04, y: -2 }}
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-                  className="group px-7 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 hover:shadow-xl transition-all flex items-center gap-2.5 cursor-pointer font-sans"
+                  className="w-full sm:w-auto group px-6 sm:px-7 py-3 rounded-full bg-[#135940] hover:bg-[#1b7454] text-white text-xs sm:text-sm font-bold shadow-lg shadow-[#135940]/25 hover:shadow-[#135940]/40 hover:shadow-xl transition-all flex items-center justify-center gap-2.5 cursor-pointer font-sans"
                 >
                   <span>Book Appointment</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-200" />
@@ -188,10 +188,10 @@ export default function HomePage() {
                 <motion.button
                   id="home-specialists-btn"
                   onClick={() => navigate('/doctors')}
-                  whileHover={{ scale: 1.04, y: -2, borderColor: '#93c5fd', color: '#2563eb' }}
+                  whileHover={{ scale: 1.04, y: -2, borderColor: '#a7f3d0', color: '#135940' }}
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-                  className="px-7 py-3 rounded-full bg-white/95 hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-bold border border-slate-200/90 shadow-sm hover:shadow-md transition-all backdrop-blur-md cursor-pointer font-sans"
+                  className="w-full sm:w-auto px-6 sm:px-7 py-3 rounded-full bg-white/95 hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-bold border border-slate-200/90 shadow-sm hover:shadow-md transition-all backdrop-blur-md cursor-pointer font-sans flex items-center justify-center"
                 >
                   Meet Our Specialists
                 </motion.button>
@@ -203,43 +203,43 @@ export default function HomePage() {
               variants={heroContainerVariants}
               initial="hidden"
               animate="visible"
-              className="max-w-4xl text-balance px-6 pointer-events-auto mt-auto pb-3 sm:pb-4 pt-1 flex flex-col items-center font-sans"
+              className="max-w-4xl text-balance px-4 sm:px-6 pointer-events-auto mt-auto pb-3 sm:pb-4 pt-1 flex flex-col items-center font-sans w-full"
             >
               {/* Three Pillar Trust Indicator Pills with Interactive Hover States */}
-              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-2 font-sans">
+              <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-3 mb-2 font-sans">
                 <motion.div
                   variants={pillItemVariants}
-                  whileHover={{ y: -3, scale: 1.03, borderColor: '#93c5fd' }}
+                  whileHover={{ y: -3, scale: 1.03, borderColor: '#a7f3d0' }}
                   transition={{ type: 'spring', stiffness: 350, damping: 22 }}
-                  className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 py-1 sm:py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xs hover:shadow-md text-[11px] sm:text-xs font-semibold text-slate-700 hover:text-blue-700 transition-all font-sans cursor-default"
+                  className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xs hover:shadow-md text-[10px] sm:text-xs font-semibold text-slate-700 hover:text-[#135940] transition-all font-sans cursor-default"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>150+ Board-Certified Specialists</span>
+                  <span>150+ Specialists</span>
                 </motion.div>
                 <motion.div
                   variants={pillItemVariants}
-                  whileHover={{ y: -3, scale: 1.03, borderColor: '#93c5fd' }}
+                  whileHover={{ y: -3, scale: 1.03, borderColor: '#a7f3d0' }}
                   transition={{ type: 'spring', stiffness: 350, damping: 22 }}
-                  className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 py-1 sm:py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xs hover:shadow-md text-[11px] sm:text-xs font-semibold text-slate-700 hover:text-blue-700 transition-all font-sans cursor-default"
+                  className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xs hover:shadow-md text-[10px] sm:text-xs font-semibold text-slate-700 hover:text-[#135940] transition-all font-sans cursor-default"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Zero-Wait Emergency Triage</span>
+                  <span>Zero-Wait Triage</span>
                 </motion.div>
                 <motion.div
                   variants={pillItemVariants}
-                  whileHover={{ y: -3, scale: 1.03, borderColor: '#93c5fd' }}
+                  whileHover={{ y: -3, scale: 1.03, borderColor: '#a7f3d0' }}
                   transition={{ type: 'spring', stiffness: 350, damping: 22 }}
-                  className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 py-1 sm:py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xs hover:shadow-md text-[11px] sm:text-xs font-semibold text-slate-700 hover:text-blue-700 transition-all font-sans cursor-default"
+                  className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xs hover:shadow-md text-[10px] sm:text-xs font-semibold text-slate-700 hover:text-[#135940] transition-all font-sans cursor-default"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>99.4% Patient Recovery Score</span>
+                  <span>99.4% Recovery</span>
                 </motion.div>
               </div>
 
               {/* Narrative Hospital Description */}
               <motion.p
                 variants={heroItemVariants}
-                className="text-xs sm:text-[13px] text-slate-500 font-normal leading-relaxed max-w-xl mx-auto font-sans mb-2.5"
+                className="text-[11px] sm:text-[13px] text-slate-500 font-normal leading-relaxed max-w-xl mx-auto font-sans mb-2 sm:mb-2.5 px-2"
               >
                 From advanced robotic surgery to compassionate bedside nursing and routine family wellness, WeCare Hospital provides continuous, specialized medical excellence 24 hours a day.
               </motion.p>
@@ -270,12 +270,12 @@ export default function HomePage() {
                     }}
                     whileHover={{
                       scale: 1.06,
-                      backgroundColor: 'rgba(239, 246, 255, 0.98)',
-                      borderColor: 'rgba(147, 197, 253, 0.9)',
-                      boxShadow: '0 8px 20px -4px rgba(37, 99, 235, 0.2)',
+                      backgroundColor: 'rgba(236, 253, 245, 0.98)',
+                      borderColor: 'rgba(110, 231, 183, 0.9)',
+                      boxShadow: '0 8px 20px -4px rgba(19, 89, 64, 0.25)',
                     }}
                     whileTap={{ scale: 0.96 }}
-                    className="group inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/95 text-slate-700 hover:text-blue-600 border border-slate-200/90 text-[11px] font-bold tracking-wider uppercase transition-colors duration-200 cursor-pointer backdrop-blur-md shadow-xs"
+                    className="group inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/95 text-slate-700 hover:text-[#135940] border border-slate-200/90 text-[11px] font-bold tracking-wider uppercase transition-colors duration-200 cursor-pointer backdrop-blur-md shadow-xs"
                     aria-label="Scroll down to view more"
                   >
                     <span>Scroll down</span>
@@ -288,7 +288,7 @@ export default function HomePage() {
                       }}
                       className="inline-flex"
                     >
-                      <ChevronDown className="w-3.5 h-3.5 text-blue-600 transition-transform duration-200 group-hover:translate-y-0.5" />
+                      <ChevronDown className="w-3.5 h-3.5 text-[#135940] transition-transform duration-200 group-hover:translate-y-0.5" />
                     </motion.span>
                   </motion.button>
                 </motion.div>

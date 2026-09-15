@@ -530,10 +530,10 @@ export function MusicVideoPinStack({
 }
 [data-tsuna-id="music-video-pin-stack"]:not(.is-preview) .mvp-item:hover .mvp-play {
   transform: translate(-50%, -50%) scale(1.1);
-  background: #2563eb;
+  background: #135940;
   color: #ffffff;
-  border-color: rgba(147, 197, 253, 0.8);
-  box-shadow: 0 10px 28px -4px rgba(37, 99, 235, 0.5);
+  border-color: rgba(167, 243, 208, 0.85);
+  box-shadow: 0 10px 28px -4px rgba(19, 89, 64, 0.45);
 }
 [data-tsuna-id="music-video-pin-stack"] .mvp-overlay {
   position: absolute;
@@ -662,10 +662,10 @@ export function MusicVideoPinStack({
                   key={item.id}
                   {...(href
                     ? {
-                        href,
-                        target: isExternal ? "_blank" : undefined,
-                        rel: isExternal ? "noopener noreferrer" : undefined,
-                      }
+                      href,
+                      target: isExternal ? "_blank" : undefined,
+                      rel: isExternal ? "noopener noreferrer" : undefined,
+                    }
                     : {})}
                   className="mvp-item"
                   data-mv-item

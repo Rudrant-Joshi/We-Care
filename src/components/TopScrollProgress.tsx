@@ -11,7 +11,7 @@ export const TopScrollProgress = () => {
   return (
     <motion.div
       id="top-scroll-progress-bar"
-      className="fixed top-0 left-0 right-0 h-[3px] bg-blue-600 origin-left z-50 shadow-[0_1px_8px_rgba(37,99,235,0.45)] pointer-events-none transform-gpu will-change-transform"
+      className="fixed top-0 left-0 right-0 h-[3px] bg-[#135940] origin-left z-50 shadow-[0_1px_10px_rgba(19,89,64,0.6)] pointer-events-none transform-gpu will-change-transform"
       style={{ scaleX }}
     />
   );
