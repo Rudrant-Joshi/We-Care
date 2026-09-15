@@ -689,7 +689,7 @@ export function MusicVideoPinStack({
     letter-spacing: 0.06em;
   }
 }
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   [data-tsuna-id="music-video-pin-stack"] .mvp-stage {
     --mvp-thumb-w: min(90vw, 420px);
     touch-action: pan-y;
@@ -699,12 +699,20 @@ export function MusicVideoPinStack({
     font-size: clamp(1.75rem, 9vw, 2.75rem);
   }
   [data-tsuna-id="music-video-pin-stack"] .mvp-titles {
-    font-size: 0.82rem;
-    bottom: calc(50% + (var(--mvp-thumb-w) * 9 / 32) + 0.6rem);
+    font-size: 0.85rem;
+    bottom: calc(50% + (var(--mvp-thumb-w) * 9 / 32) + 0.65rem);
+    max-width: min(88vw, 380px);
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.35;
   }
   [data-tsuna-id="music-video-pin-stack"] .mvp-metas {
-    font-size: 0.72rem;
-    top: calc(50% + (var(--mvp-thumb-w) * 9 / 32) + 0.5rem);
+    font-size: 0.75rem;
+    top: calc(50% + (var(--mvp-thumb-w) * 9 / 32) + 0.65rem);
+    max-width: min(88vw, 360px);
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.4;
   }
   [data-tsuna-id="music-video-pin-stack"] .mvp-item {
     touch-action: pan-y;
@@ -718,16 +726,16 @@ export function MusicVideoPinStack({
     z-index: 25;
     left: 0;
     right: 0;
-    bottom: calc(50% - (var(--mvp-thumb-w) * 9 / 32) - 4.5rem);
+    bottom: calc(clamp(1.2rem, 3.5svh, 2.25rem) + env(safe-area-inset-bottom, 0px));
     margin: 0 auto;
     width: max-content;
     padding: 6px 14px;
     border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.1);
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow: 0 6px 20px -3px rgba(15, 23, 42, 0.12), 0 2px 6px -1px rgba(15, 23, 42, 0.08);
     touch-action: auto;
   }
   [data-tsuna-id="music-video-pin-stack"] .mvp-mobile-nav-btn {
