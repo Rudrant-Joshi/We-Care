@@ -923,7 +923,7 @@ export default function AdminPortalPage() {
                             <button
                               type="button"
                               onClick={() => handleApprove(appt.bookingId)}
-                              className="px-2 py-0.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10.5px] flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+                              className="inline-flex items-center justify-center gap-1 h-7 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10.5px] whitespace-nowrap transition-all cursor-pointer shadow-xs"
                               title="Approve patient appointment"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" />
@@ -932,7 +932,7 @@ export default function AdminPortalPage() {
                             <button
                               type="button"
                               onClick={() => handleReject(appt.bookingId)}
-                              className="px-2 py-0.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-[10.5px] flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+                              className="inline-flex items-center justify-center gap-1 h-7 px-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-[10.5px] whitespace-nowrap transition-all cursor-pointer shadow-xs"
                               title="Reject patient appointment"
                             >
                               <XCircle className="w-3.5 h-3.5" />
@@ -942,7 +942,7 @@ export default function AdminPortalPage() {
                         )}
 
                         <span
-                          className={`px-2.5 py-1 rounded-xl text-[11px] font-bold uppercase tracking-wider border ${
+                          className={`inline-flex items-center justify-center h-7 px-2.5 rounded-xl text-[10.5px] font-bold uppercase tracking-wider whitespace-nowrap border ${
                             appt.status === 'pending'
                               ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
                               : appt.status === 'approved' || appt.status === 'upcoming'
@@ -965,7 +965,7 @@ export default function AdminPortalPage() {
                         <button
                           type="button"
                           onClick={() => handleOpenDossier(appt)}
-                          className="px-2.5 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-400/30 font-semibold text-[11px] transition-colors cursor-pointer flex items-center gap-1"
+                          className="inline-flex items-center justify-center gap-1 h-7 px-2.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-400/30 font-semibold text-[11px] whitespace-nowrap transition-colors cursor-pointer"
                           title="Open Full Patient Intake Dossier"
                         >
                           <FileText className="w-3.5 h-3.5" />
@@ -975,7 +975,7 @@ export default function AdminPortalPage() {
                         <button
                           type="button"
                           onClick={() => handleDelete(appt.bookingId)}
-                          className="p-1.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/15 transition-colors cursor-pointer"
+                          className="inline-flex items-center justify-center h-7 w-7 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/15 transition-colors cursor-pointer"
                           title="Delete Appointment Record"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -1133,7 +1133,7 @@ export default function AdminPortalPage() {
                       <button
                         type="button"
                         onClick={() => handleApprove(appt.bookingId)}
-                        className="py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                        className="h-8.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-all cursor-pointer shadow-sm"
                         title="Approve appointment"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
@@ -1142,7 +1142,7 @@ export default function AdminPortalPage() {
                       <button
                         type="button"
                         onClick={() => handleReject(appt.bookingId)}
-                        className="py-1.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                        className="h-8.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-all cursor-pointer shadow-sm"
                         title="Reject appointment"
                       >
                         <XCircle className="w-3.5 h-3.5" />
@@ -1153,7 +1153,7 @@ export default function AdminPortalPage() {
 
                   <div className="flex items-center justify-between gap-2">
                     <span
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border ${
+                      className={`inline-flex items-center justify-center h-8.5 px-3 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap border ${
                         appt.status === 'pending'
                           ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
                           : appt.status === 'approved' || appt.status === 'upcoming'
@@ -1168,24 +1168,26 @@ export default function AdminPortalPage() {
                       {appt.status}
                     </span>
 
-                    <button
-                      type="button"
-                      onClick={() => handleOpenDossier(appt)}
-                      className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
-                      title="Open Patient Clinical Dossier"
-                    >
-                      <FileText className="w-3.5 h-3.5" />
-                      <span>Dossier</span>
-                    </button>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenDossier(appt)}
+                        className="h-8.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs whitespace-nowrap transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5 shadow-sm"
+                        title="Open Patient Clinical Dossier"
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>Dossier</span>
+                      </button>
 
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(appt.bookingId)}
-                      className="p-1.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer"
-                      title="Delete Record"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(appt.bookingId)}
+                        className="h-8.5 w-8.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer inline-flex items-center justify-center"
+                        title="Delete Record"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1323,7 +1325,7 @@ export default function AdminPortalPage() {
                     <button
                       type="button"
                       onClick={() => handleApprove(appt.bookingId)}
-                      className="flex-1 sm:flex-initial px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs min-h-[36px]"
+                      className="flex-1 sm:flex-initial h-9 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-all cursor-pointer shadow-xs"
                       title="Approve patient appointment"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
@@ -1332,7 +1334,7 @@ export default function AdminPortalPage() {
                     <button
                       type="button"
                       onClick={() => handleReject(appt.bookingId)}
-                      className="flex-1 sm:flex-initial px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs min-h-[36px]"
+                      className="flex-1 sm:flex-initial h-9 px-3.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-all cursor-pointer shadow-xs"
                       title="Reject patient appointment"
                     >
                       <XCircle className="w-3.5 h-3.5" />
@@ -1343,7 +1345,7 @@ export default function AdminPortalPage() {
 
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end flex-1">
                   <span
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border ${
+                    className={`inline-flex items-center justify-center h-9 px-3 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap border ${
                       appt.status === 'pending'
                         ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
                         : appt.status === 'approved' || appt.status === 'upcoming'
@@ -1361,7 +1363,7 @@ export default function AdminPortalPage() {
                   <button
                     type="button"
                     onClick={() => handleOpenDossier(appt)}
-                    className="h-9 px-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-sm shrink-0"
+                    className="h-9 px-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs whitespace-nowrap transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5 shadow-sm shrink-0"
                     title="Open Patient Clinical Dossier"
                   >
                     <FileText className="w-3.5 h-3.5" />
@@ -1371,7 +1373,7 @@ export default function AdminPortalPage() {
                   <button
                     type="button"
                     onClick={() => handleDelete(appt.bookingId)}
-                    className="h-9 w-9 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/20 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                    className="h-9 w-9 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/20 inline-flex items-center justify-center transition-colors cursor-pointer shrink-0"
                     title="Delete Record"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -1544,7 +1546,7 @@ export default function AdminPortalPage() {
               type="button"
               disabled={isRefreshing}
               onClick={handleManualRefresh}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-all active:scale-95 cursor-pointer disabled:opacity-60 min-h-[36px]"
+              className="shrink-0 inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold whitespace-nowrap transition-all active:scale-95 cursor-pointer disabled:opacity-60"
               title="Sync appointments with Cloud Firestore & local storage"
             >
               <RefreshCw className={`w-3.5 h-3.5 text-purple-400 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -1554,7 +1556,7 @@ export default function AdminPortalPage() {
             <button
               type="button"
               onClick={() => setIsNewBookingModalOpen(true)}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-md shadow-purple-600/25 active:scale-95 cursor-pointer min-h-[36px]"
+              className="shrink-0 inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold whitespace-nowrap transition-all shadow-md shadow-purple-600/25 active:scale-95 cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Schedule Patient</span>
@@ -1563,7 +1565,7 @@ export default function AdminPortalPage() {
             <button
               type="button"
               onClick={handleExportCSV}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-all active:scale-95 cursor-pointer min-h-[36px]"
+              className="shrink-0 inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold whitespace-nowrap transition-all active:scale-95 cursor-pointer"
             >
               <Download className="w-4 h-4 text-purple-400" />
               <span>Export CSV</span>
@@ -1572,7 +1574,7 @@ export default function AdminPortalPage() {
             <button
               type="button"
               onClick={() => navigate('/appointments')}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-all cursor-pointer min-h-[36px]"
+              className="shrink-0 inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer"
             >
               <Calendar className="w-4 h-4 text-sky-400" />
               <span>Patient View</span>
@@ -1584,7 +1586,7 @@ export default function AdminPortalPage() {
                 logout();
                 navigate('/login');
               }}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-semibold transition-all cursor-pointer min-h-[36px]"
+              className="shrink-0 inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
               <span>Log Out</span>
@@ -1605,7 +1607,7 @@ export default function AdminPortalPage() {
                 setActiveAdminTab('appointments');
                 setSelectedUser(null);
               }}
-              className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              className={`inline-flex items-center justify-center gap-1.5 sm:gap-2 h-10 px-3.5 sm:px-4 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${
                 activeAdminTab === 'appointments'
                   ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25'
                   : 'text-slate-400 hover:text-white'
@@ -1624,7 +1626,7 @@ export default function AdminPortalPage() {
                 setActiveAdminTab('users');
                 setSelectedUser(null);
               }}
-              className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              className={`inline-flex items-center justify-center gap-1.5 sm:gap-2 h-10 px-3.5 sm:px-4 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${
                 activeAdminTab === 'users'
                   ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25'
                   : 'text-slate-400 hover:text-white'
@@ -1642,7 +1644,7 @@ export default function AdminPortalPage() {
             <button
               type="button"
               onClick={() => setSelectedUser(null)}
-              className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/30 text-xs font-semibold cursor-pointer transition-colors shadow-xs w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/30 text-xs font-semibold whitespace-nowrap cursor-pointer transition-colors shadow-xs w-full sm:w-auto"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Patients</span>
@@ -1723,13 +1725,13 @@ export default function AdminPortalPage() {
               </div>
 
               {/* Controls Toolbar: Department, Sort Order & Layout Switcher */}
-              <div className="flex flex-wrap items-center justify-between gap-2.5">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 {/* Department Filter Dropdown */}
                 {departmentsList.length > 0 && (
                   <select
                     value={departmentFilter}
                     onChange={(e) => setDepartmentFilter(e.target.value)}
-                    className="h-10 px-3 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-200 text-xs font-semibold outline-none cursor-pointer flex-1 sm:flex-initial min-w-[140px]"
+                    className="h-10 px-3 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-200 text-xs font-semibold outline-none cursor-pointer w-full md:w-auto min-w-[160px]"
                   >
                     <option value="all">All Departments</option>
                     {departmentsList.map((d) => (
@@ -1740,13 +1742,13 @@ export default function AdminPortalPage() {
                   </select>
                 )}
 
-                <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 w-full sm:w-auto flex-1 justify-end">
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 w-full md:w-auto justify-start md:justify-end">
                   {/* Sort Order */}
-                  <div className="flex items-center bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs shadow-xs flex-1 sm:flex-initial justify-center">
+                  <div className="h-10 flex items-center bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs shadow-xs flex-1 sm:flex-initial">
                     <button
                       type="button"
                       onClick={() => setSortOrder('latest')}
-                      className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      className={`flex-1 sm:flex-initial h-8 px-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 ${
                         sortOrder === 'latest' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                       }`}
                       title="Display newest registered patient appointments first"
@@ -1757,7 +1759,7 @@ export default function AdminPortalPage() {
                     <button
                       type="button"
                       onClick={() => setSortOrder('oldest')}
-                      className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
+                      className={`flex-1 sm:flex-initial h-8 px-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer inline-flex items-center justify-center ${
                         sortOrder === 'oldest' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                       }`}
                       title="Display oldest registered patient appointments first"
@@ -1767,11 +1769,11 @@ export default function AdminPortalPage() {
                   </div>
 
                   {/* View Mode Switcher: List / Cards / Table */}
-                  <div className="flex items-center bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs shadow-xs flex-1 sm:flex-initial justify-center">
+                  <div className="h-10 flex items-center bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs shadow-xs flex-1 sm:flex-initial">
                     <button
                       type="button"
                       onClick={() => handleSetViewMode('list')}
-                      className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      className={`flex-1 sm:flex-initial h-8 px-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 ${
                         viewMode === 'list' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                       }`}
                       title="Executive List View (Default)"
@@ -1782,7 +1784,7 @@ export default function AdminPortalPage() {
                     <button
                       type="button"
                       onClick={() => handleSetViewMode('cards')}
-                      className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      className={`flex-1 sm:flex-initial h-8 px-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 ${
                         viewMode === 'cards' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                       }`}
                       title="Executive Cards Grid"
@@ -1793,7 +1795,7 @@ export default function AdminPortalPage() {
                     <button
                       type="button"
                       onClick={() => handleSetViewMode('table')}
-                      className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      className={`flex-1 sm:flex-initial h-8 px-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 ${
                         viewMode === 'table' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                       }`}
                       title="Dense Data Table"
@@ -1807,14 +1809,14 @@ export default function AdminPortalPage() {
             </section>
 
             {/* RESULTS HEADER */}
-            <div className="flex flex-wrap items-center justify-between text-xs text-slate-400 px-1 gap-2">
-              <div className="flex items-center gap-2.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400 px-1 gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span>
                   Showing <span className="text-white font-bold">{filteredAppointments.length}</span> patient appointment
                   {filteredAppointments.length === 1 ? '' : 's'} across the system
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/25 text-[10.5px] font-mono font-bold text-purple-300">
-                  <Clock className="w-3 h-3 text-purple-400" />
+                  <Clock className="w-3 h-3 text-purple-400 shrink-0" />
                   <span>{sortOrder === 'latest' ? 'Timing: Latest Registered at Front' : 'Timing: Oldest Registered First'}</span>
                 </span>
               </div>
@@ -1825,7 +1827,7 @@ export default function AdminPortalPage() {
                     setSearchQuery('');
                     setDepartmentFilter('all');
                   }}
-                  className="text-purple-400 hover:text-purple-300 font-semibold hover:underline cursor-pointer"
+                  className="self-start sm:self-auto text-purple-400 hover:text-purple-300 font-semibold hover:underline cursor-pointer"
                 >
                   Reset Filters
                 </button>
@@ -1935,7 +1937,7 @@ export default function AdminPortalPage() {
                             type="button"
                             onClick={() => handleDeleteUser(selectedUser)}
                             title={`Delete patient ${selectedUser.name} and all associated appointments`}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold transition-all cursor-pointer active:scale-95 ml-auto sm:ml-2 shadow-sm"
+                            className="inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold whitespace-nowrap transition-all cursor-pointer active:scale-95 ml-auto sm:ml-2 shadow-sm"
                           >
                             <Trash2 className="w-3.5 h-3.5 text-rose-400" />
                             <span>Delete Patient</span>
@@ -2092,7 +2094,7 @@ export default function AdminPortalPage() {
                   {/* Directory Status Badge & Sort Order Controls */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-slate-700/50">
                     <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-slate-900/90 border border-slate-700 text-xs text-slate-300">
+                      <div className="h-10 flex items-center gap-2 px-3.5 rounded-2xl bg-slate-900/90 border border-slate-700 text-xs text-slate-300">
                         <Users className="w-3.5 h-3.5 text-purple-400" />
                         <span className="font-bold text-white text-xs">Patients Directory</span>
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">
@@ -2103,12 +2105,12 @@ export default function AdminPortalPage() {
 
                     {/* Sorting Controls */}
                     <div className="overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
-                      <div className="flex items-center gap-1 bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs w-max">
+                      <div className="h-10 flex items-center gap-1 bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs w-max">
                         <button
                           type="button"
                           onClick={() => setUserSortOrder('latest')}
                           title="Shows newly registered accounts and recently booked appointments at the very front"
-                          className={`px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[10.5px] uppercase transition-all cursor-pointer shrink-0 flex items-center gap-1.5 ${
+                          className={`h-8 px-3 rounded-xl font-bold text-[10.5px] uppercase whitespace-nowrap transition-all cursor-pointer shrink-0 inline-flex items-center justify-center gap-1.5 ${
                             userSortOrder === 'latest'
                               ? 'bg-purple-600 text-white shadow-sm'
                               : 'text-slate-400 hover:text-white'
@@ -2121,7 +2123,7 @@ export default function AdminPortalPage() {
                         <button
                           type="button"
                           onClick={() => setUserSortOrder('bookings')}
-                          className={`px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[10.5px] uppercase transition-all cursor-pointer shrink-0 flex items-center gap-1.5 ${
+                          className={`h-8 px-3 rounded-xl font-bold text-[10.5px] uppercase whitespace-nowrap transition-all cursor-pointer shrink-0 inline-flex items-center justify-center gap-1.5 ${
                             userSortOrder === 'bookings'
                               ? 'bg-purple-600 text-white shadow-sm'
                               : 'text-slate-400 hover:text-white'
@@ -2134,7 +2136,7 @@ export default function AdminPortalPage() {
                         <button
                           type="button"
                           onClick={() => setUserSortOrder('name')}
-                          className={`px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[10.5px] uppercase transition-all cursor-pointer shrink-0 flex items-center gap-1.5 ${
+                          className={`h-8 px-3 rounded-xl font-bold text-[10.5px] uppercase whitespace-nowrap transition-all cursor-pointer shrink-0 inline-flex items-center justify-center gap-1.5 ${
                             userSortOrder === 'name'
                               ? 'bg-purple-600 text-white shadow-sm'
                               : 'text-slate-400 hover:text-white'
@@ -2248,29 +2250,17 @@ export default function AdminPortalPage() {
                               )}
                             </div>
 
-                            <div className="flex items-center gap-1.5">
-                              {!(u.role === 'admin' || u.email.toLowerCase().trim() === 'rudrant.joshi@gmail.com') && (
-                                <button
-                                  type="button"
-                                  onClick={(e) => handleDeleteUser(u, e)}
-                                  title={`Delete user ${u.name} and all appointments`}
-                                  className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 active:scale-95 border border-slate-700/60 hover:border-rose-500/30 transition-all cursor-pointer"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              )}
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedUser(u);
-                                }}
-                                className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-colors flex items-center gap-1 cursor-pointer shadow-sm group-hover:shadow-purple-600/30"
-                              >
-                                <span>View Appointments</span>
-                                <ArrowRight className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedUser(u);
+                              }}
+                              className="h-8.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs whitespace-nowrap transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer shadow-sm group-hover:shadow-purple-600/30"
+                            >
+                              <span>View Appointments</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
                           </div>
                         </div>
                       );
@@ -2438,7 +2428,7 @@ export default function AdminPortalPage() {
                   <button
                     type="button"
                     onClick={() => handleApprove(selectedAppointment.bookingId)}
-                    className={`flex-1 sm:flex-initial px-3 py-2 rounded-xl font-bold flex items-center justify-center gap-1 cursor-pointer transition-all min-h-[36px] ${
+                    className={`flex-1 sm:flex-initial h-9 px-3 rounded-xl font-bold inline-flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer transition-all ${
                       selectedAppointment.status === 'approved' || selectedAppointment.status === 'upcoming'
                         ? 'bg-emerald-600 text-white shadow-xs'
                         : 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/60'
@@ -2450,7 +2440,7 @@ export default function AdminPortalPage() {
                   <button
                     type="button"
                     onClick={() => handleReject(selectedAppointment.bookingId)}
-                    className={`flex-1 sm:flex-initial px-3 py-2 rounded-xl font-bold flex items-center justify-center gap-1 cursor-pointer transition-all min-h-[36px] ${
+                    className={`flex-1 sm:flex-initial h-9 px-3 rounded-xl font-bold inline-flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer transition-all ${
                       selectedAppointment.status === 'rejected'
                         ? 'bg-rose-600 text-white shadow-xs'
                         : 'bg-rose-950/60 border border-rose-500/40 text-rose-300 hover:bg-rose-900/60'
@@ -2462,7 +2452,7 @@ export default function AdminPortalPage() {
                   <button
                     type="button"
                     onClick={() => handleStatusChange(selectedAppointment.bookingId, 'completed')}
-                    className={`flex-1 sm:flex-initial px-3 py-2 rounded-xl font-bold flex items-center justify-center cursor-pointer transition-all min-h-[36px] ${
+                    className={`flex-1 sm:flex-initial h-9 px-3 rounded-xl font-bold inline-flex items-center justify-center whitespace-nowrap cursor-pointer transition-all ${
                       selectedAppointment.status === 'completed'
                         ? 'bg-[#135940] text-white shadow-xs'
                         : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -2473,7 +2463,7 @@ export default function AdminPortalPage() {
                   <button
                     type="button"
                     onClick={() => handleStatusChange(selectedAppointment.bookingId, 'cancelled')}
-                    className={`flex-1 sm:flex-initial px-3 py-2 rounded-xl font-bold flex items-center justify-center cursor-pointer transition-all min-h-[36px] ${
+                    className={`flex-1 sm:flex-initial h-9 px-3 rounded-xl font-bold inline-flex items-center justify-center whitespace-nowrap cursor-pointer transition-all ${
                       selectedAppointment.status === 'cancelled'
                         ? 'bg-rose-700 text-white shadow-xs'
                         : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -2486,7 +2476,7 @@ export default function AdminPortalPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedAppointment(null)}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold cursor-pointer transition-colors text-center"
+                  className="w-full sm:w-auto h-9 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold inline-flex items-center justify-center whitespace-nowrap cursor-pointer transition-colors text-center"
                 >
                   Close Dossier
                 </button>
@@ -2516,7 +2506,7 @@ export default function AdminPortalPage() {
                 <button
                   type="button"
                   onClick={() => setIsNewBookingModalOpen(false)}
-                  className="text-slate-400 hover:text-white"
+                  className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -2646,9 +2636,10 @@ export default function AdminPortalPage() {
 
                 <button
                   type="submit"
-                  className="w-full mt-2 h-11 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold uppercase tracking-wider text-xs shadow-lg shadow-purple-600/30 transition-all cursor-pointer"
+                  className="w-full mt-2 h-11 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold uppercase tracking-wider text-xs shadow-lg shadow-purple-600/30 transition-all cursor-pointer inline-flex items-center justify-center gap-1.5"
                 >
-                  Register & Schedule Appointment
+                  <PlusCircle className="w-4 h-4" />
+                  <span>Register & Schedule Appointment</span>
                 </button>
               </form>
             </motion.div>
