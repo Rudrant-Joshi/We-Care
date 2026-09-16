@@ -4,6 +4,7 @@
  */
 
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Navbar } from '../components/Navbar';
 import { MyAppointmentsBento } from './MyAppointmentsBento';
 
@@ -46,7 +47,13 @@ export default function AppointmentsPage() {
       </div>
 
       {/* Light Clean Footer matching Slate-50 background */}
-      <footer className="relative z-20 w-full px-4 sm:px-8 md:px-14 py-6 flex flex-col sm:flex-row items-center justify-between text-[11.5px] font-mono text-slate-500 border-t border-slate-200 bg-white">
+      <motion.footer
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-20px" }}
+        transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-20 w-full px-4 sm:px-8 md:px-14 py-6 flex flex-col sm:flex-row items-center justify-between text-[11.5px] font-mono text-slate-500 border-t border-slate-200 bg-white"
+      >
         <div className="flex items-center gap-4">
           <span>LATITUDE: 37.7749° N</span>
           <span className="hidden sm:inline text-slate-300">•</span>
@@ -56,7 +63,7 @@ export default function AppointmentsPage() {
           <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
           <span className="text-slate-700">WE CARE PATIENT SCHEDULE REPOSITORY OPERATIONAL</span>
         </div>
-      </footer>
+      </motion.footer>
     </main>
   );
 }

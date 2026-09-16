@@ -51,40 +51,53 @@ const sectionContainerVariants: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.07,
-      delayChildren: 0.03,
+      staggerChildren: 0.08,
+      delayChildren: 0.04,
     },
   },
 };
 
 const sectionItemVariants: Variants = {
-  hidden: { opacity: 0, y: 16, filter: 'blur(4px)' },
+  hidden: { opacity: 0, y: 24, scale: 0.985 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: 'blur(0px)',
+    scale: 1,
     transition: {
-      duration: 0.45,
-      ease: [0.16, 1, 0.3, 1],
+      duration: 0.65,
+      ease: [0.16, 1, 0.3, 1], // Deceleration curve: arrives swiftly and slows down smoothly to rest
+    },
+  },
+};
+
+const scrollDecelerateItemVariants: Variants = {
+  hidden: { opacity: 0, y: 32, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.7,
+      ease: [0.16, 1, 0.3, 1], // Smooth deceleration curve: elements glide in while scrolling and slow down
     },
   },
 };
 
 const viewModeTransitionVariants: Variants = {
-  initial: { opacity: 0, y: 12, scale: 0.99, filter: 'blur(3px)' },
+  initial: { opacity: 0, y: 14, scale: 0.985, filter: 'blur(3px)' },
   animate: {
     opacity: 1,
     y: 0,
     scale: 1,
     filter: 'blur(0px)',
-    transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
   },
   exit: {
     opacity: 0,
     y: -10,
     scale: 0.99,
     filter: 'blur(3px)',
-    transition: { duration: 0.18, ease: 'easeIn' },
+    transition: { duration: 0.2, ease: 'easeIn' },
   },
 };
 
@@ -416,20 +429,29 @@ export function MyAppointmentsBento() {
       {/* ====================================================================
           2. TELEMETRY METRIC CUBES
           ==================================================================== */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mb-8">
+      <motion.div
+        variants={sectionContainerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-40px" }}
+        className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mb-8"
+      >
         
         {/* Metric 1: Total Consultations */}
         <motion.div
-          variants={sectionItemVariants}
-          whileHover={{ y: -3 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between"
+          variants={scrollDecelerateItemVariants}
+          whileHover={{
+            y: -6,
+            scale: 1.02,
+            transition: { type: 'spring', stiffness: 400, damping: 20 },
+          }}
+          className="group p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow duration-300 flex flex-col justify-between cursor-pointer"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Total Visits
             </span>
-            <div className="size-8 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 flex items-center justify-center">
+            <div className="size-8 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
               <CalendarCheck2 className="w-4 h-4 text-[#135940]" />
             </div>
           </div>
@@ -444,16 +466,19 @@ export function MyAppointmentsBento() {
 
         {/* Metric 2: Pending Triage Review */}
         <motion.div
-          variants={sectionItemVariants}
-          whileHover={{ y: -3 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between"
+          variants={scrollDecelerateItemVariants}
+          whileHover={{
+            y: -6,
+            scale: 1.02,
+            transition: { type: 'spring', stiffness: 400, damping: 20 },
+          }}
+          className="group p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow duration-300 flex flex-col justify-between cursor-pointer"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-amber-700">
               Pending Review
             </span>
-            <div className="size-8 rounded-xl bg-amber-50 border border-amber-100 text-amber-700 flex items-center justify-center">
+            <div className="size-8 rounded-xl bg-amber-50 border border-amber-100 text-amber-700 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
               <Clock className="w-4 h-4" />
             </div>
           </div>
@@ -468,16 +493,19 @@ export function MyAppointmentsBento() {
 
         {/* Metric 3: Approved & Confirmed Passes */}
         <motion.div
-          variants={sectionItemVariants}
-          whileHover={{ y: -3 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between"
+          variants={scrollDecelerateItemVariants}
+          whileHover={{
+            y: -6,
+            scale: 1.02,
+            transition: { type: 'spring', stiffness: 400, damping: 20 },
+          }}
+          className="group p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow duration-300 flex flex-col justify-between cursor-pointer"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-emerald-800">
               Active Passes
             </span>
-            <div className="size-8 rounded-xl bg-emerald-50 border border-emerald-100 text-[#135940] flex items-center justify-center">
+            <div className="size-8 rounded-xl bg-emerald-50 border border-emerald-100 text-[#135940] flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
@@ -492,16 +520,19 @@ export function MyAppointmentsBento() {
 
         {/* Metric 4: Completed Consultations */}
         <motion.div
-          variants={sectionItemVariants}
-          whileHover={{ y: -3 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between"
+          variants={scrollDecelerateItemVariants}
+          whileHover={{
+            y: -6,
+            scale: 1.02,
+            transition: { type: 'spring', stiffness: 400, damping: 20 },
+          }}
+          className="group p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow duration-300 flex flex-col justify-between cursor-pointer"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Completed Care
             </span>
-            <div className="size-8 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 flex items-center justify-center">
+            <div className="size-8 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
               <Check className="w-4 h-4" />
             </div>
           </div>
@@ -513,12 +544,18 @@ export function MyAppointmentsBento() {
             <span className="truncate">Consultations archived</span>
           </div>
         </motion.div>
-      </div>
+      </motion.div>
 
       {/* ====================================================================
           3. ADVANCED CONTROLS: SEARCH, FILTERS & 3-WAY VIEW SWITCHER
           ==================================================================== */}
-      <motion.div variants={sectionItemVariants} className="p-3.5 sm:p-4 rounded-3xl bg-white border border-slate-200/90 shadow-sm mb-6 space-y-3 sm:space-y-4">
+      <motion.div
+        variants={scrollDecelerateItemVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-30px" }}
+        className="p-3.5 sm:p-4 rounded-3xl bg-white border border-slate-200/90 shadow-sm mb-6 space-y-3 sm:space-y-4"
+      >
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
           
           {/* Search Input with Clear Button */}
@@ -534,8 +571,9 @@ export function MyAppointmentsBento() {
             {searchQuery && (
               <motion.button
                 type="button"
-                whileHover={{ scale: 1.15 }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.2, rotate: 90 }}
+                whileTap={{ scale: 0.85 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                 onClick={() => setSearchQuery('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer p-1"
               >
@@ -754,17 +792,26 @@ export function MyAppointmentsBento() {
               return (
                 <motion.div
                   key={appt.bookingId}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.03, duration: 0.25 }}
-                  whileHover={{ y: -2 }}
-                  className="group relative p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 hover:shadow-md transition-all duration-200 flex flex-col xl:flex-row xl:items-center justify-between gap-4"
+                  initial={{ opacity: 0, y: 35, scale: 0.985 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, margin: "-30px", amount: 0.1 }}
+                  transition={{
+                    delay: Math.min((idx % 6) * 0.05, 0.25),
+                    duration: 0.7,
+                    ease: [0.16, 1, 0.3, 1], // Deceleration while scrolling
+                  }}
+                  whileHover={{
+                    y: -4,
+                    scale: 1.008,
+                    transition: { type: 'spring', stiffness: 380, damping: 24 },
+                  }}
+                  className="group relative p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 hover:shadow-lg transition-shadow duration-300 flex flex-col xl:flex-row xl:items-center justify-between gap-4 cursor-default"
                 >
                   {/* Left: Date Capsule + Doctor & Clinical Info */}
                   <div className="flex items-start sm:items-center gap-3 sm:gap-5 flex-1 min-w-0">
                     
                     {/* Calendar Date Pill */}
-                    <div className="size-14 sm:size-18 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col items-center justify-center shrink-0 text-center font-mono select-none shadow-2xs">
+                    <div className="size-14 sm:size-18 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col items-center justify-center shrink-0 text-center font-mono select-none shadow-2xs transition-transform duration-300 group-hover:scale-105 group-hover:border-slate-300">
                       <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider leading-none">
                         {dt.month}
                       </span>
@@ -777,11 +824,11 @@ export function MyAppointmentsBento() {
                     </div>
 
                     {/* Doctor Avatar */}
-                    <div className="relative size-11 sm:size-14 rounded-2xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200 shadow-2xs">
+                    <div className="relative size-11 sm:size-14 rounded-2xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200 shadow-2xs group-hover:shadow-md transition-all duration-300">
                       <img
                         src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
                         alt={appt.doctorName}
-                        className="w-full h-full object-cover object-[center_25%]"
+                        className="w-full h-full object-cover object-[center_25%] transition-transform duration-500 ease-out group-hover:scale-110"
                         onError={(e) => {
                           const target = e.currentTarget;
                           if (!target.dataset.fallback) {
@@ -841,7 +888,7 @@ export function MyAppointmentsBento() {
                   <div className="flex flex-wrap sm:flex-nowrap items-center justify-between xl:justify-end gap-2.5 sm:gap-3 pt-3 xl:pt-0 border-t xl:border-t-0 border-slate-100 shrink-0 w-full xl:w-auto">
                     
                     {/* Status Badge */}
-                    <div className="shrink-0">
+                    <div className="shrink-0 transition-transform duration-200 group-hover:scale-105">
                       {isPending && (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
                           <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
@@ -874,8 +921,9 @@ export function MyAppointmentsBento() {
                         <>
                           <motion.button
                             type="button"
-                            whileHover={{ scale: 1.04 }}
-                            whileTap={{ scale: 0.96 }}
+                            whileHover={{ scale: 1.05, y: -1 }}
+                            whileTap={{ scale: 0.95 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 18 }}
                             onClick={() => handleApprove(appt.bookingId)}
                             className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs min-h-[36px]"
                           >
@@ -884,8 +932,9 @@ export function MyAppointmentsBento() {
                           </motion.button>
                           <motion.button
                             type="button"
-                            whileHover={{ scale: 1.04 }}
-                            whileTap={{ scale: 0.96 }}
+                            whileHover={{ scale: 1.05, y: -1 }}
+                            whileTap={{ scale: 0.95 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 18 }}
                             onClick={() => handleReject(appt.bookingId)}
                             className="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs min-h-[36px]"
                           >
@@ -897,64 +946,76 @@ export function MyAppointmentsBento() {
 
                       <motion.button
                         type="button"
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
+                        whileHover={{ scale: 1.05, y: -1 }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 18 }}
                         onClick={() => setDirectionModalAppt(appt)}
                         className="px-2.5 sm:px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer min-h-[36px]"
                         title="Hospital directions"
                       >
-                        <Compass className="w-3.5 h-3.5 text-[#135940]" />
+                        <Compass className="w-3.5 h-3.5 text-[#135940] transition-transform duration-300 group-hover:rotate-45" />
                         <span>Directions</span>
                       </motion.button>
 
                       <motion.button
                         type="button"
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
+                        whileHover={{ scale: 1.05, y: -1 }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 18 }}
                         onClick={() => handleDownloadIcs(appt)}
                         className="px-2.5 sm:px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer min-h-[36px]"
                         title="Add to Calendar (.ICS)"
                       >
-                        <Download className="w-3.5 h-3.5 text-[#135940]" />
+                        <Download className="w-3.5 h-3.5 text-[#135940] transition-transform duration-300 group-hover:-translate-y-0.5" />
                         <span className="hidden xs:inline sm:inline">Calendar</span>
                       </motion.button>
 
                       {/* Cancel or Delete Action */}
                       {cancellingId === appt.bookingId ? (
                         <div className="flex items-center gap-1">
-                          <button
+                          <motion.button
                             type="button"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => handleConfirmCancel(appt.bookingId)}
                             className="px-2.5 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold cursor-pointer hover:bg-rose-700 min-h-[36px]"
                           >
                             Confirm
-                          </button>
-                          <button
+                          </motion.button>
+                          <motion.button
                             type="button"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => setCancellingId(null)}
                             className="px-2 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium cursor-pointer hover:bg-slate-200 min-h-[36px]"
                           >
                             No
-                          </button>
+                          </motion.button>
                         </div>
                       ) : isPending || isApproved ? (
-                        <button
+                        <motion.button
                           type="button"
+                          whileHover={{ scale: 1.15, rotate: 8 }}
+                          whileTap={{ scale: 0.9 }}
+                          transition={{ type: 'spring', stiffness: 450, damping: 18 }}
                           onClick={() => setCancellingId(appt.bookingId)}
                           className="size-9 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shrink-0"
                           title="Cancel Appointment"
                         >
                           <X className="w-4 h-4" />
-                        </button>
+                        </motion.button>
                       ) : (
-                        <button
+                        <motion.button
                           type="button"
+                          whileHover={{ scale: 1.15, rotate: 8 }}
+                          whileTap={{ scale: 0.9 }}
+                          transition={{ type: 'spring', stiffness: 450, damping: 18 }}
                           onClick={() => handleDelete(appt.bookingId)}
                           className="size-9 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shrink-0"
                           title="Remove Record"
                         >
                           <X className="w-4 h-4" />
-                        </button>
+                        </motion.button>
                       )}
                     </div>
                   </div>
@@ -983,18 +1044,27 @@ export function MyAppointmentsBento() {
               return (
                 <motion.div
                   key={appt.bookingId}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: (idx % 3) * 0.04, duration: 0.25 }}
-                  whileHover={{ y: -3 }}
-                  className="p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4"
+                  initial={{ opacity: 0, y: 38, scale: 0.97 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, margin: "-30px", amount: 0.1 }}
+                  transition={{
+                    delay: Math.min((idx % 3) * 0.07, 0.22),
+                    duration: 0.75,
+                    ease: [0.16, 1, 0.3, 1], // Deceleration while scrolling
+                  }}
+                  whileHover={{
+                    y: -6,
+                    scale: 1.018,
+                    transition: { type: 'spring', stiffness: 350, damping: 22 },
+                  }}
+                  className="group p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between space-y-4 cursor-default"
                 >
                   {/* Card Header: Department badge + Status Badge */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="px-2.5 py-1 rounded-full text-[10.5px] font-mono font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200/80">
+                    <span className="px-2.5 py-1 rounded-full text-[10.5px] font-mono font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200/80 transition-transform duration-200 group-hover:scale-105">
                       {appt.departmentName}
                     </span>
-                    <div>
+                    <div className="transition-transform duration-200 group-hover:scale-105">
                       {isPending && (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
                           <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
@@ -1024,11 +1094,11 @@ export function MyAppointmentsBento() {
 
                   {/* Doctor Row */}
                   <div className="flex items-center gap-3.5">
-                    <div className="relative size-14 rounded-2xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200 shadow-2xs">
+                    <div className="relative size-14 rounded-2xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200 shadow-2xs group-hover:shadow-md transition-all duration-300">
                       <img
                         src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
                         alt={appt.doctorName}
-                        className="w-full h-full object-cover object-[center_25%]"
+                        className="w-full h-full object-cover object-[center_25%] transition-transform duration-500 ease-out group-hover:scale-110"
                         onError={(e) => {
                           const target = e.currentTarget;
                           if (!target.dataset.fallback) {
@@ -1052,7 +1122,7 @@ export function MyAppointmentsBento() {
                   </div>
 
                   {/* Schedule & Location Box */}
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5 text-xs font-mono">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5 text-xs font-mono transition-transform duration-300 group-hover:border-slate-200">
                     <div className="flex items-center justify-between text-slate-700">
                       <span className="flex items-center gap-1.5">
                         <CalendarIcon className="w-3.5 h-3.5 text-[#135940]" />
@@ -1085,57 +1155,73 @@ export function MyAppointmentsBento() {
                   {/* Card Footer Actions */}
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <button
+                      <motion.button
                         type="button"
+                        whileHover={{ scale: 1.05, y: -1 }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 18 }}
                         onClick={() => setDirectionModalAppt(appt)}
-                        className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                        className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
                       >
-                        <Compass className="w-3.5 h-3.5 text-[#135940]" />
+                        <Compass className="w-3.5 h-3.5 text-[#135940] transition-transform duration-300 group-hover:rotate-45" />
                         <span>Directions</span>
-                      </button>
-                      <button
+                      </motion.button>
+                      <motion.button
                         type="button"
+                        whileHover={{ scale: 1.05, y: -1 }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 18 }}
                         onClick={() => handleDownloadIcs(appt)}
-                        className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                        className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
                       >
-                        <Download className="w-3.5 h-3.5 text-[#135940]" />
+                        <Download className="w-3.5 h-3.5 text-[#135940] transition-transform duration-300 group-hover:-translate-y-0.5" />
                         <span>.ICS</span>
-                      </button>
+                      </motion.button>
                     </div>
 
                     {cancellingId === appt.bookingId ? (
                       <div className="flex items-center gap-1">
-                        <button
+                        <motion.button
                           type="button"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={() => handleConfirmCancel(appt.bookingId)}
-                          className="px-2 py-1 rounded bg-rose-600 text-white text-[11px] font-bold cursor-pointer"
+                          className="px-2 py-1 rounded bg-rose-600 text-white text-[11px] font-bold cursor-pointer hover:bg-rose-700"
                         >
                           Confirm
-                        </button>
-                        <button
+                        </motion.button>
+                        <motion.button
                           type="button"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={() => setCancellingId(null)}
-                          className="px-2 py-1 rounded bg-slate-100 text-slate-600 text-[11px] cursor-pointer"
+                          className="px-2 py-1 rounded bg-slate-100 text-slate-600 text-[11px] cursor-pointer hover:bg-slate-200"
                         >
                           No
-                        </button>
+                        </motion.button>
                       </div>
                     ) : isPending || isApproved ? (
-                      <button
+                      <motion.button
                         type="button"
+                        whileHover={{ scale: 1.08 }}
+                        whileTap={{ scale: 0.92 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                         onClick={() => setCancellingId(appt.bookingId)}
                         className="text-xs text-slate-400 hover:text-rose-600 font-medium cursor-pointer"
                       >
                         Cancel
-                      </button>
+                      </motion.button>
                     ) : (
-                      <button
+                      <motion.button
                         type="button"
+                        whileHover={{ scale: 1.08 }}
+                        whileTap={{ scale: 0.92 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                         onClick={() => handleDelete(appt.bookingId)}
                         className="text-xs text-slate-400 hover:text-rose-600 font-medium cursor-pointer"
                       >
                         Remove
-                      </button>
+                      </motion.button>
                     )}
                   </div>
                 </motion.div>
