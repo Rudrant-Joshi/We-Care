@@ -24,7 +24,7 @@ import {
   Info,
 } from 'lucide-react';
 
-import type { StoredAppointment } from './types';
+import { type StoredAppointment, hasUserProvidedReason } from './types';
 import {
   getUserAppointments,
   getStoredAppointments,
@@ -822,7 +822,7 @@ export function MyAppointmentsBento() {
                         </span>
                       </div>
 
-                      {appt.reason && (
+                      {hasUserProvidedReason(appt.reason) && (
                         <p className="text-[11px] sm:text-[11.5px] text-slate-500 mt-1 line-clamp-1 italic">
                           &ldquo;{appt.reason}&rdquo;
                         </p>
@@ -1069,7 +1069,7 @@ export function MyAppointmentsBento() {
                     </div>
                   </div>
 
-                  {appt.reason && (
+                  {hasUserProvidedReason(appt.reason) && (
                     <p className="text-[11.5px] text-slate-500 italic line-clamp-1">
                       &ldquo;{appt.reason}&rdquo;
                     </p>

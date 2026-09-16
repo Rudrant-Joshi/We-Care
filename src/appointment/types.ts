@@ -87,3 +87,18 @@ export interface ConfirmedAppointment extends AppointmentFormData {
 }
 
 export type StoredAppointment = ConfirmedAppointment;
+
+export function hasUserProvidedReason(reason?: string | null): boolean {
+  if (!reason) return false;
+  const trimmed = reason.trim();
+  if (!trimmed) return false;
+  const lower = trimmed.toLowerCase();
+  if (
+    lower === 'comprehensive specialist consultation & assessment' ||
+    lower === 'comprehensive specialist consultation and assessment' ||
+    lower === 'admin scheduled specialist consultation'
+  ) {
+    return false;
+  }
+  return true;
+}

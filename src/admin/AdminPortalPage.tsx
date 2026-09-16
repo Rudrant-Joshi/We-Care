@@ -42,7 +42,7 @@ import {
   getDeletedUserEmails,
 } from '../auth/AuthContext';
 import type { UserRole } from '../auth/types';
-import type { StoredAppointment, AppointmentStatus, VisitType } from '../appointment/types';
+import { type StoredAppointment, type AppointmentStatus, type VisitType, hasUserProvidedReason } from '../appointment/types';
 import {
   getStoredAppointments,
   saveAppointment,
@@ -785,7 +785,7 @@ export default function AdminPortalPage() {
       email: newEmail.trim(),
       phone: newPhone || '(555) 000-0000',
       insuranceProvider: newInsurance,
-      reason: newReason || 'Admin Scheduled Specialist Consultation',
+      reason: newReason ? newReason.trim() : '',
       status: 'upcoming',
       location: 'WeCare Clinical Tower 4, Suite 800 (San Francisco, CA)',
       adminNotes: 'Manually scheduled by Chief Admin Rudrant Joshi.',
@@ -858,7 +858,7 @@ export default function AdminPortalPage() {
                       </div>
                       <div className="flex items-center gap-1.5 text-[10.5px] mt-0.5">
                         <span className="text-purple-300 font-medium font-mono">{formatRegistrationTiming(appt)}</span>
-                        {appt.reason && (
+                        {hasUserProvidedReason(appt.reason) && (
                           <>
                             <span className="text-slate-500">&bull;</span>
                             <span className="text-slate-400 truncate max-w-[150px]">{appt.reason}</span>
@@ -1104,7 +1104,7 @@ export default function AdminPortalPage() {
                     </div>
 
                     {/* Reason for Visit */}
-                    {appt.reason && (
+                    {hasUserProvidedReason(appt.reason) && (
                       <div className="p-2.5 rounded-xl bg-slate-800/20 border border-slate-800/50 text-xs text-slate-300">
                         <span className="text-slate-500 font-medium">Chief Complaint:</span>{' '}
                         <span className="italic">{appt.reason}</span>
@@ -1280,7 +1280,7 @@ export default function AdminPortalPage() {
                     </span>
                   </div>
 
-                  {appt.reason && (
+                  {hasUserProvidedReason(appt.reason) && (
                     <p className="text-[11px] sm:text-xs text-slate-400 mt-1 line-clamp-1 italic">
                       <span className="text-slate-500">Reason:</span> {appt.reason}
                     </p>
@@ -2286,12 +2286,18 @@ export default function AdminPortalPage() {
                 </div>
 
                 {/* Reason / Symptoms */}
-                <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
-                  <span className="text-slate-400 font-semibold block text-[11px] mb-1">
-                    Chief Complaint / Consultation Symptoms
-                  </span>
-                  <p className="text-white text-xs leading-relaxed">{selectedAppointment.reason}</p>
-                </div>
+                {hasUserProvidedReason(selectedAppointment.reason) ? (
+                  <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+                    <span className="text-slate-400 font-semibold block text-[11px] mb-1">
+                      Chief Complaint / Consultation Symptoms
+                    </span>
+                    <p className="text-white text-xs leading-relaxed">{selectedAppointment.reason}</p>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-2xl bg-slate-800/30 border border-slate-700/40 text-slate-500 text-xs italic">
+                    No consultation reason or symptoms specified at booking.
+                  </div>
+                )}
 
                 {/* Admin Clinical Notes */}
                 <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">

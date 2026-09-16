@@ -530,7 +530,7 @@ export function AppointmentBento() {
         email,
         phone,
         insuranceProvider: insurance,
-        reason: reason || 'Comprehensive Specialist Consultation & Assessment',
+        reason: reason ? reason.trim() : '',
         status: 'pending',
         location: 'WeCare Clinical Tower 4, Suite 800 (San Francisco, CA)',
       };

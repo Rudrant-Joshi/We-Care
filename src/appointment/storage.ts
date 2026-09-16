@@ -6,6 +6,7 @@
  */
 
 import type { StoredAppointment, AppointmentStatus } from './types';
+import { hasUserProvidedReason } from './types';
 import { db } from '../lib/firebase';
 import { collection, doc, setDoc, getDocs, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
 import { getDeletedUserEmails } from '../auth/AuthContext';
@@ -125,6 +126,10 @@ export function getStoredAppointments(): StoredAppointment[] {
             appt.doctorImage = `/doctor-images/${appt.doctorId}.jpg`;
             changed = true;
           }
+          if (appt.reason && !hasUserProvidedReason(appt.reason)) {
+            appt.reason = '';
+            changed = true;
+          }
           return appt;
         });
 
@@ -170,8 +175,10 @@ export function saveAppointment(appointment: StoredAppointment): void {
   if (typeof window === 'undefined') return;
   try {
     const now = Date.now();
+    const cleanReason = hasUserProvidedReason(appointment.reason) ? (appointment.reason || '').trim() : '';
     const enrichedAppt: StoredAppointment = {
       ...appointment,
+      reason: cleanReason,
       timestamp: appointment.timestamp || now,
       createdAtIso: appointment.createdAtIso || new Date(now).toISOString(),
       savedAt: appointment.savedAt || new Date(now).toISOString(),
@@ -442,6 +449,9 @@ export async function syncAppointmentsFromFirestore(): Promise<StoredAppointment
           continue;
         }
         if (data && data.bookingId) {
+          if (data.reason && !hasUserProvidedReason(data.reason)) {
+            data.reason = '';
+          }
           remoteList.push(data);
         }
       }
