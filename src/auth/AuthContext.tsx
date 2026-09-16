@@ -89,6 +89,7 @@ function saveRegisteredAccount(acc: RegisteredAccount) {
     );
     list.push(sanitized);
     localStorage.setItem(REGISTERED_ACCOUNTS_KEY, JSON.stringify(list));
+    window.dispatchEvent(new Event('wecare_auth_state_changed'));
   } catch (err) {
     console.warn('Failed to save registered account locally:', err);
   }

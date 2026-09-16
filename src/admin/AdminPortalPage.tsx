@@ -33,6 +33,7 @@ import {
   ChevronRight,
   ArrowRight,
   User,
+  Zap,
 } from 'lucide-react';
 
 import { useAuth, DEMO_USERS, getRegisteredAccounts } from '../auth/AuthContext';
@@ -69,6 +70,36 @@ function formatRegistrationTiming(appt: StoredAppointment): string {
   if (diffHours < 24) return `Registered ${diffHours}h ago`;
 
   return `Registered ${new Date(ts).toLocaleDateString([], { month: 'short', day: 'numeric' })}`;
+}
+
+// Helper to format user relative activity (booking or account creation)
+function formatUserActivityRelative(timestamp: number, action: 'booking' | 'account'): string {
+  if (!timestamp || timestamp <= 0) return 'Active user';
+  const diffMs = Math.max(0, Date.now() - timestamp);
+  const diffMinutes = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMinutes < 1) {
+    return action === 'booking' ? 'Booked appointment just now' : 'Account created just now';
+  }
+  if (diffMinutes < 60) {
+    return action === 'booking'
+      ? `Booked appointment ${diffMinutes}m ago`
+      : `Account created ${diffMinutes}m ago`;
+  }
+  if (diffHours < 24) {
+    return action === 'booking'
+      ? `Booked appointment ${diffHours}h ago`
+      : `Account created ${diffHours}h ago`;
+  }
+  if (diffDays < 7) {
+    return action === 'booking'
+      ? `Booked appointment ${diffDays}d ago`
+      : `Account created ${diffDays}d ago`;
+  }
+  const dateStr = new Date(timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' });
+  return action === 'booking' ? `Booked appointment on ${dateStr}` : `Account created on ${dateStr}`;
 }
 
 // Helper to parse date into Month, Day, and Weekday
@@ -110,6 +141,9 @@ export interface AdminUserAccount {
   avatar?: string;
   badgeNumber?: string;
   createdAt?: string;
+  createdAtTimestamp?: number;
+  latestActivityTimestamp: number;
+  latestActivityLabel: string;
   isRegistered: boolean;
   appointments: StoredAppointment[];
 }
@@ -157,6 +191,7 @@ export default function AdminPortalPage() {
   const [selectedUser, setSelectedUser] = useState<AdminUserAccount | null>(null);
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'patient' | 'doctor' | 'admin'>('all');
+  const [userSortOrder, setUserSortOrder] = useState<'latest' | 'bookings' | 'name'>('latest');
 
   // Login State for Gate
   const [gateEmail, setGateEmail] = useState('');
@@ -175,11 +210,13 @@ export default function AdminPortalPage() {
   const [newTime, setNewTime] = useState('10:00 AM');
   const newVisitType: VisitType = 'in-person';
   const [newReason, setNewReason] = useState('');
+  const [authAccountsRevision, setAuthAccountsRevision] = useState(0);
 
-  // Load appointments
+  // Load appointments and sync user directory
   const refreshAppointments = () => {
     const list = getStoredAppointments();
     setAppointments(list);
+    setAuthAccountsRevision((r) => r + 1);
   };
 
   const handleManualRefresh = async () => {
@@ -327,6 +364,12 @@ export default function AdminPortalPage() {
     // 1. Seed demo accounts
     Object.values(DEMO_USERS).forEach((demo) => {
       const email = demo.email.toLowerCase().trim();
+      const isAdminUser = demo.role === 'admin' || email === 'rudrant.joshi@gmail.com';
+      // Baseline creation timestamp for demo users
+      const baselineCreated = isAdminUser
+        ? new Date('2025-01-01T00:00:00Z').getTime()
+        : new Date('2025-06-01T00:00:00Z').getTime();
+
       userMap.set(email, {
         id: demo.id,
         name: demo.name,
@@ -336,6 +379,9 @@ export default function AdminPortalPage() {
         avatar: demo.avatar,
         badgeNumber: demo.badgeNumber,
         createdAt: demo.memberSince ? `Member since ${demo.memberSince}` : 'System Account',
+        createdAtTimestamp: baselineCreated,
+        latestActivityTimestamp: baselineCreated,
+        latestActivityLabel: demo.memberSince ? `Member since ${demo.memberSince}` : 'System Account',
         isRegistered: true,
         appointments: [],
       });
@@ -345,11 +391,19 @@ export default function AdminPortalPage() {
     const registered = getRegisteredAccounts();
     registered.forEach((acc) => {
       const email = acc.email.toLowerCase().trim();
+      let createdTs = 0;
+      if (acc.createdAt) {
+        const parsed = new Date(acc.createdAt).getTime();
+        if (!isNaN(parsed) && parsed > 0) createdTs = parsed;
+      }
+      if (!createdTs) createdTs = Date.now() - 3600000;
+
       const existing = userMap.get(email);
       if (existing) {
         existing.name = acc.name || existing.name;
         existing.role = acc.role || existing.role;
         existing.isRegistered = true;
+        existing.createdAtTimestamp = createdTs;
         if (acc.createdAt) {
           existing.createdAt = new Date(acc.createdAt).toLocaleDateString([], {
             month: 'short',
@@ -371,6 +425,9 @@ export default function AdminPortalPage() {
                 year: 'numeric',
               })
             : 'Registered User',
+          createdAtTimestamp: createdTs,
+          latestActivityTimestamp: createdTs,
+          latestActivityLabel: formatUserActivityRelative(createdTs, 'account'),
           isRegistered: true,
           appointments: [],
         });
@@ -382,6 +439,8 @@ export default function AdminPortalPage() {
       const email = (appt.email || '').toLowerCase().trim();
       if (!email) return;
 
+      const apptTs = getAppointmentCreationTimestamp(appt);
+
       let user = userMap.get(email);
       if (!user) {
         user = {
@@ -392,6 +451,9 @@ export default function AdminPortalPage() {
           role: 'patient',
           badgeNumber: `WC-${appt.bookingId.replace(/[^0-9]/g, '').slice(0, 4) || 'PT'}-PT`,
           createdAt: appt.createdAt ? `Booked ${appt.createdAt}` : 'Patient Client',
+          createdAtTimestamp: apptTs > 0 ? apptTs : Date.now(),
+          latestActivityTimestamp: apptTs > 0 ? apptTs : Date.now(),
+          latestActivityLabel: formatUserActivityRelative(apptTs, 'booking'),
           isRegistered: false,
           appointments: [],
         };
@@ -401,30 +463,53 @@ export default function AdminPortalPage() {
         if (appt.patientName && (!user.name || user.name === email.split('@')[0])) {
           user.name = appt.patientName;
         }
+        if (!user.createdAtTimestamp && apptTs > 0) {
+          user.createdAtTimestamp = apptTs;
+        }
       }
 
       user.appointments.push(appt);
     });
 
-    // Sort appointments for each user descending (latest first)
+    // 4. Sort each user's appointments descending and compute latestActivityTimestamp & label
     userMap.forEach((u) => {
       u.appointments = sortAppointmentsDescending(u.appointments);
+
+      const latestApptTs =
+        u.appointments.length > 0 ? getAppointmentCreationTimestamp(u.appointments[0]) : 0;
+      const accountTs = u.createdAtTimestamp || 0;
+
+      // Determine which was more recent: booking or account registration
+      if (latestApptTs > 0 && latestApptTs >= accountTs) {
+        u.latestActivityTimestamp = latestApptTs;
+        u.latestActivityLabel = formatUserActivityRelative(latestApptTs, 'booking');
+      } else if (accountTs > 0) {
+        u.latestActivityTimestamp = accountTs;
+        u.latestActivityLabel = formatUserActivityRelative(accountTs, 'account');
+      } else if (latestApptTs > 0) {
+        u.latestActivityTimestamp = latestApptTs;
+        u.latestActivityLabel = formatUserActivityRelative(latestApptTs, 'booking');
+      } else {
+        u.latestActivityTimestamp = 0;
+        u.latestActivityLabel = 'Active user';
+      }
     });
 
-    // Return list: Chief admin first, then most bookings first
+    // Default return: sorted descending by latestActivityTimestamp (latest booking or account creation at the front)
     return Array.from(userMap.values()).sort((a, b) => {
-      if (a.role === 'admin') return -1;
-      if (b.role === 'admin') return 1;
+      if (b.latestActivityTimestamp !== a.latestActivityTimestamp) {
+        return b.latestActivityTimestamp - a.latestActivityTimestamp;
+      }
       if (b.appointments.length !== a.appointments.length) {
         return b.appointments.length - a.appointments.length;
       }
       return a.name.localeCompare(b.name);
     });
-  }, [appointments]);
+  }, [appointments, authAccountsRevision]);
 
-  // Filter users by search query and role
+  // Filter and sort users based on role filter, search query, and userSortOrder
   const filteredUsers = useMemo(() => {
-    return allUsers.filter((u) => {
+    const matching = allUsers.filter((u) => {
       if (userRoleFilter !== 'all' && u.role !== userRoleFilter) return false;
       if (userSearchQuery.trim()) {
         const q = userSearchQuery.toLowerCase().trim();
@@ -437,7 +522,23 @@ export default function AdminPortalPage() {
       }
       return true;
     });
-  }, [allUsers, userRoleFilter, userSearchQuery]);
+
+    return [...matching].sort((a, b) => {
+      if (userSortOrder === 'latest') {
+        if (b.latestActivityTimestamp !== a.latestActivityTimestamp) {
+          return b.latestActivityTimestamp - a.latestActivityTimestamp;
+        }
+        return b.appointments.length - a.appointments.length;
+      }
+      if (userSortOrder === 'bookings') {
+        if (b.appointments.length !== a.appointments.length) {
+          return b.appointments.length - a.appointments.length;
+        }
+        return b.latestActivityTimestamp - a.latestActivityTimestamp;
+      }
+      return a.name.localeCompare(b.name);
+    });
+  }, [allUsers, userRoleFilter, userSearchQuery, userSortOrder]);
 
   // Quick switch from appointment to user profile
   const handleSelectUserByEmail = (email?: string, name?: string) => {
@@ -1892,6 +1993,11 @@ export default function AdminPortalPage() {
                         )}
                         <span className="text-slate-500 hidden sm:inline">&bull;</span>
                         <span className="text-slate-400 text-[11px] sm:text-xs">{selectedUser.createdAt}</span>
+                        <span className="text-slate-500 hidden sm:inline">&bull;</span>
+                        <span className="inline-flex items-center gap-1 text-purple-300 font-semibold text-[11px] sm:text-xs">
+                          <Clock className="w-3 h-3 text-purple-400 shrink-0" />
+                          <span>{selectedUser.latestActivityLabel}</span>
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -2032,26 +2138,73 @@ export default function AdminPortalPage() {
                     )}
                   </div>
 
-                  {/* Role Filters - Horizontally scrollable on mobile */}
-                  <div className="overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
-                    <div className="flex items-center gap-1.5 bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs w-max min-w-full sm:min-w-0">
-                      {[
-                        { id: 'all', label: `All Users (${allUsers.length})` },
-                        { id: 'patient', label: `Patients (${allUsers.filter((u) => u.role === 'patient').length})` },
-                        { id: 'doctor', label: `Doctors (${allUsers.filter((u) => u.role === 'doctor').length})` },
-                        { id: 'admin', label: `Admins (${allUsers.filter((u) => u.role === 'admin').length})` },
-                      ].map((tab) => (
+                  {/* Role Filters & Sort Order Controls */}
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-1 border-t border-slate-700/50">
+                    {/* Role Filters - Horizontally scrollable on mobile */}
+                    <div className="overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
+                      <div className="flex items-center gap-1.5 bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs w-max min-w-full sm:min-w-0">
+                        {[
+                          { id: 'all', label: `All Users (${allUsers.length})` },
+                          { id: 'patient', label: `Patients (${allUsers.filter((u) => u.role === 'patient').length})` },
+                          { id: 'doctor', label: `Doctors (${allUsers.filter((u) => u.role === 'doctor').length})` },
+                          { id: 'admin', label: `Admins (${allUsers.filter((u) => u.role === 'admin').length})` },
+                        ].map((tab) => (
+                          <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setUserRoleFilter(tab.id as any)}
+                            className={`px-3 py-1.5 rounded-xl font-bold uppercase text-[10.5px] transition-all cursor-pointer shrink-0 ${
+                              userRoleFilter === tab.id ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            {tab.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Sorting Controls */}
+                    <div className="overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
+                      <div className="flex items-center gap-1 bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs w-max">
                         <button
-                          key={tab.id}
                           type="button"
-                          onClick={() => setUserRoleFilter(tab.id as any)}
-                          className={`px-3 py-1.5 rounded-xl font-bold uppercase text-[10.5px] transition-all cursor-pointer shrink-0 ${
-                            userRoleFilter === tab.id ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                          onClick={() => setUserSortOrder('latest')}
+                          title="Shows newly registered accounts and recently booked appointments at the very front"
+                          className={`px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[10.5px] uppercase transition-all cursor-pointer shrink-0 flex items-center gap-1.5 ${
+                            userSortOrder === 'latest'
+                              ? 'bg-purple-600 text-white shadow-sm'
+                              : 'text-slate-400 hover:text-white'
                           }`}
                         >
-                          {tab.label}
+                          <Zap className="w-3 h-3 text-amber-300" />
+                          <span>Latest Activity at Front</span>
                         </button>
-                      ))}
+
+                        <button
+                          type="button"
+                          onClick={() => setUserSortOrder('bookings')}
+                          className={`px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[10.5px] uppercase transition-all cursor-pointer shrink-0 flex items-center gap-1.5 ${
+                            userSortOrder === 'bookings'
+                              ? 'bg-purple-600 text-white shadow-sm'
+                              : 'text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          <Calendar className="w-3 h-3 text-purple-400" />
+                          <span>Most Bookings</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setUserSortOrder('name')}
+                          className={`px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[10.5px] uppercase transition-all cursor-pointer shrink-0 flex items-center gap-1.5 ${
+                            userSortOrder === 'name'
+                              ? 'bg-purple-600 text-white shadow-sm'
+                              : 'text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          <span>Name (A-Z)</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </section>
@@ -2067,22 +2220,33 @@ export default function AdminPortalPage() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
-                    {filteredUsers.map((u) => {
+                    {filteredUsers.map((u, idx) => {
                       const pendingCount = u.appointments.filter((a) => a.status === 'pending').length;
+                      const isLatestTop = idx === 0 && userSortOrder === 'latest';
 
                       return (
                         <div
                           key={u.id + u.email}
                           onClick={() => setSelectedUser(u)}
-                          className="rounded-2xl sm:rounded-3xl border border-slate-800/80 bg-slate-900/60 hover:bg-slate-900/95 hover:border-purple-500/50 active:scale-[0.99] transition-all duration-200 p-4 sm:p-5 flex flex-col justify-between gap-3.5 sm:gap-4 cursor-pointer group shadow-lg hover:shadow-purple-950/20"
+                          className={`rounded-2xl sm:rounded-3xl border bg-slate-900/60 hover:bg-slate-900/95 active:scale-[0.99] transition-all duration-200 p-4 sm:p-5 flex flex-col justify-between gap-3.5 sm:gap-4 cursor-pointer group shadow-lg ${
+                            isLatestTop
+                              ? 'border-purple-500/80 shadow-purple-950/30 ring-1 ring-purple-500/40 bg-gradient-to-b from-purple-950/25 to-slate-900/70'
+                              : 'border-slate-800/80 hover:border-purple-500/50 hover:shadow-purple-950/20'
+                          }`}
                         >
                           {/* Card Top: Avatar, Name, Role */}
                           <div className="flex items-start gap-3.5">
-                            <div className="size-12 rounded-2xl bg-purple-600/20 text-purple-200 border border-purple-500/30 flex items-center justify-center font-bold text-base shrink-0 group-hover:border-purple-500/60 transition-colors">
+                            <div className="relative size-12 rounded-2xl bg-purple-600/20 text-purple-200 border border-purple-500/30 flex items-center justify-center font-bold text-base shrink-0 group-hover:border-purple-500/60 transition-colors">
                               {u.avatar ? (
                                 <img src={u.avatar} alt={u.name} className="w-full h-full object-cover rounded-2xl" />
                               ) : (
                                 u.name ? u.name.charAt(0).toUpperCase() : 'U'
+                              )}
+                              {isLatestTop && (
+                                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-slate-900"></span>
+                                </span>
                               )}
                             </div>
                             <div className="min-w-0 flex-1">
@@ -2090,15 +2254,23 @@ export default function AdminPortalPage() {
                                 <h4 className="font-extrabold text-white text-base truncate group-hover:text-purple-300 transition-colors">
                                   {u.name}
                                 </h4>
-                                <span className={`px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold uppercase shrink-0 ${
-                                  u.role === 'admin'
-                                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
-                                    : u.role === 'doctor'
-                                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                                      : 'bg-sky-500/20 text-sky-300 border border-sky-500/40'
-                                }`}>
-                                  {u.role}
-                                </span>
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  {isLatestTop && (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm">
+                                      <Zap className="w-2.5 h-2.5 text-amber-300" />
+                                      <span>Latest Front</span>
+                                    </span>
+                                  )}
+                                  <span className={`px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold uppercase shrink-0 ${
+                                    u.role === 'admin'
+                                      ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
+                                      : u.role === 'doctor'
+                                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                                        : 'bg-sky-500/20 text-sky-300 border border-sky-500/40'
+                                  }`}>
+                                    {u.role}
+                                  </span>
+                                </div>
                               </div>
                               <div className="text-xs text-slate-400 font-mono mt-0.5 truncate flex items-center gap-1">
                                 <Mail className="w-3 h-3 text-slate-500 shrink-0" />
@@ -2107,19 +2279,22 @@ export default function AdminPortalPage() {
                             </div>
                           </div>
 
-                          {/* Details Line */}
-                          <div className="space-y-1.5 text-xs text-slate-400 border-t border-slate-800/60 pt-3">
-                            {u.phone && (
-                              <div className="flex items-center gap-1.5 font-mono">
-                                <Phone className="w-3 h-3 text-slate-500" />
-                                <span>{u.phone}</span>
-                              </div>
-                            )}
-                            <div className="flex items-center justify-between text-[11px]">
-                              <span className="text-slate-500">{u.createdAt}</span>
-                              <span className="font-mono text-purple-300 text-[10px]">{u.badgeNumber}</span>
-                            </div>
+                          {/* Latest Activity Telemetry */}
+                          <div className="px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-between gap-2 text-xs">
+                            <span className="flex items-center gap-1.5 text-purple-300 truncate font-medium text-[11.5px]">
+                              <Clock className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                              <span className="truncate">{u.latestActivityLabel}</span>
+                            </span>
+                            <span className="font-mono text-slate-400 text-[10px] shrink-0">{u.badgeNumber}</span>
                           </div>
+
+                          {/* Details Line */}
+                          {u.phone && (
+                            <div className="flex items-center gap-1.5 font-mono text-xs text-slate-400">
+                              <Phone className="w-3 h-3 text-slate-500" />
+                              <span>{u.phone}</span>
+                            </div>
+                          )}
 
                           {/* Appointments Count & Action Button */}
                           <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-800/60">
