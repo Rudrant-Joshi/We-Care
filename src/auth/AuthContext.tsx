@@ -27,7 +27,7 @@ export interface AuthContextType {
 const STORAGE_KEY = 'wecare_authenticated_user_v1';
 const REGISTERED_ACCOUNTS_KEY = 'wecare_registered_accounts_v1';
 
-interface RegisteredAccount {
+export interface RegisteredAccount {
   id: string;
   name: string;
   email: string;
@@ -62,7 +62,7 @@ async function hashPassword(password: string): Promise<string> {
   return `h_${Math.abs(hash).toString(16)}`;
 }
 
-function getRegisteredAccounts(): RegisteredAccount[] {
+export function getRegisteredAccounts(): RegisteredAccount[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(REGISTERED_ACCOUNTS_KEY);
