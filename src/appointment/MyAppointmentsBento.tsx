@@ -40,7 +40,7 @@ import {
 import { db } from '../lib/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { DEPARTMENT_COLORS } from '../lib/department-colors';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth, getDeletedUserEmails } from '../auth/AuthContext';
 
 /* ==========================================================================
    Animation Presets & Variants
@@ -186,13 +186,26 @@ export function MyAppointmentsBento() {
       unsubscribeFirestore = onSnapshot(collection(db, 'appointments'), (snapshot) => {
         if (!snapshot.empty) {
           const remoteList: StoredAppointment[] = [];
+          const deletedEmails = new Set(getDeletedUserEmails().map((e) => e.toLowerCase().trim()));
           snapshot.forEach((docSnap) => {
             const data = docSnap.data() as StoredAppointment;
-            if (data && data.bookingId && !isMockAppointment(data.bookingId) && !isMockAppointment(docSnap.id)) {
+            const apptEmail = (data?.email || '').toLowerCase().trim();
+            if (
+              data &&
+              data.bookingId &&
+              !isMockAppointment(data.bookingId) &&
+              !isMockAppointment(docSnap.id) &&
+              (!apptEmail || !deletedEmails.has(apptEmail))
+            ) {
               remoteList.push(data);
             }
           });
-          const local = getStoredAppointments().filter((l) => !isMockAppointment(l.bookingId));
+          const local = getStoredAppointments().filter((l) => {
+            if (isMockAppointment(l.bookingId)) return false;
+            const lEmail = (l.email || '').toLowerCase().trim();
+            if (lEmail && deletedEmails.has(lEmail)) return false;
+            return true;
+          });
           const remoteIds = new Set(remoteList.map((r) => r.bookingId));
           const merged = [...remoteList, ...local.filter((l) => !remoteIds.has(l.bookingId))];
           localStorage.setItem('wecare_user_appointments_v2', JSON.stringify(merged));

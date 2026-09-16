@@ -7,7 +7,8 @@
 
 import type { StoredAppointment, AppointmentStatus } from './types';
 import { db } from '../lib/firebase';
-import { collection, doc, setDoc, getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, getDocs, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
+import { getDeletedUserEmails } from '../auth/AuthContext';
 
 const STORAGE_KEY = 'wecare_user_appointments_v2';
 
@@ -99,9 +100,22 @@ export function getStoredAppointments(): StoredAppointment[] {
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
       let changed = false;
-      // Filter out any mock/fake appointments and migrate doctor image paths
+      const deletedEmails = new Set(getDeletedUserEmails().map((e) => e.toLowerCase().trim()));
+
+      // Filter out any mock/fake appointments and appointments of deleted users
       const realAppointments = parsed
-        .filter((appt: StoredAppointment) => appt && appt.bookingId && !isMockAppointment(appt.bookingId))
+        .filter((appt: StoredAppointment) => {
+          if (!appt || !appt.bookingId || isMockAppointment(appt.bookingId)) {
+            changed = true;
+            return false;
+          }
+          const apptEmail = (appt.email || '').toLowerCase().trim();
+          if (apptEmail && deletedEmails.has(apptEmail)) {
+            changed = true;
+            return false;
+          }
+          return true;
+        })
         .map((appt: StoredAppointment) => {
           if (appt.doctorImage && appt.doctorImage.startsWith('/doctors/')) {
             appt.doctorImage = appt.doctorImage.replace(/^\/doctors\//, '/doctor-images/');
@@ -117,7 +131,7 @@ export function getStoredAppointments(): StoredAppointment[] {
       // Always sort descending: latest registered patient comes first
       const sorted = sortAppointmentsDescending(realAppointments);
 
-      // If fake mock items were removed or paths were migrated, update localStorage
+      // If fake mock items or deleted user items were removed or paths were migrated, update localStorage
       if (changed || realAppointments.length !== parsed.length) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
       }
@@ -328,33 +342,75 @@ export function deleteStoredAppointment(bookingId: string): StoredAppointment[] 
   }
 }
 
-export function deleteAppointmentsForUser(email: string, appointmentIds?: string[]): StoredAppointment[] {
+export async function deleteAppointmentsForUser(
+  email: string,
+  appointmentIds?: string[],
+  userId?: string
+): Promise<StoredAppointment[]> {
   if (typeof window === 'undefined') return [];
   try {
     const cleanEmail = (email || '').toLowerCase().trim();
     const idSet = new Set(appointmentIds || []);
     const current = getStoredAppointments();
+
     const toDelete = current.filter(
       (item) =>
         (cleanEmail && (item.email || '').toLowerCase().trim() === cleanEmail) ||
-        idSet.has(item.bookingId)
+        idSet.has(item.bookingId) ||
+        (userId && item.userId === userId)
     );
+
     const remaining = current.filter(
       (item) =>
         (!cleanEmail || (item.email || '').toLowerCase().trim() !== cleanEmail) &&
-        !idSet.has(item.bookingId)
+        !idSet.has(item.bookingId) &&
+        (!userId || item.userId !== userId)
     );
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
     window.dispatchEvent(new Event('wecare_appointments_changed'));
 
-    // Sync deletion to Firebase Firestore for all user's appointments
+    // 1. Delete by bookingId for known local appointments
+    const deletePromises: Promise<void>[] = [];
     toDelete.forEach((appt) => {
-      deleteDoc(doc(db, 'appointments', appt.bookingId)).catch(() => {});
+      deletePromises.push(deleteDoc(doc(db, 'appointments', appt.bookingId)).catch(() => {}));
     });
+    if (appointmentIds) {
+      appointmentIds.forEach((id) => {
+        deletePromises.push(deleteDoc(doc(db, 'appointments', id)).catch(() => {}));
+      });
+    }
 
+    // 2. Query Cloud Firestore for any documents where email matches this user
+    if (cleanEmail) {
+      try {
+        const qEmail = query(collection(db, 'appointments'), where('email', '==', cleanEmail));
+        const emailSnap = await getDocs(qEmail);
+        emailSnap.forEach((docSnap) => {
+          deletePromises.push(deleteDoc(doc(db, 'appointments', docSnap.id)).catch(() => {}));
+        });
+      } catch (err) {
+        console.warn('[Firestore] Delete by email notice:', err);
+      }
+    }
+
+    // 3. Query Cloud Firestore by userId if provided
+    if (userId) {
+      try {
+        const qUser = query(collection(db, 'appointments'), where('userId', '==', userId));
+        const userSnap = await getDocs(qUser);
+        userSnap.forEach((docSnap) => {
+          deletePromises.push(deleteDoc(doc(db, 'appointments', docSnap.id)).catch(() => {}));
+        });
+      } catch (err) {
+        console.warn('[Firestore] Delete by userId notice:', err);
+      }
+    }
+
+    await Promise.allSettled(deletePromises);
     return remaining;
-  } catch {
+  } catch (err) {
+    console.error('[Storage] Failed to delete appointments for user:', err);
     return getStoredAppointments();
   }
 }
@@ -368,13 +424,20 @@ export async function syncAppointmentsFromFirestore(): Promise<StoredAppointment
   try {
     const snap = await getDocs(collection(db, 'appointments'));
     const local = getStoredAppointments();
+    const deletedEmails = new Set(getDeletedUserEmails().map((e) => e.toLowerCase().trim()));
 
     if (!snap.empty) {
       const remoteList: StoredAppointment[] = [];
       for (const d of snap.docs) {
         const data = d.data() as StoredAppointment;
-        // If a mock appointment was previously stored in Firestore, permanently delete it
-        if (isMockAppointment(data.bookingId) || isMockAppointment(d.id)) {
+        const apptEmail = (data?.email || '').toLowerCase().trim();
+
+        // If a mock appointment or deleted user appointment was stored in Firestore, permanently delete it
+        if (
+          isMockAppointment(data?.bookingId) ||
+          isMockAppointment(d.id) ||
+          (apptEmail && deletedEmails.has(apptEmail))
+        ) {
           deleteDoc(doc(db, 'appointments', d.id)).catch(() => {});
           continue;
         }
@@ -384,7 +447,12 @@ export async function syncAppointmentsFromFirestore(): Promise<StoredAppointment
       }
 
       const remoteIds = new Set(remoteList.map((r) => r.bookingId));
-      const cleanLocal = local.filter((l) => !isMockAppointment(l.bookingId));
+      const cleanLocal = local.filter((l) => {
+        if (isMockAppointment(l.bookingId)) return false;
+        const lEmail = (l.email || '').toLowerCase().trim();
+        if (lEmail && deletedEmails.has(lEmail)) return false;
+        return true;
+      });
       const merged = sortAppointmentsDescending([
         ...remoteList,
         ...cleanLocal.filter((l) => !remoteIds.has(l.bookingId)),
@@ -392,9 +460,14 @@ export async function syncAppointmentsFromFirestore(): Promise<StoredAppointment
       localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
       window.dispatchEvent(new Event('wecare_appointments_changed'));
 
-      // Backfill any real local patient bookings to Firestore
+      // Backfill any real local patient bookings to Firestore (strictly excluding deleted users)
       for (const loc of cleanLocal) {
-        if (!remoteIds.has(loc.bookingId) && !isMockAppointment(loc.bookingId)) {
+        const locEmail = (loc.email || '').toLowerCase().trim();
+        if (
+          !remoteIds.has(loc.bookingId) &&
+          !isMockAppointment(loc.bookingId) &&
+          (!locEmail || !deletedEmails.has(locEmail))
+        ) {
           setDoc(doc(db, 'appointments', loc.bookingId), {
             ...loc,
             syncedAt: new Date().toISOString(),
@@ -403,8 +476,15 @@ export async function syncAppointmentsFromFirestore(): Promise<StoredAppointment
       }
       return merged;
     } else if (local.length > 0) {
-      // If Firestore is empty, backfill only real patient appointments into Cloud Firestore
-      const cleanLocal = sortAppointmentsDescending(local.filter((l) => !isMockAppointment(l.bookingId)));
+      // If Firestore is empty, backfill only real patient appointments into Cloud Firestore (excluding deleted users)
+      const cleanLocal = sortAppointmentsDescending(
+        local.filter((l) => {
+          if (isMockAppointment(l.bookingId)) return false;
+          const lEmail = (l.email || '').toLowerCase().trim();
+          if (lEmail && deletedEmails.has(lEmail)) return false;
+          return true;
+        })
+      );
       for (const loc of cleanLocal) {
         setDoc(doc(db, 'appointments', loc.bookingId), {
           ...loc,

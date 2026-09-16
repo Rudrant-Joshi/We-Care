@@ -60,7 +60,7 @@ import {
   getAppointmentCreationTimestamp,
 } from '../appointment/storage';
 import { db } from '../lib/firebase';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 
 // Helper to format when patient registered/booked (pure helper outside component)
 function formatRegistrationTiming(appt: StoredAppointment): string {
@@ -255,15 +255,30 @@ export default function AdminPortalPage() {
         (snapshot) => {
           if (!snapshot.empty) {
             const remoteList: StoredAppointment[] = [];
+            const deletedEmails = new Set(getDeletedUserEmails().map((e) => e.toLowerCase().trim()));
             snapshot.forEach((docSnap) => {
               const data = docSnap.data() as StoredAppointment;
-              if (data && data.bookingId && !isMockAppointment(data.bookingId) && !isMockAppointment(docSnap.id)) {
+              const apptEmail = (data?.email || '').toLowerCase().trim();
+              if (
+                isMockAppointment(data?.bookingId) ||
+                isMockAppointment(docSnap.id) ||
+                (apptEmail && deletedEmails.has(apptEmail))
+              ) {
+                deleteDoc(doc(db, 'appointments', docSnap.id)).catch(() => {});
+                return;
+              }
+              if (data && data.bookingId) {
                 remoteList.push(data);
               }
             });
             const local = getStoredAppointments();
             const remoteIds = new Set(remoteList.map((r) => r.bookingId));
-            const cleanLocal = local.filter((l) => !isMockAppointment(l.bookingId));
+            const cleanLocal = local.filter((l) => {
+              if (isMockAppointment(l.bookingId)) return false;
+              const lEmail = (l.email || '').toLowerCase().trim();
+              if (lEmail && deletedEmails.has(lEmail)) return false;
+              return true;
+            });
             const merged = sortAppointmentsDescending([
               ...remoteList,
               ...cleanLocal.filter((l) => !remoteIds.has(l.bookingId)),
@@ -573,27 +588,29 @@ export default function AdminPortalPage() {
     }
 
     const apptCount = userToDelete.appointments.length;
-    const confirmMessage = `Permanently delete user "${userToDelete.name}" (${userToDelete.email}) and ALL ${apptCount} associated appointment(s)?\n\nThis will purge the user and all their appointments across local storage and Cloud Firestore.`;
+    const confirmMessage = `Permanently delete patient "${userToDelete.name}" (${userToDelete.email}) and ALL ${apptCount} associated appointment(s)?\n\nThis will purge the patient and all their appointments across local storage and Cloud Firestore.`;
 
     if (!window.confirm(confirmMessage)) return;
 
-    // 1. Delete all appointments linked to this user from local storage & Cloud Firestore
-    deleteAppointmentsForUser(
-      userToDelete.email,
-      userToDelete.appointments.map((a) => a.bookingId)
-    );
-
-    // 2. Blacklist / remove user account from registered users
+    // 1. Blacklist / record user account as deleted
     recordDeletedUser(userToDelete.email);
+
+    // 2. Delete all appointments linked to this user from local storage & Cloud Firestore
+    const remaining = await deleteAppointmentsForUser(
+      userToDelete.email,
+      userToDelete.appointments.map((a) => a.bookingId),
+      userToDelete.id
+    );
 
     // 3. Clear selectedUser if this user was currently opened in detail view
     if (selectedUser?.email.toLowerCase().trim() === userToDelete.email.toLowerCase().trim()) {
       setSelectedUser(null);
     }
 
-    // 4. Update state and notify admin
-    refreshAppointments();
-    showToast(`Deleted user "${userToDelete.name}" and ${apptCount} associated appointment(s).`);
+    // 4. Update appointments state synchronously with remaining list
+    setAppointments(remaining);
+    setAuthAccountsRevision((r) => r + 1);
+    showToast(`Deleted patient "${userToDelete.name}" and removed all ${apptCount} associated appointment(s).`);
   };
 
   // Handle Quick Login
