@@ -25,6 +25,11 @@ import {
   Edit3,
   Save,
   RefreshCw,
+  List,
+  LayoutGrid,
+  Table,
+  Mail,
+  Phone,
 } from 'lucide-react';
 
 import { useAuth } from '../auth/AuthContext';
@@ -62,6 +67,36 @@ function formatRegistrationTiming(appt: StoredAppointment): string {
   return `Registered ${new Date(ts).toLocaleDateString([], { month: 'short', day: 'numeric' })}`;
 }
 
+// Helper to parse date into Month, Day, and Weekday
+function parseAdminDate(dateStr?: string) {
+  if (!dateStr) return { month: 'APPT', day: '--', dayOfWeek: 'Date' };
+  try {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const year = parseInt(parts[0], 10);
+      const monthIndex = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const d = new Date(year, monthIndex, day);
+      if (!isNaN(d.getTime())) {
+        return {
+          month: d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+          day: day.toString().padStart(2, '0'),
+          dayOfWeek: d.toLocaleDateString('en-US', { weekday: 'short' }),
+        };
+      }
+    }
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      return {
+        month: d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+        day: d.getDate().toString().padStart(2, '0'),
+        dayOfWeek: d.toLocaleDateString('en-US', { weekday: 'short' }),
+      };
+    }
+  } catch {}
+  return { month: 'APPT', day: '--', dayOfWeek: 'Date' };
+}
+
 export default function AdminPortalPage() {
   const navigate = useNavigate();
   const { currentUser, login, logout } = useAuth();
@@ -83,15 +118,15 @@ export default function AdminPortalPage() {
   const [editingNotes, setEditingNotes] = useState('');
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'list' | 'table'>(() => {
+  const [viewMode, setViewMode] = useState<'list' | 'cards' | 'table'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('wecare_admin_view_mode');
-      if (saved === 'list' || saved === 'table') return saved;
+      if (saved === 'list' || saved === 'cards' || saved === 'table') return saved;
     }
-    return 'table';
+    return 'list';
   });
 
-  const handleSetViewMode = (mode: 'list' | 'table') => {
+  const handleSetViewMode = (mode: 'list' | 'cards' | 'table') => {
     setViewMode(mode);
     try {
       localStorage.setItem('wecare_admin_view_mode', mode);
@@ -816,27 +851,40 @@ export default function AdminPortalPage() {
               </button>
             </div>
 
-            {/* Table View / Simple List Switcher */}
+            {/* View Mode Switcher: List / Cards / Table */}
             <div className="flex items-center bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs shadow-xs">
               <button
                 type="button"
-                onClick={() => handleSetViewMode('table')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  viewMode === 'table' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                onClick={() => handleSetViewMode('list')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  viewMode === 'list' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                 }`}
-                title="Table View (Default)"
+                title="Executive List View (Default)"
               >
-                Table View
+                <List className="w-3.5 h-3.5" />
+                <span>List</span>
               </button>
               <button
                 type="button"
-                onClick={() => handleSetViewMode('list')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  viewMode === 'list' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                onClick={() => handleSetViewMode('cards')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  viewMode === 'cards' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                 }`}
-                title="Simple List View"
+                title="Executive Cards Grid"
               >
-                Simple List
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>Cards</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetViewMode('table')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  viewMode === 'table' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+                title="Dense Data Table"
+              >
+                <Table className="w-3.5 h-3.5" />
+                <span>Table</span>
               </button>
             </div>
           </div>
@@ -1054,81 +1102,314 @@ export default function AdminPortalPage() {
               </table>
             </div>
           </div>
-        ) : (
-          /* SIMPLE & SWEET LIST VIEW */
-          <div className="space-y-3">
-            {filteredAppointments.map((appt, idx) => (
-              <div
-                key={appt.bookingId}
-                className={`rounded-2xl border backdrop-blur-xl p-4 sm:p-5 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-sm ${
-                  sortOrder === 'latest' && idx === 0
-                    ? 'border-purple-500/60 bg-slate-800/80 shadow-lg shadow-purple-500/10'
-                    : 'border-slate-800/90 bg-slate-800/40 hover:bg-slate-800/70 hover:border-purple-500/40'
-                }`}
-              >
-                {/* Left: Patient & Doctor Info */}
-                <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
-                  <div className="size-11 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-sm shrink-0 relative">
-                    {appt.patientName ? appt.patientName.charAt(0).toUpperCase() : 'P'}
-                    {sortOrder === 'latest' && idx === 0 && (
-                      <span className="absolute -top-1 -right-1 size-3 rounded-full bg-emerald-500 border-2 border-slate-900" />
-                    )}
+        ) : viewMode === 'cards' ? (
+          /* EXECUTIVE CARDS GRID VIEW */
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {filteredAppointments.map((appt, idx) => {
+              const dateInfo = parseAdminDate(appt.date);
+              const isLatest = sortOrder === 'latest' && idx === 0;
+
+              return (
+                <div
+                  key={appt.bookingId}
+                  className={`rounded-3xl border transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-lg ${
+                    isLatest
+                      ? 'bg-slate-900/90 border-purple-500/60 shadow-purple-950/20 ring-1 ring-purple-500/40'
+                      : 'bg-slate-900/50 border-slate-800/80 hover:bg-slate-900/80 hover:border-slate-700/90'
+                  }`}
+                >
+                  {/* Card Top: Booking ID, Latest Badge, Status Pill */}
+                  <div className="p-5 pb-4 border-b border-slate-800/70">
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-lg bg-purple-500/15 border border-purple-500/25 font-mono text-xs font-bold text-purple-300">
+                          {appt.bookingId}
+                        </span>
+                        {isLatest && (
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9.5px] font-mono font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            Latest Registered
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Scheduled Time Pill */}
+                      <span className="inline-flex items-center gap-1 text-[11px] font-mono text-purple-300 bg-slate-950/60 px-2 py-1 rounded-lg border border-slate-800">
+                        <Clock className="w-3 h-3 text-purple-400" />
+                        {appt.time}
+                      </span>
+                    </div>
+
+                    {/* Patient Name, Initial, Timing & Contact */}
+                    <div className="flex items-start gap-3.5">
+                      <div className="size-11 rounded-2xl bg-purple-600/20 text-purple-200 border border-purple-500/30 flex items-center justify-center font-bold text-sm shrink-0 shadow-inner">
+                        {appt.patientName ? appt.patientName.charAt(0).toUpperCase() : 'P'}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-extrabold text-white text-base truncate">
+                          {appt.patientName}
+                        </h4>
+                        <div className="flex items-center gap-2 text-[11px] text-purple-300 font-mono mt-0.5">
+                          <span>{formatRegistrationTiming(appt)}</span>
+                          <span className="text-slate-600">&bull;</span>
+                          <span className="text-slate-400 truncate">{appt.insuranceProvider || 'Private Pay'}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-slate-400 mt-2">
+                          <span className="truncate flex items-center gap-1">
+                            <Mail className="w-3 h-3 text-slate-500 shrink-0" />
+                            {appt.email}
+                          </span>
+                          <span className="truncate flex items-center gap-1 font-mono text-[11px]">
+                            <Phone className="w-3 h-3 text-slate-500 shrink-0" />
+                            {appt.phone}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <span className="font-mono text-purple-400 font-bold text-xs">
-                        {appt.bookingId}
-                      </span>
-                      {sortOrder === 'latest' && idx === 0 && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                          Latest Registered
+                  {/* Card Body: Scheduled Date Box, Doctor Info, Reason */}
+                  <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
+                    <div className="space-y-3.5">
+                      {/* Scheduled Date Capsule & Mode */}
+                      <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-500/30 flex flex-col items-center justify-center text-center shrink-0">
+                            <span className="text-[9px] font-mono font-bold text-purple-300 uppercase leading-none">{dateInfo.month}</span>
+                            <span className="text-sm font-extrabold text-white leading-none mt-0.5">{dateInfo.day}</span>
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                              <span>{dateInfo.dayOfWeek}, {appt.date}</span>
+                            </div>
+                            <div className="text-[11px] text-slate-400 font-mono flex items-center gap-1 mt-0.5">
+                              <MapPin className="w-3 h-3 text-slate-500" />
+                              <span className="truncate max-w-[180px]">{appt.location || 'Main Medical Center'}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-bold text-emerald-300">
+                          In-Person
                         </span>
+                      </div>
+
+                      {/* Doctor Profile */}
+                      <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-800/30 border border-slate-800/60">
+                        <img
+                          src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
+                          alt={appt.doctorName}
+                          className="w-10 h-10 rounded-xl object-cover border border-slate-700 bg-slate-800 shrink-0"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            if (!target.dataset.fallback) {
+                              target.dataset.fallback = '1';
+                              target.src = `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`;
+                            }
+                          }}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-xs font-extrabold text-white truncate flex items-center gap-1.5">
+                            <Stethoscope className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                            {appt.doctorName}
+                          </div>
+                          <div className="text-[11px] text-slate-400 truncate mt-0.5">
+                            {appt.departmentName} &bull; {appt.specialty}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Reason for Visit */}
+                      {appt.reason && (
+                        <div className="p-2.5 rounded-xl bg-slate-800/20 border border-slate-800/50 text-xs text-slate-300">
+                          <span className="text-slate-500 font-medium">Chief Complaint:</span>{' '}
+                          <span className="italic">{appt.reason}</span>
+                        </div>
                       )}
-                      <span className="text-white font-extrabold text-sm sm:text-base">
-                        {appt.patientName}
-                      </span>
-                      <span className="text-[11.5px] text-purple-300 font-medium font-mono">
-                        &bull; {formatRegistrationTiming(appt)}
-                      </span>
-                      <span className="text-xs text-slate-400">
-                        &bull; {appt.email} &bull; {appt.phone}
-                      </span>
                     </div>
+                  </div>
 
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300">
-                      <span className="text-white font-semibold flex items-center gap-1.5">
-                        <Stethoscope className="w-3.5 h-3.5 text-purple-400" />
-                        {appt.doctorName}
-                      </span>
-                      <span className="text-slate-500">&bull;</span>
-                      <span className="text-slate-400">{appt.departmentName} ({appt.specialty})</span>
-                    </div>
-
-                    {appt.reason && (
-                      <p className="text-xs text-slate-400 mt-1 line-clamp-1 italic">
-                        <span className="text-slate-500">Reason:</span> {appt.reason}
-                      </p>
+                  {/* Card Footer: Status Action & Dossier */}
+                  <div className="p-4 bg-slate-950/50 border-t border-slate-800/80 flex flex-col gap-2.5">
+                    {/* If pending, quick approve/reject buttons */}
+                    {appt.status === 'pending' && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleApprove(appt.bookingId)}
+                          className="py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                          title="Approve appointment"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Approve</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleReject(appt.bookingId)}
+                          className="py-1.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                          title="Reject appointment"
+                        >
+                          <XCircle className="w-3.5 h-3.5" />
+                          <span>Reject</span>
+                        </button>
+                      </div>
                     )}
+
+                    <div className="flex items-center justify-between gap-2">
+                      <select
+                        value={appt.status}
+                        onChange={(e) => handleStatusChange(appt.bookingId, e.target.value as AppointmentStatus)}
+                        className={`flex-1 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider outline-none border cursor-pointer transition-colors ${
+                          appt.status === 'pending'
+                            ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
+                            : appt.status === 'approved' || appt.status === 'upcoming'
+                              ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                              : appt.status === 'rejected'
+                                ? 'bg-rose-500/15 border-rose-500/40 text-rose-300'
+                                : appt.status === 'completed'
+                                  ? 'bg-blue-500/15 border-blue-500/40 text-blue-300'
+                                  : 'bg-slate-800 border-slate-700 text-slate-400'
+                        }`}
+                      >
+                        <option value="pending" className="bg-slate-900 text-amber-300">Pending</option>
+                        <option value="approved" className="bg-slate-900 text-emerald-300">Approved</option>
+                        <option value="rejected" className="bg-slate-900 text-rose-300">Rejected</option>
+                        <option value="completed" className="bg-slate-900 text-blue-300">Completed</option>
+                        <option value="cancelled" className="bg-slate-900 text-slate-400">Cancelled</option>
+                      </select>
+
+                      <button
+                        type="button"
+                        onClick={() => handleOpenDossier(appt)}
+                        className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+                        title="Open Patient Clinical Dossier"
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>Dossier</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(appt.bookingId)}
+                        className="p-1.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer"
+                        title="Delete Record"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        ) : (
+          /* EXECUTIVE CLINICAL LIST VIEW */
+          <div className="space-y-3">
+            {filteredAppointments.map((appt, idx) => {
+              const dateInfo = parseAdminDate(appt.date);
+              const isLatest = sortOrder === 'latest' && idx === 0;
 
-                {/* Right: Date, Time, Status Dropdown & Actions */}
-                <div className="flex flex-wrap sm:flex-nowrap items-center justify-between lg:justify-end gap-3 sm:gap-4 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-700/60">
-                  <div className="space-y-0.5 text-xs text-slate-300 font-mono">
-                    <div className="flex items-center gap-1.5 font-bold text-white">
-                      <Calendar className="w-3.5 h-3.5 text-blue-400" />
-                      <span>{appt.date}</span>
+              return (
+                <div
+                  key={appt.bookingId}
+                  className={`rounded-2xl border backdrop-blur-xl p-4 sm:p-5 transition-all flex flex-col xl:flex-row xl:items-center justify-between gap-4 shadow-sm ${
+                    isLatest
+                      ? 'border-purple-500/60 bg-slate-900/90 shadow-lg shadow-purple-500/10 ring-1 ring-purple-500/30'
+                      : 'border-slate-800/90 bg-slate-900/50 hover:bg-slate-900/80 hover:border-purple-500/40'
+                  }`}
+                >
+                  {/* Left: Date Capsule + Patient & Doctor Info */}
+                  <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+                    {/* Date Capsule */}
+                    <div className="w-14 h-16 rounded-xl bg-slate-950/70 border border-slate-800 flex flex-col items-center justify-center text-center shrink-0 shadow-inner">
+                      <span className="text-[9px] font-mono font-bold text-purple-300 uppercase leading-none">
+                        {dateInfo.month}
+                      </span>
+                      <span className="text-base font-extrabold text-white leading-none my-1">
+                        {dateInfo.day}
+                      </span>
+                      <span className="text-[9px] text-slate-400 font-medium leading-none">
+                        {dateInfo.dayOfWeek}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-purple-300 text-[11px]">
-                      <Clock className="w-3.5 h-3.5 text-blue-400" />
-                      <span>{appt.time}</span>
+
+                    {/* Patient Avatar Circle */}
+                    <div className="size-11 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-sm shrink-0 relative">
+                      {appt.patientName ? appt.patientName.charAt(0).toUpperCase() : 'P'}
+                      {isLatest && (
+                        <span className="absolute -top-1 -right-1 size-3 rounded-full bg-emerald-500 border-2 border-slate-900" />
+                      )}
+                    </div>
+
+                    {/* Information Cluster */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <span className="font-mono text-purple-400 font-bold text-xs bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
+                          {appt.bookingId}
+                        </span>
+                        {isLatest && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            Latest Registered
+                          </span>
+                        )}
+                        <span className="text-white font-extrabold text-sm sm:text-base">
+                          {appt.patientName}
+                        </span>
+                        <span className="text-[11.5px] text-purple-300 font-medium font-mono">
+                          &bull; {formatRegistrationTiming(appt)}
+                        </span>
+                        <span className="text-xs text-slate-400">
+                          &bull; {appt.email} &bull; <span className="font-mono">{appt.phone}</span>
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-slate-950/60 border border-slate-800 text-[10px] text-slate-300 font-semibold">
+                          {appt.insuranceProvider || 'Private Pay'}
+                        </span>
+                      </div>
+
+                      {/* Doctor & Location Line */}
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300 mt-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <img
+                            src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
+                            alt={appt.doctorName}
+                            className="w-5 h-5 rounded-full object-cover border border-slate-700 bg-slate-800 shrink-0"
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              if (!target.dataset.fallback) {
+                                target.dataset.fallback = '1';
+                                target.src = `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`;
+                              }
+                            }}
+                          />
+                          <span className="text-white font-semibold">
+                            {appt.doctorName}
+                          </span>
+                        </div>
+                        <span className="text-slate-500">&bull;</span>
+                        <span className="text-slate-400">{appt.departmentName} ({appt.specialty})</span>
+                        <span className="text-slate-500">&bull;</span>
+                        <span className="text-purple-300 font-mono text-[11px] flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-purple-400" />
+                          {appt.time}
+                        </span>
+                        <span className="text-slate-500">&bull;</span>
+                        <span className="text-slate-400 flex items-center gap-1 text-[11px]">
+                          <MapPin className="w-3 h-3 text-slate-500" />
+                          {appt.location || 'Main Medical Center'}
+                        </span>
+                      </div>
+
+                      {appt.reason && (
+                        <p className="text-xs text-slate-400 mt-1 line-clamp-1 italic">
+                          <span className="text-slate-500">Reason:</span> {appt.reason}
+                        </p>
+                      )}
                     </div>
                   </div>
 
-                  {/* Quick Status Action & Selector */}
-                  <div className="flex items-center gap-2">
+                  {/* Right: Quick Status Action, Selector & Dossier Button */}
+                  <div className="flex flex-wrap sm:flex-nowrap items-center justify-between xl:justify-end gap-3 sm:gap-4 shrink-0 pt-2 xl:pt-0 border-t xl:border-t-0 border-slate-800/80">
+                    {/* Quick Status Action */}
                     {appt.status === 'pending' && (
                       <div className="flex items-center gap-1.5">
                         <button
@@ -1152,6 +1433,7 @@ export default function AdminPortalPage() {
                       </div>
                     )}
 
+                    {/* Status Select */}
                     <select
                       value={appt.status}
                       onChange={(e) => handleStatusChange(appt.bookingId, e.target.value as AppointmentStatus)}
@@ -1173,31 +1455,31 @@ export default function AdminPortalPage() {
                       <option value="completed" className="bg-slate-900 text-blue-300">Completed</option>
                       <option value="cancelled" className="bg-slate-900 text-slate-400">Cancelled</option>
                     </select>
-                  </div>
 
-                  {/* Actions: Dossier & Delete */}
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenDossier(appt)}
-                      className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1 shadow-sm"
-                      title="Open Patient Clinical Dossier"
-                    >
-                      <FileText className="w-3.5 h-3.5" />
-                      <span>Dossier</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(appt.bookingId)}
-                      className="p-1.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer"
-                      title="Delete Record"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {/* Actions: Dossier & Delete */}
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenDossier(appt)}
+                        className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+                        title="Open Patient Clinical Dossier"
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>Dossier</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(appt.bookingId)}
+                        className="p-1.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer"
+                        title="Delete Record"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
