@@ -95,6 +95,48 @@ function saveRegisteredAccount(acc: RegisteredAccount) {
   }
 }
 
+export function deleteRegisteredAccount(emailOrId: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const clean = emailOrId.toLowerCase().trim();
+    const list = getRegisteredAccounts().filter(
+      (a) => a.id !== emailOrId && a.email.toLowerCase().trim() !== clean
+    );
+    localStorage.setItem(REGISTERED_ACCOUNTS_KEY, JSON.stringify(list));
+    window.dispatchEvent(new Event('wecare_auth_state_changed'));
+  } catch (err) {
+    console.warn('Failed to delete registered account locally:', err);
+  }
+}
+
+const DELETED_USERS_KEY = 'wecare_deleted_users_v1';
+
+export function getDeletedUserEmails(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(DELETED_USERS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function recordDeletedUser(email: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const clean = email.toLowerCase().trim();
+    const deleted = getDeletedUserEmails();
+    if (!deleted.includes(clean)) {
+      deleted.push(clean);
+      localStorage.setItem(DELETED_USERS_KEY, JSON.stringify(deleted));
+    }
+    deleteRegisteredAccount(clean);
+    window.dispatchEvent(new Event('wecare_auth_state_changed'));
+  } catch (err) {
+    console.warn('Failed to record deleted user:', err);
+  }
+}
+
 export const DEMO_USERS: Record<UserRole, User> = {
   patient: {
     id: 'usr-pat-001',

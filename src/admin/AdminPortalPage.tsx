@@ -36,7 +36,13 @@ import {
   Zap,
 } from 'lucide-react';
 
-import { useAuth, DEMO_USERS, getRegisteredAccounts } from '../auth/AuthContext';
+import {
+  useAuth,
+  DEMO_USERS,
+  getRegisteredAccounts,
+  recordDeletedUser,
+  getDeletedUserEmails,
+} from '../auth/AuthContext';
 import type { UserRole } from '../auth/types';
 import type { StoredAppointment, AppointmentStatus, VisitType } from '../appointment/types';
 import {
@@ -47,6 +53,7 @@ import {
   updateStoredAppointmentStatus,
   updateStoredAppointmentNotes,
   deleteStoredAppointment,
+  deleteAppointmentsForUser,
   getAppointmentCounts,
   syncAppointmentsFromFirestore,
   isMockAppointment,
@@ -360,10 +367,14 @@ export default function AdminPortalPage() {
   // Compile all system users from demo accounts, registered accounts, and patient bookings
   const allUsers = useMemo<AdminUserAccount[]>(() => {
     const userMap = new Map<string, AdminUserAccount>();
+    const deletedUserEmails = new Set(
+      getDeletedUserEmails().map((e) => e.toLowerCase().trim())
+    );
 
     // 1. Seed demo accounts
     Object.values(DEMO_USERS).forEach((demo) => {
       const email = demo.email.toLowerCase().trim();
+      if (deletedUserEmails.has(email)) return;
       const isAdminUser = demo.role === 'admin' || email === 'rudrant.joshi@gmail.com';
       // Baseline creation timestamp for demo users
       const baselineCreated = isAdminUser
@@ -391,6 +402,7 @@ export default function AdminPortalPage() {
     const registered = getRegisteredAccounts();
     registered.forEach((acc) => {
       const email = acc.email.toLowerCase().trim();
+      if (deletedUserEmails.has(email)) return;
       let createdTs = 0;
       if (acc.createdAt) {
         const parsed = new Date(acc.createdAt).getTime();
@@ -437,7 +449,7 @@ export default function AdminPortalPage() {
     // 3. Map all appointments to user accounts
     appointments.forEach((appt) => {
       const email = (appt.email || '').toLowerCase().trim();
-      if (!email) return;
+      if (!email || deletedUserEmails.has(email)) return;
 
       const apptTs = getAppointmentCreationTimestamp(appt);
 
@@ -553,6 +565,44 @@ export default function AdminPortalPage() {
       setActiveAdminTab('users');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  // Delete User & All Associated Appointments Handler
+  const handleDeleteUser = async (userToDelete: AdminUserAccount, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+
+    if (
+      userToDelete.role === 'admin' ||
+      userToDelete.email.toLowerCase().trim() === 'rudrant.joshi@gmail.com'
+    ) {
+      showToast('Chief Admin root clearance account is protected and cannot be deleted.');
+      return;
+    }
+
+    const apptCount = userToDelete.appointments.length;
+    const confirmMessage = `Permanently delete user "${userToDelete.name}" (${userToDelete.email}) and ALL ${apptCount} associated appointment(s)?\n\nThis will purge the user and all their appointments across local storage and Cloud Firestore.`;
+
+    if (!window.confirm(confirmMessage)) return;
+
+    // 1. Delete all appointments linked to this user from local storage & Cloud Firestore
+    deleteAppointmentsForUser(
+      userToDelete.email,
+      userToDelete.appointments.map((a) => a.bookingId)
+    );
+
+    // 2. Blacklist / remove user account from registered users
+    recordDeletedUser(userToDelete.email);
+
+    // 3. Clear selectedUser if this user was currently opened in detail view
+    if (selectedUser?.email.toLowerCase().trim() === userToDelete.email.toLowerCase().trim()) {
+      setSelectedUser(null);
+    }
+
+    // 4. Update state and notify admin
+    refreshAppointments();
+    showToast(`Deleted user "${userToDelete.name}" and ${apptCount} associated appointment(s).`);
   };
 
   // Handle Quick Login
@@ -1979,6 +2029,17 @@ export default function AdminPortalPage() {
                         <span className="px-2 py-0.5 rounded-md bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 shrink-0">
                           {selectedUser.badgeNumber || selectedUser.id}
                         </span>
+                        {!(selectedUser.role === 'admin' || selectedUser.email.toLowerCase().trim() === 'rudrant.joshi@gmail.com') && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteUser(selectedUser)}
+                            title={`Delete ${selectedUser.name} and all associated appointments`}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold transition-all cursor-pointer active:scale-95 ml-auto sm:ml-2 shadow-sm"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                            <span>Delete User</span>
+                          </button>
+                        )}
                       </div>
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-300">
                         <span className="flex items-center gap-1 truncate max-w-[180px] sm:max-w-none">
@@ -2270,6 +2331,18 @@ export default function AdminPortalPage() {
                                   }`}>
                                     {u.role}
                                   </span>
+
+                                  {/* Smaller dustbin icon beside user */}
+                                  {!(u.role === 'admin' || u.email.toLowerCase().trim() === 'rudrant.joshi@gmail.com') && (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => handleDeleteUser(u, e)}
+                                      title={`Delete user ${u.name} and all appointments`}
+                                      className="p-1 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 active:scale-90 border border-transparent hover:border-rose-500/30 transition-all cursor-pointer"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
                                 </div>
                               </div>
                               <div className="text-xs text-slate-400 font-mono mt-0.5 truncate flex items-center gap-1">
@@ -2309,17 +2382,29 @@ export default function AdminPortalPage() {
                               )}
                             </div>
 
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedUser(u);
-                              }}
-                              className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-colors flex items-center gap-1 cursor-pointer shadow-sm group-hover:shadow-purple-600/30"
-                            >
-                              <span>View Appointments</span>
-                              <ArrowRight className="w-3.5 h-3.5" />
-                            </button>
+                            <div className="flex items-center gap-1.5">
+                              {!(u.role === 'admin' || u.email.toLowerCase().trim() === 'rudrant.joshi@gmail.com') && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleDeleteUser(u, e)}
+                                  title={`Delete user ${u.name} and all appointments`}
+                                  className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 active:scale-95 border border-slate-700/60 hover:border-rose-500/30 transition-all cursor-pointer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedUser(u);
+                                }}
+                                className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-colors flex items-center gap-1 cursor-pointer shadow-sm group-hover:shadow-purple-600/30"
+                              >
+                                <span>View Appointments</span>
+                                <ArrowRight className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       );

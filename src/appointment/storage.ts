@@ -328,6 +328,37 @@ export function deleteStoredAppointment(bookingId: string): StoredAppointment[] 
   }
 }
 
+export function deleteAppointmentsForUser(email: string, appointmentIds?: string[]): StoredAppointment[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const cleanEmail = (email || '').toLowerCase().trim();
+    const idSet = new Set(appointmentIds || []);
+    const current = getStoredAppointments();
+    const toDelete = current.filter(
+      (item) =>
+        (cleanEmail && (item.email || '').toLowerCase().trim() === cleanEmail) ||
+        idSet.has(item.bookingId)
+    );
+    const remaining = current.filter(
+      (item) =>
+        (!cleanEmail || (item.email || '').toLowerCase().trim() !== cleanEmail) &&
+        !idSet.has(item.bookingId)
+    );
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+    window.dispatchEvent(new Event('wecare_appointments_changed'));
+
+    // Sync deletion to Firebase Firestore for all user's appointments
+    toDelete.forEach((appt) => {
+      deleteDoc(doc(db, 'appointments', appt.bookingId)).catch(() => {});
+    });
+
+    return remaining;
+  } catch {
+    return getStoredAppointments();
+  }
+}
+
 /**
  * Real-time or on-demand sync from Cloud Firestore 'appointments' collection.
  * Completely purges and ignores any fake/mock appointments.
