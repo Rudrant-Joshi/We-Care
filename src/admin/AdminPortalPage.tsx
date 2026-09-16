@@ -170,7 +170,6 @@ export default function AdminPortalPage() {
   );
   const [sortOrder, setSortOrder] = useState<'latest' | 'oldest'>('latest');
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled'>('all');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   const [selectedAppointment, setSelectedAppointment] = useState<StoredAppointment | null>(null);
   const [editingNotes, setEditingNotes] = useState('');
@@ -323,10 +322,6 @@ export default function AdminPortalPage() {
   // Filtered & Searched Appointments (Chronologically sorted: latest registered patient appears first)
   const filteredAppointments = useMemo(() => {
     const filtered = appointments.filter((appt) => {
-      // Status Filter
-      if (statusFilter !== 'all' && appt.status !== statusFilter) {
-        return false;
-      }
       // Department Filter
       if (departmentFilter !== 'all' && appt.departmentName.toLowerCase() !== departmentFilter.toLowerCase()) {
         return false;
@@ -352,7 +347,7 @@ export default function AdminPortalPage() {
       const timeB = getAppointmentCreationTimestamp(b);
       return sortOrder === 'latest' ? timeB - timeA : timeA - timeB;
     });
-  }, [appointments, statusFilter, departmentFilter, searchQuery, sortOrder]);
+  }, [appointments, departmentFilter, searchQuery, sortOrder]);
 
   // Split appointments into Pending (requiring triage action) and Done (processed/completed/past)
   const pendingAppointments = useMemo(
@@ -933,10 +928,8 @@ export default function AdminPortalPage() {
                           </div>
                         )}
 
-                        <select
-                          value={appt.status}
-                          onChange={(e) => handleStatusChange(appt.bookingId, e.target.value as AppointmentStatus)}
-                          className={`px-2.5 py-1 rounded-xl text-[11px] font-bold uppercase tracking-wider outline-none border cursor-pointer transition-colors ${
+                        <span
+                          className={`px-2.5 py-1 rounded-xl text-[11px] font-bold uppercase tracking-wider border ${
                             appt.status === 'pending'
                               ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
                               : appt.status === 'approved' || appt.status === 'upcoming'
@@ -948,12 +941,8 @@ export default function AdminPortalPage() {
                                     : 'bg-slate-800 border-slate-700 text-slate-400'
                           }`}
                         >
-                          <option value="pending" className="bg-slate-900 text-amber-300">Pending</option>
-                          <option value="approved" className="bg-slate-900 text-emerald-300">Approved</option>
-                          <option value="rejected" className="bg-slate-900 text-rose-300">Rejected</option>
-                          <option value="completed" className="bg-slate-900 text-blue-300">Completed</option>
-                          <option value="cancelled" className="bg-slate-900 text-slate-400">Cancelled</option>
-                        </select>
+                          {appt.status}
+                        </span>
                       </div>
                     </td>
 
@@ -1150,10 +1139,8 @@ export default function AdminPortalPage() {
                   )}
 
                   <div className="flex items-center justify-between gap-2">
-                    <select
-                      value={appt.status}
-                      onChange={(e) => handleStatusChange(appt.bookingId, e.target.value as AppointmentStatus)}
-                      className={`flex-1 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider outline-none border cursor-pointer transition-colors ${
+                    <span
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border ${
                         appt.status === 'pending'
                           ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
                           : appt.status === 'approved' || appt.status === 'upcoming'
@@ -1165,12 +1152,8 @@ export default function AdminPortalPage() {
                                 : 'bg-slate-800 border-slate-700 text-slate-400'
                       }`}
                     >
-                      <option value="pending" className="bg-slate-900 text-amber-300">Pending</option>
-                      <option value="approved" className="bg-slate-900 text-emerald-300">Approved</option>
-                      <option value="rejected" className="bg-slate-900 text-rose-300">Rejected</option>
-                      <option value="completed" className="bg-slate-900 text-blue-300">Completed</option>
-                      <option value="cancelled" className="bg-slate-900 text-slate-400">Cancelled</option>
-                    </select>
+                      {appt.status}
+                    </span>
 
                     <button
                       type="button"
@@ -1346,10 +1329,8 @@ export default function AdminPortalPage() {
                 )}
 
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end flex-1">
-                  <select
-                    value={appt.status}
-                    onChange={(e) => handleStatusChange(appt.bookingId, e.target.value as AppointmentStatus)}
-                    className={`flex-1 sm:flex-initial h-9 px-3 rounded-xl text-xs font-bold uppercase tracking-wider outline-none border cursor-pointer transition-colors ${
+                  <span
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border ${
                       appt.status === 'pending'
                         ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
                         : appt.status === 'approved' || appt.status === 'upcoming'
@@ -1361,12 +1342,8 @@ export default function AdminPortalPage() {
                               : 'bg-slate-800 border-slate-700 text-slate-400'
                     }`}
                   >
-                    <option value="pending" className="bg-slate-900 text-amber-300">Pending</option>
-                    <option value="approved" className="bg-slate-900 text-emerald-300">Approved</option>
-                    <option value="rejected" className="bg-slate-900 text-rose-300">Rejected</option>
-                    <option value="completed" className="bg-slate-900 text-blue-300">Completed</option>
-                    <option value="cancelled" className="bg-slate-900 text-slate-400">Cancelled</option>
-                  </select>
+                    {appt.status}
+                  </span>
 
                   <button
                     type="button"
@@ -1763,41 +1740,6 @@ export default function AdminPortalPage() {
                 )}
               </div>
 
-              {/* Status Tabs Bar - Horizontally scrollable on mobile */}
-              <div className="overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
-                <div className="flex items-center gap-1 bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs shadow-xs w-max min-w-full">
-                  {(
-                    [
-                      { id: 'all', label: `All (${stats.total})` },
-                      { id: 'pending', label: `Pending (${stats.pending})` },
-                      { id: 'approved', label: `Approved (${stats.approved})` },
-                      { id: 'rejected', label: `Rejected (${stats.rejected})` },
-                      { id: 'completed', label: `Completed (${stats.completed})` },
-                      { id: 'cancelled', label: `Cancelled (${stats.cancelled})` },
-                    ] as const
-                  ).map((tab) => (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => setStatusFilter(tab.id)}
-                      className={`px-3 py-1.5 rounded-xl font-bold uppercase text-[10.5px] transition-all cursor-pointer shrink-0 ${
-                        statusFilter === tab.id
-                          ? tab.id === 'pending'
-                            ? 'bg-amber-500 text-slate-950 shadow-sm'
-                            : tab.id === 'approved'
-                              ? 'bg-emerald-600 text-white shadow-sm'
-                              : tab.id === 'rejected'
-                                ? 'bg-rose-600 text-white shadow-sm'
-                                : 'bg-purple-600 text-white shadow-sm'
-                          : 'text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Controls Toolbar: Department, Sort Order & Layout Switcher */}
               <div className="flex flex-wrap items-center justify-between gap-2.5">
                 {/* Department Filter Dropdown */}
@@ -1894,12 +1836,11 @@ export default function AdminPortalPage() {
                   <span>{sortOrder === 'latest' ? 'Timing: Latest Registered at Front' : 'Timing: Oldest Registered First'}</span>
                 </span>
               </div>
-              {(searchQuery || statusFilter !== 'all' || departmentFilter !== 'all') && (
+              {(searchQuery || departmentFilter !== 'all') && (
                 <button
                   type="button"
                   onClick={() => {
                     setSearchQuery('');
-                    setStatusFilter('all');
                     setDepartmentFilter('all');
                   }}
                   className="text-purple-400 hover:text-purple-300 font-semibold hover:underline cursor-pointer"
@@ -1922,7 +1863,7 @@ export default function AdminPortalPage() {
                     : 'No patient appointment records matched your current query or filter selection.'}
                 </p>
               </div>
-            ) : statusFilter === 'all' ? (
+            ) : (
               /* TWO DISTINCT SECTIONS: PENDING (Action Required) vs ALL PROCESSED APPOINTMENTS */
               <div className="space-y-8">
                 {/* SECTION 1: PENDING APPOINTMENTS */}
@@ -1980,19 +1921,6 @@ export default function AdminPortalPage() {
                     false
                   )}
                 </div>
-              </div>
-            ) : (
-              /* SPECIFIC FILTERED STATUS SECTION */
-              <div className="space-y-3.5">
-                <div className="pb-2 border-b border-slate-800 flex items-center gap-2">
-                  <h3 className="text-base font-bold text-white uppercase tracking-wider font-mono">
-                    {statusFilter} Appointments ({filteredAppointments.length})
-                  </h3>
-                </div>
-                {renderAppointmentsGroup(
-                  filteredAppointments,
-                  `No appointments with status "${statusFilter}" found.`
-                )}
               </div>
             )}
           </div>
