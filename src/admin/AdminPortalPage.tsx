@@ -30,7 +30,6 @@ import {
   Table,
   Mail,
   Phone,
-  ChevronRight,
   ArrowRight,
   User,
   Zap,
@@ -196,7 +195,6 @@ export default function AdminPortalPage() {
   const [activeAdminTab, setActiveAdminTab] = useState<'appointments' | 'users'>('appointments');
   const [selectedUser, setSelectedUser] = useState<AdminUserAccount | null>(null);
   const [userSearchQuery, setUserSearchQuery] = useState('');
-  const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'patient' | 'doctor' | 'admin'>('all');
   const [userSortOrder, setUserSortOrder] = useState<'latest' | 'bookings' | 'name'>('latest');
 
   // Login State for Gate
@@ -366,36 +364,34 @@ export default function AdminPortalPage() {
       getDeletedUserEmails().map((e) => e.toLowerCase().trim())
     );
 
-    // 1. Seed demo accounts
+    // 1. Seed demo accounts (PATIENTS ONLY - no doctors, no admins, no other)
     Object.values(DEMO_USERS).forEach((demo) => {
+      if (demo.role !== 'patient') return;
       const email = demo.email.toLowerCase().trim();
       if (deletedUserEmails.has(email)) return;
-      const isAdminUser = demo.role === 'admin' || email === 'rudrant.joshi@gmail.com';
-      // Baseline creation timestamp for demo users
-      const baselineCreated = isAdminUser
-        ? new Date('2025-01-01T00:00:00Z').getTime()
-        : new Date('2025-06-01T00:00:00Z').getTime();
+      const baselineCreated = new Date('2025-06-01T00:00:00Z').getTime();
 
       userMap.set(email, {
         id: demo.id,
         name: demo.name,
         email: demo.email,
         phone: demo.phone,
-        role: demo.role,
+        role: 'patient',
         avatar: demo.avatar,
         badgeNumber: demo.badgeNumber,
-        createdAt: demo.memberSince ? `Member since ${demo.memberSince}` : 'System Account',
+        createdAt: demo.memberSince ? `Member since ${demo.memberSince}` : 'Patient Client',
         createdAtTimestamp: baselineCreated,
         latestActivityTimestamp: baselineCreated,
-        latestActivityLabel: demo.memberSince ? `Member since ${demo.memberSince}` : 'System Account',
+        latestActivityLabel: demo.memberSince ? `Member since ${demo.memberSince}` : 'Patient Client',
         isRegistered: true,
         appointments: [],
       });
     });
 
-    // 2. Add locally registered user accounts
+    // 2. Add locally registered user accounts (PATIENTS ONLY)
     const registered = getRegisteredAccounts();
     registered.forEach((acc) => {
+      if (acc.role && acc.role !== 'patient') return;
       const email = acc.email.toLowerCase().trim();
       if (deletedUserEmails.has(email)) return;
       let createdTs = 0;
@@ -408,7 +404,7 @@ export default function AdminPortalPage() {
       const existing = userMap.get(email);
       if (existing) {
         existing.name = acc.name || existing.name;
-        existing.role = acc.role || existing.role;
+        existing.role = 'patient';
         existing.isRegistered = true;
         existing.createdAtTimestamp = createdTs;
         if (acc.createdAt) {
@@ -423,7 +419,7 @@ export default function AdminPortalPage() {
           id: acc.id,
           name: acc.name,
           email: acc.email,
-          role: acc.role,
+          role: 'patient',
           badgeNumber: `WC-${acc.id.slice(0, 4).toUpperCase()}-PT`,
           createdAt: acc.createdAt
             ? new Date(acc.createdAt).toLocaleDateString([], {
@@ -431,7 +427,7 @@ export default function AdminPortalPage() {
                 day: 'numeric',
                 year: 'numeric',
               })
-            : 'Registered User',
+            : 'Registered Patient',
           createdAtTimestamp: createdTs,
           latestActivityTimestamp: createdTs,
           latestActivityLabel: formatUserActivityRelative(createdTs, 'account'),
@@ -502,29 +498,29 @@ export default function AdminPortalPage() {
       }
     });
 
-    // Default return: sorted descending by latestActivityTimestamp (latest booking or account creation at the front)
-    return Array.from(userMap.values()).sort((a, b) => {
-      if (b.latestActivityTimestamp !== a.latestActivityTimestamp) {
-        return b.latestActivityTimestamp - a.latestActivityTimestamp;
-      }
-      if (b.appointments.length !== a.appointments.length) {
-        return b.appointments.length - a.appointments.length;
-      }
-      return a.name.localeCompare(b.name);
-    });
+    // Default return: PATIENTS ONLY, sorted descending by latestActivityTimestamp (latest booking or account creation at the front)
+    return Array.from(userMap.values())
+      .filter((u) => u.role === 'patient')
+      .sort((a, b) => {
+        if (b.latestActivityTimestamp !== a.latestActivityTimestamp) {
+          return b.latestActivityTimestamp - a.latestActivityTimestamp;
+        }
+        if (b.appointments.length !== a.appointments.length) {
+          return b.appointments.length - a.appointments.length;
+        }
+        return a.name.localeCompare(b.name);
+      });
   }, [appointments, authAccountsRevision]);
 
-  // Filter and sort users based on role filter, search query, and userSortOrder
+  // Filter and sort patients based on search query and userSortOrder
   const filteredUsers = useMemo(() => {
     const matching = allUsers.filter((u) => {
-      if (userRoleFilter !== 'all' && u.role !== userRoleFilter) return false;
       if (userSearchQuery.trim()) {
         const q = userSearchQuery.toLowerCase().trim();
         return (
           u.name.toLowerCase().includes(q) ||
           u.email.toLowerCase().includes(q) ||
-          (u.phone && u.phone.toLowerCase().includes(q)) ||
-          (u.badgeNumber && u.badgeNumber.toLowerCase().includes(q))
+          (u.phone && u.phone.toLowerCase().includes(q))
         );
       }
       return true;
@@ -545,7 +541,7 @@ export default function AdminPortalPage() {
       }
       return a.name.localeCompare(b.name);
     });
-  }, [allUsers, userRoleFilter, userSearchQuery, userSortOrder]);
+  }, [allUsers, userSearchQuery, userSortOrder]);
 
   // Quick switch from appointment to user profile
   const handleSelectUserByEmail = (email?: string, name?: string) => {
@@ -1618,7 +1614,7 @@ export default function AdminPortalPage() {
               }`}
             >
               <Users className="w-4 h-4 shrink-0" />
-              <span className="truncate">User Accounts</span>
+              <span className="truncate">Patients</span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-white/20 text-white font-bold shrink-0">
                 {allUsers.length}
               </span>
@@ -1632,7 +1628,7 @@ export default function AdminPortalPage() {
               className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/30 text-xs font-semibold cursor-pointer transition-colors shadow-xs w-full sm:w-auto"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Users Directory</span>
+              <span>Back to Patients</span>
             </button>
           )}
         </div>
@@ -1643,7 +1639,7 @@ export default function AdminPortalPage() {
              ================================================================ */
           <div className="space-y-6">
             {/* KPI OVERVIEW METRICS */}
-            <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+            <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {/* Total Appointments */}
               <div className="rounded-2xl bg-slate-800/60 border border-slate-700/80 p-4 backdrop-blur-md">
                 <div className="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
@@ -1683,37 +1679,6 @@ export default function AdminPortalPage() {
                 <div className="text-2xl sm:text-3xl font-black text-rose-400 font-mono">{stats.rejected}</div>
                 <div className="text-[10px] text-rose-300/80 font-mono mt-1">Declined requests</div>
               </div>
-
-              {/* Completed */}
-              <div className="rounded-2xl bg-slate-800/60 border border-slate-700/80 p-4 backdrop-blur-md">
-                <div className="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
-                  <span>Completed</span>
-                  <ShieldCheck className="w-4 h-4 text-blue-400" />
-                </div>
-                <div className="text-2xl sm:text-3xl font-black text-blue-400 font-mono">{stats.completed}</div>
-                <div className="text-[10px] text-slate-400 font-mono mt-1">Care delivered</div>
-              </div>
-
-              {/* Unique Patients */}
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveAdminTab('users');
-                  setUserRoleFilter('patient');
-                }}
-                className="rounded-2xl bg-slate-800/60 border border-indigo-500/40 p-4 backdrop-blur-md hover:bg-slate-800/90 transition-all text-left cursor-pointer group"
-                title="Click to view all patients in directory"
-              >
-                <div className="flex items-center justify-between text-slate-400 group-hover:text-indigo-300 text-xs font-medium mb-1">
-                  <span>Registered Users</span>
-                  <Users className="w-4 h-4 text-indigo-400" />
-                </div>
-                <div className="text-2xl sm:text-3xl font-black text-indigo-400 font-mono">{allUsers.length}</div>
-                <div className="text-[10px] text-slate-400 font-mono mt-1 flex items-center gap-1">
-                  <span>View Users</span>
-                  <ChevronRight className="w-3 h-3" />
-                </div>
-              </button>
             </section>
 
             {/* SEARCH, FILTERS & CONTROLS TOOLBAR */}
@@ -1944,28 +1909,19 @@ export default function AdminPortalPage() {
                     </div>
                     <div className="space-y-1 min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h2 className="text-lg sm:text-2xl font-black text-white truncate max-w-[220px] sm:max-w-none">{selectedUser.name}</h2>
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-mono font-bold uppercase shrink-0 ${
-                          selectedUser.role === 'admin'
-                            ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
-                            : selectedUser.role === 'doctor'
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                              : 'bg-sky-500/20 text-sky-300 border border-sky-500/40'
-                        }`}>
-                          {selectedUser.role === 'admin' ? 'Chief Admin' : selectedUser.role === 'doctor' ? 'Physician' : 'Patient'}
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 shrink-0">
-                          {selectedUser.badgeNumber || selectedUser.id}
+                        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight truncate max-w-[280px] sm:max-w-none">{selectedUser.name}</h2>
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-mono font-bold uppercase shrink-0 bg-sky-500/20 text-sky-300 border border-sky-500/40">
+                          Patient
                         </span>
                         {!(selectedUser.role === 'admin' || selectedUser.email.toLowerCase().trim() === 'rudrant.joshi@gmail.com') && (
                           <button
                             type="button"
                             onClick={() => handleDeleteUser(selectedUser)}
-                            title={`Delete ${selectedUser.name} and all associated appointments`}
+                            title={`Delete patient ${selectedUser.name} and all associated appointments`}
                             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold transition-all cursor-pointer active:scale-95 ml-auto sm:ml-2 shadow-sm"
                           >
                             <Trash2 className="w-3.5 h-3.5 text-rose-400" />
-                            <span>Delete User</span>
+                            <span>Delete Patient</span>
                           </button>
                         )}
                       </div>
@@ -2062,50 +2018,39 @@ export default function AdminPortalPage() {
             ) : (
               /* USER ACCOUNTS DIRECTORY LISTING */
               <div className="space-y-5 sm:space-y-6">
-                {/* USER TELEMETRY OVERVIEW CARDS */}
-                <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
+                {/* PATIENT TELEMETRY OVERVIEW CARDS */}
+                <section className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
                   <div className="rounded-xl sm:rounded-2xl bg-slate-800/60 border border-slate-700/80 p-3 sm:p-4 backdrop-blur-md">
                     <div className="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
-                      <span>Total Accounts</span>
+                      <span>Total Patients</span>
                       <Users className="w-4 h-4 text-purple-400" />
                     </div>
                     <div className="text-xl sm:text-3xl font-black text-white font-mono">{allUsers.length}</div>
-                    <div className="text-[9.5px] sm:text-[10px] text-purple-300 font-mono mt-1">System-wide users</div>
+                    <div className="text-[9.5px] sm:text-[10px] text-purple-300 font-mono mt-1">Verified patient accounts</div>
                   </div>
 
                   <div className="rounded-xl sm:rounded-2xl bg-slate-800/60 border border-sky-500/30 p-3 sm:p-4 backdrop-blur-md">
                     <div className="flex items-center justify-between text-sky-400 text-xs font-medium mb-1">
-                      <span>Patients</span>
+                      <span>Patients with Appointments</span>
                       <User className="w-4 h-4 text-sky-400" />
                     </div>
                     <div className="text-xl sm:text-3xl font-black text-sky-400 font-mono">
-                      {allUsers.filter((u) => u.role === 'patient').length}
+                      {allUsers.filter((u) => u.appointments.length > 0).length}
                     </div>
-                    <div className="text-[9.5px] sm:text-[10px] text-sky-300/80 font-mono mt-1">Registered clients</div>
-                  </div>
-
-                  <div className="rounded-xl sm:rounded-2xl bg-slate-800/60 border border-emerald-500/30 p-3 sm:p-4 backdrop-blur-md">
-                    <div className="flex items-center justify-between text-emerald-400 text-xs font-medium mb-1">
-                      <span>Doctors & Staff</span>
-                      <Stethoscope className="w-4 h-4 text-emerald-400" />
-                    </div>
-                    <div className="text-xl sm:text-3xl font-black text-emerald-400 font-mono">
-                      {allUsers.filter((u) => u.role === 'doctor' || u.role === 'caregiver').length}
-                    </div>
-                    <div className="text-[9.5px] sm:text-[10px] text-emerald-300/80 font-mono mt-1">Clinical specialists</div>
+                    <div className="text-[9.5px] sm:text-[10px] text-sky-300/80 font-mono mt-1">Active consultation records</div>
                   </div>
 
                   <div className="rounded-xl sm:rounded-2xl bg-slate-800/60 border border-purple-500/30 p-3 sm:p-4 backdrop-blur-md">
                     <div className="flex items-center justify-between text-purple-400 text-xs font-medium mb-1">
-                      <span>Patient Bookings</span>
+                      <span>Total Bookings</span>
                       <Calendar className="w-4 h-4 text-purple-400" />
                     </div>
                     <div className="text-xl sm:text-3xl font-black text-purple-400 font-mono">{appointments.length}</div>
-                    <div className="text-[9.5px] sm:text-[10px] text-purple-300 font-mono mt-1">Total consultations</div>
+                    <div className="text-[9.5px] sm:text-[10px] text-purple-300 font-mono mt-1">Cross-patient appointments</div>
                   </div>
                 </section>
 
-                {/* USER SEARCH & ROLE FILTER TOOLBAR */}
+                {/* PATIENT SEARCH & SORTING TOOLBAR */}
                 <section className="rounded-2xl sm:rounded-3xl bg-slate-800/40 border border-slate-700/70 p-3.5 sm:p-5 backdrop-blur-xl flex flex-col gap-3.5">
                   <div className="relative w-full">
                     <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -2113,7 +2058,7 @@ export default function AdminPortalPage() {
                       type="text"
                       value={userSearchQuery}
                       onChange={(e) => setUserSearchQuery(e.target.value)}
-                      placeholder="Search accounts by name, email, phone, or badge ID..."
+                      placeholder="Search patients by name, email, or phone..."
                       className="w-full h-11 pl-10 pr-9 rounded-xl sm:rounded-2xl bg-slate-900/80 border border-slate-700 text-white placeholder:text-slate-500 text-base sm:text-sm font-medium focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all"
                     />
                     {userSearchQuery && (
@@ -2127,28 +2072,15 @@ export default function AdminPortalPage() {
                     )}
                   </div>
 
-                  {/* Role Filters & Sort Order Controls */}
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-1 border-t border-slate-700/50">
-                    {/* Role Filters - Horizontally scrollable on mobile */}
-                    <div className="overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
-                      <div className="flex items-center gap-1.5 bg-slate-900/90 rounded-2xl p-1 border border-slate-700 text-xs w-max min-w-full sm:min-w-0">
-                        {[
-                          { id: 'all', label: `All Users (${allUsers.length})` },
-                          { id: 'patient', label: `Patients (${allUsers.filter((u) => u.role === 'patient').length})` },
-                          { id: 'doctor', label: `Doctors (${allUsers.filter((u) => u.role === 'doctor').length})` },
-                          { id: 'admin', label: `Admins (${allUsers.filter((u) => u.role === 'admin').length})` },
-                        ].map((tab) => (
-                          <button
-                            key={tab.id}
-                            type="button"
-                            onClick={() => setUserRoleFilter(tab.id as any)}
-                            className={`px-3 py-1.5 rounded-xl font-bold uppercase text-[10.5px] transition-all cursor-pointer shrink-0 ${
-                              userRoleFilter === tab.id ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
-                            }`}
-                          >
-                            {tab.label}
-                          </button>
-                        ))}
+                  {/* Directory Status Badge & Sort Order Controls */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-slate-700/50">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-slate-900/90 border border-slate-700 text-xs text-slate-300">
+                        <Users className="w-3.5 h-3.5 text-purple-400" />
+                        <span className="font-bold text-white text-xs">Patients Directory</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">
+                          {filteredUsers.length}
+                        </span>
                       </div>
                     </div>
 
@@ -2198,13 +2130,13 @@ export default function AdminPortalPage() {
                   </div>
                 </section>
 
-                {/* USER ACCOUNTS GRID */}
+                {/* PATIENT ACCOUNTS GRID */}
                 {filteredUsers.length === 0 ? (
                   <div className="rounded-3xl border border-slate-800 bg-slate-800/30 p-8 sm:p-12 text-center flex flex-col items-center justify-center">
                     <Users className="w-10 h-10 sm:w-12 sm:h-12 text-slate-600 mb-3" />
-                    <h3 className="text-base sm:text-lg font-bold text-white mb-1">No Users Found</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-white mb-1">No Patients Found</h3>
                     <p className="text-xs text-slate-400 max-w-sm">
-                      No registered user accounts match your search query or role filter.
+                      No registered patient accounts match your search query.
                     </p>
                   </div>
                 ) : (
@@ -2225,11 +2157,11 @@ export default function AdminPortalPage() {
                         >
                           {/* Card Top: Avatar, Name, Role */}
                           <div className="flex items-start gap-3.5">
-                            <div className="relative size-12 rounded-2xl bg-purple-600/20 text-purple-200 border border-purple-500/30 flex items-center justify-center font-bold text-base shrink-0 group-hover:border-purple-500/60 transition-colors">
+                            <div className="relative size-12 sm:size-13 rounded-2xl bg-purple-600/20 text-purple-200 border-2 border-purple-500/40 flex items-center justify-center font-black text-xl shrink-0 group-hover:border-purple-500/70 shadow-inner transition-colors">
                               {u.avatar ? (
                                 <img src={u.avatar} alt={u.name} className="w-full h-full object-cover rounded-2xl" />
                               ) : (
-                                u.name ? u.name.charAt(0).toUpperCase() : 'U'
+                                u.name ? u.name.charAt(0).toUpperCase() : 'P'
                               )}
                               {isLatestTop && (
                                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
@@ -2240,7 +2172,7 @@ export default function AdminPortalPage() {
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center justify-between gap-2">
-                                <h4 className="font-extrabold text-white text-base truncate group-hover:text-purple-300 transition-colors">
+                                <h4 className="font-black text-white text-lg sm:text-xl tracking-tight truncate group-hover:text-purple-300 transition-colors drop-shadow-xs">
                                   {u.name}
                                 </h4>
                                 <div className="flex items-center gap-1.5 shrink-0">
@@ -2250,27 +2182,19 @@ export default function AdminPortalPage() {
                                       <span>Latest Front</span>
                                     </span>
                                   )}
-                                  <span className={`px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold uppercase shrink-0 ${
-                                    u.role === 'admin'
-                                      ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
-                                      : u.role === 'doctor'
-                                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                                        : 'bg-sky-500/20 text-sky-300 border border-sky-500/40'
-                                  }`}>
-                                    {u.role}
+                                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold uppercase shrink-0 bg-sky-500/20 text-sky-300 border border-sky-500/40">
+                                    Patient
                                   </span>
 
                                   {/* Smaller dustbin icon beside user */}
-                                  {!(u.role === 'admin' || u.email.toLowerCase().trim() === 'rudrant.joshi@gmail.com') && (
-                                    <button
-                                      type="button"
-                                      onClick={(e) => handleDeleteUser(u, e)}
-                                      title={`Delete user ${u.name} and all appointments`}
-                                      className="p-1 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 active:scale-90 border border-transparent hover:border-rose-500/30 transition-all cursor-pointer"
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={(e) => handleDeleteUser(u, e)}
+                                    title={`Delete patient ${u.name} and all appointments`}
+                                    className="p-1 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 active:scale-90 border border-transparent hover:border-rose-500/30 transition-all cursor-pointer"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
                                 </div>
                               </div>
                               <div className="text-xs text-slate-400 font-mono mt-0.5 truncate flex items-center gap-1">
@@ -2281,12 +2205,9 @@ export default function AdminPortalPage() {
                           </div>
 
                           {/* Latest Activity Telemetry */}
-                          <div className="px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-between gap-2 text-xs">
-                            <span className="flex items-center gap-1.5 text-purple-300 truncate font-medium text-[11.5px]">
-                              <Clock className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                              <span className="truncate">{u.latestActivityLabel}</span>
-                            </span>
-                            <span className="font-mono text-slate-400 text-[10px] shrink-0">{u.badgeNumber}</span>
+                          <div className="px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center gap-1.5 text-xs">
+                            <Clock className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                            <span className="text-purple-300 truncate font-semibold text-[11.5px]">{u.latestActivityLabel}</span>
                           </div>
 
                           {/* Details Line */}
