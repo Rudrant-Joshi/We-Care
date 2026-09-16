@@ -444,7 +444,7 @@ export function MusicVideoPinStack({
   };
 
   const handleCardClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
+    e: React.MouseEvent<HTMLElement>,
     href?: string,
     isExternal?: boolean,
   ) => {
@@ -863,25 +863,9 @@ export function MusicVideoPinStack({
             {items.map((item, i) => {
               const media = resolveItemMedia(item);
               const href = media.href;
-              const Tag = href ? "a" : "div";
               const isExternal = Boolean(href?.startsWith("http"));
-              return (
-                <Tag
-                  key={item.id}
-                  {...(href
-                    ? {
-                      href,
-                      target: isExternal ? "_blank" : undefined,
-                      rel: isExternal ? "noopener noreferrer" : undefined,
-                      onClick: (e: React.MouseEvent<HTMLAnchorElement>) =>
-                        handleCardClick(e, href, isExternal),
-                    }
-                    : {})}
-                  className="mvp-item"
-                  data-mv-item
-                  data-index={i + 1}
-                  aria-label={`Explore ${item.title}`}
-                >
+              const cardContent = (
+                <>
                   {media.imageSrc ? (
                     <img
                       src={media.imageSrc}
@@ -895,7 +879,38 @@ export function MusicVideoPinStack({
                     Explore
                   </span>
                   <div className="mvp-overlay" data-mv-overlay />
-                </Tag>
+                </>
+              );
+
+              if (href) {
+                return (
+                  <a
+                    key={item.id}
+                    href={href}
+                    target={isExternal ? "_blank" : undefined}
+                    rel={isExternal ? "noopener noreferrer" : undefined}
+                    onClick={(e) => handleCardClick(e, href, isExternal)}
+                    className="mvp-item"
+                    data-mv-item
+                    data-index={i + 1}
+                    aria-label={`Explore ${item.title}`}
+                  >
+                    {cardContent}
+                  </a>
+                );
+              }
+
+              return (
+                <div
+                  key={item.id}
+                  onClick={(e) => handleCardClick(e, href, isExternal)}
+                  className="mvp-item"
+                  data-mv-item
+                  data-index={i + 1}
+                  aria-label={`Explore ${item.title}`}
+                >
+                  {cardContent}
+                </div>
               );
             })}
           </div>
