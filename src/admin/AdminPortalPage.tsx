@@ -969,10 +969,10 @@ export default function AdminPortalPage() {
                           type="button"
                           onClick={() => handleOpenDossier(appt)}
                           className="inline-flex items-center justify-center gap-1 h-7 px-2.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-400/30 font-semibold text-[11px] whitespace-nowrap transition-colors cursor-pointer"
-                          title="Open Full Patient Intake Dossier"
+                          title="Open Full Patient Clinical Diagnosis & Intake Dossier"
                         >
                           <FileText className="w-3.5 h-3.5" />
-                          <span>Dossier</span>
+                          <span>Diagnose</span>
                         </button>
 
                         <button
@@ -1144,43 +1144,43 @@ export default function AdminPortalPage() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between gap-2">
-                    <span
-                      className={`inline-flex items-center justify-center h-8.5 px-3 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap border ${
-                        appt.status === 'pending'
-                          ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
-                          : appt.status === 'approved' || appt.status === 'upcoming'
-                            ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
-                            : appt.status === 'rejected'
-                              ? 'bg-rose-500/15 border-rose-500/40 text-rose-300'
-                              : appt.status === 'completed'
-                                ? 'bg-blue-500/15 border-blue-500/40 text-blue-300'
-                                : 'bg-slate-800 border-slate-700 text-slate-400'
-                      }`}
-                    >
-                      {appt.status}
-                    </span>
+                  <div className="flex items-center justify-between gap-2 w-full">
+                    <div className="flex items-center gap-2 flex-1 sm:flex-initial">
+                      <span
+                        className={`flex-1 sm:flex-initial inline-flex items-center justify-center h-9 px-3 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap border text-center ${
+                          appt.status === 'pending'
+                            ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
+                            : appt.status === 'approved' || appt.status === 'upcoming'
+                              ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                              : appt.status === 'rejected'
+                                ? 'bg-rose-500/15 border-rose-500/40 text-rose-300'
+                                : appt.status === 'completed'
+                                  ? 'bg-blue-500/15 border-blue-500/40 text-blue-300'
+                                  : 'bg-slate-800 border-slate-700 text-slate-400'
+                        }`}
+                      >
+                        {appt.status}
+                      </span>
 
-                    <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         type="button"
                         onClick={() => handleOpenDossier(appt)}
-                        className="h-8.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs whitespace-nowrap transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5 shadow-sm"
-                        title="Open Patient Clinical Dossier"
+                        className="flex-1 sm:flex-initial h-9 px-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs whitespace-nowrap transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5 shadow-sm"
+                        title="Open Patient Clinical Diagnosis & Intake Dossier"
                       >
                         <FileText className="w-3.5 h-3.5" />
-                        <span>Dossier</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(appt.bookingId)}
-                        className="h-8.5 w-8.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer inline-flex items-center justify-center"
-                        title="Delete Record"
-                      >
-                        <Trash2 className="w-4 h-4" />
+                        <span>Diagnose</span>
                       </button>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(appt.bookingId)}
+                      className="h-9 w-9 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer inline-flex items-center justify-center shrink-0"
+                      title="Delete Record"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1323,31 +1323,33 @@ export default function AdminPortalPage() {
                 )}
 
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end flex-1">
-                  <span
-                    className={`inline-flex items-center justify-center h-9 px-3 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap border ${
-                      appt.status === 'pending'
-                        ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
-                        : appt.status === 'approved' || appt.status === 'upcoming'
-                          ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
-                          : appt.status === 'rejected'
-                            ? 'bg-rose-500/15 border-rose-500/40 text-rose-300'
-                            : appt.status === 'completed'
-                              ? 'bg-blue-500/15 border-blue-500/40 text-blue-300'
-                              : 'bg-slate-800 border-slate-700 text-slate-400'
-                    }`}
-                  >
-                    {appt.status}
-                  </span>
+                  <div className="flex items-center gap-2 flex-1 sm:flex-initial">
+                    <span
+                      className={`flex-1 sm:flex-initial inline-flex items-center justify-center h-9 px-3 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap border text-center ${
+                        appt.status === 'pending'
+                          ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
+                          : appt.status === 'approved' || appt.status === 'upcoming'
+                            ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                            : appt.status === 'rejected'
+                              ? 'bg-rose-500/15 border-rose-500/40 text-rose-300'
+                              : appt.status === 'completed'
+                                ? 'bg-blue-500/15 border-blue-500/40 text-blue-300'
+                                : 'bg-slate-800 border-slate-700 text-slate-400'
+                      }`}
+                    >
+                      {appt.status}
+                    </span>
 
-                  <button
-                    type="button"
-                    onClick={() => handleOpenDossier(appt)}
-                    className="h-9 px-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs whitespace-nowrap transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5 shadow-sm shrink-0"
-                    title="Open Patient Clinical Dossier"
-                  >
-                    <FileText className="w-3.5 h-3.5" />
-                    <span>Dossier</span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenDossier(appt)}
+                      className="flex-1 sm:flex-initial h-9 px-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs whitespace-nowrap transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5 shadow-sm"
+                      title="Open Patient Clinical Diagnosis & Intake Dossier"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>Diagnose</span>
+                    </button>
+                  </div>
 
                   <button
                     type="button"
@@ -1355,7 +1357,7 @@ export default function AdminPortalPage() {
                     className="h-9 w-9 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/20 inline-flex items-center justify-center transition-colors cursor-pointer shrink-0"
                     title="Delete Record"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -2265,7 +2267,7 @@ export default function AdminPortalPage() {
                     </span>
                   </div>
                   <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5">{selectedAppointment.patientName}</h3>
-                  <p className="text-xs text-slate-400">Clinical Intake & Consultation Dossier</p>
+                  <p className="text-xs text-slate-400">Clinical Diagnosis & Consultation Intake Dossier</p>
                 </div>
 
                 <button
