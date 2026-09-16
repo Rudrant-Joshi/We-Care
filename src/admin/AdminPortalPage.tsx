@@ -822,7 +822,7 @@ export default function AdminPortalPage() {
             <table className="w-full min-w-[760px] text-left text-xs border-collapse">
               <thead>
                 <tr className="border-b border-slate-700/80 bg-slate-900/80 text-slate-400 font-mono text-[11px] uppercase tracking-wider">
-                  <th className="py-3.5 px-4 font-bold">Booking ID & Patient</th>
+                  <th className="py-3.5 px-4 font-bold">Patient</th>
                   <th className="py-3.5 px-4 font-bold">Contact & Insurance</th>
                   <th className="py-3.5 px-4 font-bold">Doctor & Specialty</th>
                   <th className="py-3.5 px-4 font-bold">Scheduled Time</th>
@@ -839,29 +839,32 @@ export default function AdminPortalPage() {
                       sortOrder === 'latest' && idx === 0 ? 'bg-purple-950/20' : ''
                     }`}
                   >
-                    {/* Booking ID & Patient */}
+                    {/* Patient Name Heading */}
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-purple-400 font-bold text-xs">{appt.bookingId}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleSelectUserByEmail(appt.email, appt.patientName)}
+                          className="font-black text-white text-sm sm:text-base hover:text-purple-300 transition-colors text-left cursor-pointer hover:underline block truncate"
+                          title="Click to inspect this user's profile and all their appointments"
+                        >
+                          {appt.patientName}
+                        </button>
                         {sortOrder === 'latest' && idx === 0 && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                            Latest Registered
+                            Latest
                           </span>
                         )}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handleSelectUserByEmail(appt.email, appt.patientName)}
-                        className="font-bold text-white text-sm mt-0.5 hover:text-purple-300 transition-colors text-left cursor-pointer hover:underline block"
-                        title="Click to inspect this user's profile and all their appointments"
-                      >
-                        {appt.patientName}
-                      </button>
                       <div className="flex items-center gap-1.5 text-[10.5px] mt-0.5">
                         <span className="text-purple-300 font-medium font-mono">{formatRegistrationTiming(appt)}</span>
-                        <span className="text-slate-500">&bull;</span>
-                        <span className="text-slate-400 truncate max-w-[140px]">{appt.reason}</span>
+                        {appt.reason && (
+                          <>
+                            <span className="text-slate-500">&bull;</span>
+                            <span className="text-slate-400 truncate max-w-[150px]">{appt.reason}</span>
+                          </>
+                        )}
                       </div>
                     </td>
 
@@ -1007,61 +1010,51 @@ export default function AdminPortalPage() {
                     : 'bg-slate-900/50 border-slate-800/80 hover:bg-slate-900/80 hover:border-slate-700/90'
                 }`}
               >
-                {/* Card Top: Booking ID, Latest Badge, Status Pill */}
-                <div className="p-5 pb-4 border-b border-slate-800/70">
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-1 rounded-lg bg-purple-500/15 border border-purple-500/25 font-mono text-xs font-bold text-purple-300">
-                        {appt.bookingId}
-                      </span>
+                {/* Card Top: Patient Username Heading, Badges, Timing & Contact */}
+                <div className="p-5 pb-4 border-b border-slate-800/70 space-y-2.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <button
+                        type="button"
+                        onClick={() => handleSelectUserByEmail(appt.email, appt.patientName)}
+                        className="text-left cursor-pointer group/uname block truncate"
+                        title="Click to inspect this user's profile and all their appointments"
+                      >
+                        <h3 className="font-black text-white text-lg sm:text-xl tracking-tight truncate group-hover/uname:text-purple-300 transition-colors drop-shadow-sm">
+                          {appt.patientName}
+                        </h3>
+                      </button>
                       {isLatest && (
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9.5px] font-mono font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shrink-0">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                          Latest Registered
+                          Latest
                         </span>
                       )}
                     </div>
 
-                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-purple-300 bg-slate-950/60 px-2 py-1 rounded-lg border border-slate-800">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-purple-300 bg-slate-950/60 px-2.5 py-1 rounded-lg border border-slate-800 shrink-0">
                       <Clock className="w-3 h-3 text-purple-400" />
                       {appt.time}
                     </span>
                   </div>
 
-                  {/* Patient Name, Initial, Timing & Contact */}
-                  <div className="flex items-start gap-3.5">
-                    <button
-                      type="button"
-                      onClick={() => handleSelectUserByEmail(appt.email, appt.patientName)}
-                      className="size-11 rounded-2xl bg-purple-600/20 hover:bg-purple-600/35 text-purple-200 border border-purple-500/30 flex items-center justify-center font-bold text-sm shrink-0 shadow-inner cursor-pointer transition-colors"
-                      title="View user profile"
-                    >
-                      {appt.patientName ? appt.patientName.charAt(0).toUpperCase() : 'P'}
-                    </button>
-                    <div className="min-w-0 flex-1">
-                      <button
-                        type="button"
-                        onClick={() => handleSelectUserByEmail(appt.email, appt.patientName)}
-                        className="font-extrabold text-white text-base truncate hover:text-purple-300 transition-colors text-left cursor-pointer hover:underline block"
-                        title="Click to inspect this user's profile and all their appointments"
-                      >
-                        {appt.patientName}
-                      </button>
-                      <div className="flex items-center gap-2 text-[11px] text-purple-300 font-mono mt-0.5">
-                        <span>{formatRegistrationTiming(appt)}</span>
-                        <span className="text-slate-600">&bull;</span>
-                        <span className="text-slate-400 truncate">{appt.insuranceProvider || 'Private Pay'}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-slate-400 mt-2">
-                        <span className="truncate flex items-center gap-1">
-                          <Mail className="w-3 h-3 text-slate-500 shrink-0" />
-                          {appt.email}
-                        </span>
+                  <div>
+                    <div className="flex items-center gap-2 text-[11px] text-purple-300 font-mono">
+                      <span>{formatRegistrationTiming(appt)}</span>
+                      <span className="text-slate-600">&bull;</span>
+                      <span className="text-slate-400 truncate">{appt.insuranceProvider || 'Private Pay'}</span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400 mt-1.5">
+                      <span className="truncate flex items-center gap-1">
+                        <Mail className="w-3 h-3 text-slate-500 shrink-0" />
+                        {appt.email}
+                      </span>
+                      {appt.phone && (
                         <span className="truncate flex items-center gap-1 font-mono text-[11px]">
                           <Phone className="w-3 h-3 text-slate-500 shrink-0" />
                           {appt.phone}
                         </span>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1228,43 +1221,29 @@ export default function AdminPortalPage() {
                   </span>
                 </div>
 
-                {/* Patient Avatar Circle */}
-                <button
-                  type="button"
-                  onClick={() => handleSelectUserByEmail(appt.email, appt.patientName)}
-                  className="size-9 sm:size-11 rounded-xl bg-purple-600/20 hover:bg-purple-600/35 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-xs sm:text-sm shrink-0 relative cursor-pointer transition-colors"
-                  title="View user profile"
-                >
-                  {appt.patientName ? appt.patientName.charAt(0).toUpperCase() : 'P'}
-                  {isLatest && (
-                    <span className="absolute -top-1 -right-1 size-2.5 sm:size-3 rounded-full bg-emerald-500 border-2 border-slate-900" />
-                  )}
-                </button>
-
-                {/* Information Cluster */}
+                {/* Information Cluster with Username As Heading */}
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
-                    <span className="font-mono text-purple-400 font-bold text-[11px] sm:text-xs bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
-                      {appt.bookingId}
-                    </span>
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <button
+                      type="button"
+                      onClick={() => handleSelectUserByEmail(appt.email, appt.patientName)}
+                      className="text-left cursor-pointer group/name block truncate max-w-[240px] sm:max-w-none"
+                      title="Click to inspect this user's profile and all their appointments"
+                    >
+                      <h3 className="text-white font-black text-base sm:text-lg group-hover/name:text-purple-300 transition-colors truncate drop-shadow-xs">
+                        {appt.patientName}
+                      </h3>
+                    </button>
                     {isLatest && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8.5px] sm:text-[9px] font-mono font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8.5px] sm:text-[9px] font-mono font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                         Latest
                       </span>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => handleSelectUserByEmail(appt.email, appt.patientName)}
-                      className="text-white font-extrabold text-sm sm:text-base hover:text-purple-300 transition-colors text-left cursor-pointer hover:underline truncate max-w-[200px] sm:max-w-none"
-                      title="Click to inspect this user's profile and all their appointments"
-                    >
-                      {appt.patientName}
-                    </button>
-                    <span className="text-[11px] sm:text-[11.5px] text-purple-300 font-medium font-mono">
+                    <span className="text-[11px] sm:text-[11.5px] text-purple-300 font-medium font-mono shrink-0">
                       &bull; {formatRegistrationTiming(appt)}
                     </span>
-                    <span className="text-[11px] sm:text-xs text-slate-400 truncate max-w-[160px] sm:max-w-none">
+                    <span className="text-[11px] sm:text-xs text-slate-400 truncate max-w-[180px] sm:max-w-none">
                       &bull; {appt.email}
                     </span>
                     {appt.phone && (
@@ -1917,52 +1896,45 @@ export default function AdminPortalPage() {
               /* DEDICATED SELECTED USER PROFILE & ALL THEIR APPOINTMENTS */
               <div className="space-y-6">
                 {/* User Identity Banner Card */}
-                <div className="p-4 sm:p-7 rounded-2xl sm:rounded-3xl bg-slate-900/90 border border-purple-500/40 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-5">
-                  <div className="flex items-start sm:items-center gap-3.5 sm:gap-4 min-w-0">
-                    <div className="size-13 sm:size-16 rounded-xl sm:rounded-2xl bg-purple-600/25 text-purple-200 border-2 border-purple-500/40 flex items-center justify-center font-extrabold text-xl sm:text-2xl shrink-0 shadow-inner">
-                      {selectedUser.avatar ? (
-                        <img src={selectedUser.avatar} alt={selectedUser.name} className="w-full h-full object-cover rounded-xl sm:rounded-2xl" />
-                      ) : (
-                        selectedUser.name ? selectedUser.name.charAt(0).toUpperCase() : 'U'
+                <div className="p-5 sm:p-7 rounded-2xl sm:rounded-3xl bg-slate-900/90 border border-purple-500/40 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-5">
+                  <div className="space-y-1.5 min-w-0 flex-1">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight truncate max-w-[340px] sm:max-w-none drop-shadow-sm">
+                        {selectedUser.name}
+                      </h2>
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-mono font-bold uppercase shrink-0 bg-sky-500/20 text-sky-300 border border-sky-500/40">
+                        Patient
+                      </span>
+                      {!(selectedUser.role === 'admin' || selectedUser.email.toLowerCase().trim() === 'rudrant.joshi@gmail.com') && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteUser(selectedUser)}
+                          title={`Delete patient ${selectedUser.name} and all associated appointments`}
+                          className="inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold whitespace-nowrap transition-all cursor-pointer active:scale-95 ml-auto sm:ml-2 shadow-sm"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                          <span>Delete Patient</span>
+                        </button>
                       )}
                     </div>
-                    <div className="space-y-1 min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight truncate max-w-[280px] sm:max-w-none">{selectedUser.name}</h2>
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[10.5px] font-mono font-bold uppercase shrink-0 bg-sky-500/20 text-sky-300 border border-sky-500/40">
-                          Patient
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-300">
+                      <span className="flex items-center gap-1 truncate max-w-[200px] sm:max-w-none">
+                        <Mail className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                        <span className="truncate">{selectedUser.email}</span>
+                      </span>
+                      {selectedUser.phone && (
+                        <span className="flex items-center gap-1 font-mono">
+                          <Phone className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                          <span>{selectedUser.phone}</span>
                         </span>
-                        {!(selectedUser.role === 'admin' || selectedUser.email.toLowerCase().trim() === 'rudrant.joshi@gmail.com') && (
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteUser(selectedUser)}
-                            title={`Delete patient ${selectedUser.name} and all associated appointments`}
-                            className="inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold whitespace-nowrap transition-all cursor-pointer active:scale-95 ml-auto sm:ml-2 shadow-sm"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 text-rose-400" />
-                            <span>Delete Patient</span>
-                          </button>
-                        )}
-                      </div>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-300">
-                        <span className="flex items-center gap-1 truncate max-w-[180px] sm:max-w-none">
-                          <Mail className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                          <span className="truncate">{selectedUser.email}</span>
-                        </span>
-                        {selectedUser.phone && (
-                          <span className="flex items-center gap-1 font-mono">
-                            <Phone className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                            <span>{selectedUser.phone}</span>
-                          </span>
-                        )}
-                        <span className="text-slate-500 hidden sm:inline">&bull;</span>
-                        <span className="text-slate-400 text-[11px] sm:text-xs">{selectedUser.createdAt}</span>
-                        <span className="text-slate-500 hidden sm:inline">&bull;</span>
-                        <span className="inline-flex items-center gap-1 text-purple-300 font-semibold text-[11px] sm:text-xs">
-                          <Clock className="w-3 h-3 text-purple-400 shrink-0" />
-                          <span>{selectedUser.latestActivityLabel}</span>
-                        </span>
-                      </div>
+                      )}
+                      <span className="text-slate-500 hidden sm:inline">&bull;</span>
+                      <span className="text-slate-400 text-[11px] sm:text-xs">{selectedUser.createdAt}</span>
+                      <span className="text-slate-500 hidden sm:inline">&bull;</span>
+                      <span className="inline-flex items-center gap-1 text-purple-300 font-semibold text-[11px] sm:text-xs">
+                        <Clock className="w-3 h-3 text-purple-400 shrink-0" />
+                        <span>{selectedUser.latestActivityLabel}</span>
+                      </span>
                     </div>
                   </div>
 
@@ -2174,52 +2146,37 @@ export default function AdminPortalPage() {
                               : 'border-slate-800/80 hover:border-purple-500/50 hover:shadow-purple-950/20'
                           }`}
                         >
-                          {/* Card Top: Avatar, Name, Role */}
-                          <div className="flex items-start gap-3.5">
-                            <div className="relative size-12 sm:size-13 rounded-2xl bg-purple-600/20 text-purple-200 border-2 border-purple-500/40 flex items-center justify-center font-black text-xl shrink-0 group-hover:border-purple-500/70 shadow-inner transition-colors">
-                              {u.avatar ? (
-                                <img src={u.avatar} alt={u.name} className="w-full h-full object-cover rounded-2xl" />
-                              ) : (
-                                u.name ? u.name.charAt(0).toUpperCase() : 'P'
-                              )}
-                              {isLatestTop && (
-                                <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-slate-900"></span>
-                                </span>
-                              )}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center justify-between gap-2">
-                                <h4 className="font-black text-white text-lg sm:text-xl tracking-tight truncate group-hover:text-purple-300 transition-colors drop-shadow-xs">
-                                  {u.name}
-                                </h4>
-                                <div className="flex items-center gap-1.5 shrink-0">
-                                  {isLatestTop && (
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm">
-                                      <Zap className="w-2.5 h-2.5 text-amber-300" />
-                                      <span>Latest Front</span>
-                                    </span>
-                                  )}
-                                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold uppercase shrink-0 bg-sky-500/20 text-sky-300 border border-sky-500/40">
-                                    Patient
+                          {/* Card Top: Patient Username Heading, Badges, Trash & Contact */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between gap-2.5">
+                              <h3 className="font-black text-white text-xl sm:text-2xl tracking-tight truncate group-hover:text-purple-300 transition-colors drop-shadow-sm">
+                                {u.name}
+                              </h3>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                {isLatestTop && (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm">
+                                    <Zap className="w-2.5 h-2.5 text-amber-300" />
+                                    <span>Latest Front</span>
                                   </span>
+                                )}
+                                <span className="px-2.5 py-0.5 rounded-full text-[9.5px] font-mono font-bold uppercase shrink-0 bg-sky-500/20 text-sky-300 border border-sky-500/40">
+                                  Patient
+                                </span>
 
-                                  {/* Smaller dustbin icon beside user */}
-                                  <button
-                                    type="button"
-                                    onClick={(e) => handleDeleteUser(u, e)}
-                                    title={`Delete patient ${u.name} and all appointments`}
-                                    className="p-1 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 active:scale-90 border border-transparent hover:border-rose-500/30 transition-all cursor-pointer"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
+                                {/* Smaller dustbin icon beside user */}
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleDeleteUser(u, e)}
+                                  title={`Delete patient ${u.name} and all appointments`}
+                                  className="p-1 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 active:scale-90 border border-transparent hover:border-rose-500/30 transition-all cursor-pointer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
                               </div>
-                              <div className="text-xs text-slate-400 font-mono mt-0.5 truncate flex items-center gap-1">
-                                <Mail className="w-3 h-3 text-slate-500 shrink-0" />
-                                <span>{u.email}</span>
-                              </div>
+                            </div>
+                            <div className="text-xs text-slate-400 font-mono truncate flex items-center gap-1.5">
+                              <Mail className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                              <span>{u.email}</span>
                             </div>
                           </div>
 
@@ -2287,9 +2244,6 @@ export default function AdminPortalPage() {
               <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-800">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-purple-400 font-bold">
-                      {selectedAppointment.bookingId}
-                    </span>
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold uppercase ${
                         selectedAppointment.status === 'pending'
@@ -2310,7 +2264,7 @@ export default function AdminPortalPage() {
                           : selectedAppointment.status}
                     </span>
                   </div>
-                  <h3 className="text-xl font-black text-white mt-1">{selectedAppointment.patientName}</h3>
+                  <h3 className="text-xl sm:text-2xl font-black text-white mt-1.5">{selectedAppointment.patientName}</h3>
                   <p className="text-xs text-slate-400">Clinical Intake & Consultation Dossier</p>
                 </div>
 
