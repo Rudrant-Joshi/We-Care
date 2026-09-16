@@ -16,15 +16,12 @@ import {
   X,
   AlertCircle,
   List,
+  LayoutGrid,
   Search,
   ArrowRight,
-  QrCode,
-  Activity,
   Compass,
   Check,
-  Stethoscope,
   Info,
-  RefreshCw,
 } from 'lucide-react';
 
 import type { StoredAppointment } from './types';
@@ -42,7 +39,7 @@ import {
 } from './storage';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
-import { getDepartmentColor, DEPARTMENT_COLORS } from '../lib/department-colors';
+import { DEPARTMENT_COLORS } from '../lib/department-colors';
 import { useAuth } from '../auth/AuthContext';
 
 /* ==========================================================================
@@ -92,10 +89,39 @@ const viewModeTransitionVariants: Variants = {
 };
 
 /* ==========================================================================
+   Date Parsing Helper for Clinical Timeline & Cards
+   ========================================================================== */
+
+function parseAppointmentDateTime(dateStr?: string, timeStr?: string) {
+  if (!dateStr) return { dayOfWeek: 'APT', month: 'CAL', dayNum: '•', time: timeStr || '' };
+
+  const d = new Date(dateStr);
+  if (!isNaN(d.getTime())) {
+    return {
+      dayOfWeek: d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
+      month: d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+      dayNum: String(d.getDate()).padStart(2, '0'),
+      time: timeStr || '',
+    };
+  }
+
+  const parts = dateStr.split(',');
+  if (parts.length >= 2) {
+    const dayOfWeek = (parts[0] || '').trim().slice(0, 3).toUpperCase() || 'APT';
+    const monthDay = parts[1].trim().split(' ');
+    const month = (monthDay[0] || '').slice(0, 3).toUpperCase() || 'CAL';
+    const dayNum = monthDay[1] || '•';
+    return { dayOfWeek, month, dayNum, time: timeStr || '' };
+  }
+
+  return { dayOfWeek: 'APT', month: 'CAL', dayNum: dateStr.slice(0, 5), time: timeStr || '' };
+}
+
+/* ==========================================================================
    Types & View Modes
    ========================================================================== */
 
-type ViewMode = 'passbook' | 'timeline' | 'ledger';
+type ViewMode = 'list' | 'cards';
 type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected' | 'completed';
 
 /* ==========================================================================
@@ -120,7 +146,7 @@ export function MyAppointmentsBento() {
   });
 
   // UI & View state
-  const [viewMode, setViewMode] = useState<ViewMode>('passbook');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [deptFilter, setDeptFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -130,7 +156,6 @@ export function MyAppointmentsBento() {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [directionModalAppt, setDirectionModalAppt] = useState<StoredAppointment | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
 
   // Sync / Load helper
   const loadAppointments = useCallback(() => {
@@ -288,21 +313,6 @@ export function MyAppointmentsBento() {
     setTimeout(() => setNotification(null), 4000);
   };
 
-  const handleManualSync = async () => {
-    setIsSyncing(true);
-    try {
-      const list = await syncAppointmentsFromFirestore();
-      if (list) setAppointments(sortAppointmentsDescending(list));
-      setNotification('Appointments synchronized with hospital cloud.');
-    } catch {
-      setNotification('Refreshed local records.');
-    } finally {
-      setTimeout(() => {
-        setIsSyncing(false);
-        setTimeout(() => setNotification(null), 3000);
-      }, 600);
-    }
-  };
 
   const handleDownloadIcs = (appt: StoredAppointment) => {
     const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:WeCare Specialist Consultation - ${appt.doctorName}\nDESCRIPTION:${appt.specialty} with ${appt.doctorName}. Booking ID: ${appt.bookingId}.\nLOCATION:${appt.location || 'WeCare Medical Tower 4, Suite 800'}\nSTATUS:CONFIRMED\nEND:VEVENT\nEND:VCALENDAR`;
@@ -372,20 +382,6 @@ export function MyAppointmentsBento() {
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3 shrink-0">
             <motion.button
               type="button"
-              whileHover={{ scale: 1.05, y: -2, borderColor: '#a7f3d0', color: '#135940' }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-              disabled={isSyncing}
-              onClick={handleManualSync}
-              className="px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
-              title="Sync latest records from cloud"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 text-[#135940] ${isSyncing ? 'animate-spin' : ''}`} />
-              <span>{isSyncing ? 'Syncing...' : 'Sync Cloud'}</span>
-            </motion.button>
-
-            <motion.button
-              type="button"
               whileHover={{ scale: 1.05, y: -2, boxShadow: '0 14px 28px -4px rgba(19, 89, 64, 0.45)' }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 400, damping: 18 }}
@@ -412,96 +408,96 @@ export function MyAppointmentsBento() {
         {/* Metric 1: Total Consultations */}
         <motion.div
           variants={sectionItemVariants}
-          whileHover={{ y: -4, scale: 1.015 }}
+          whileHover={{ y: -3 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+          className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase text-slate-500">
+            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Total Visits
             </span>
-            <div className="size-7 sm:size-9 rounded-xl bg-emerald-50 text-[#135940] flex items-center justify-center shadow-xs">
-              <CalendarCheck2 className="w-4 h-4" />
+            <div className="size-8 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 flex items-center justify-center">
+              <CalendarCheck2 className="w-4 h-4 text-[#135940]" />
             </div>
           </div>
-          <div className="text-xl sm:text-3xl font-black text-slate-900 tabular-nums">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">
             {stats.total}
           </div>
-          <div className="text-[10px] sm:text-[11px] text-slate-500 mt-1 flex items-center gap-1 truncate">
-            <span className="size-1.5 rounded-full bg-[#135940] animate-pulse shrink-0" />
-            <span className="truncate">Lifetime schedule repository</span>
+          <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5 font-medium truncate">
+            <span className="size-1.5 rounded-full bg-[#135940] shrink-0" />
+            <span className="truncate">Patient schedule repository</span>
           </div>
         </motion.div>
 
         {/* Metric 2: Pending Triage Review */}
         <motion.div
           variants={sectionItemVariants}
-          whileHover={{ y: -4, scale: 1.015 }}
+          whileHover={{ y: -3 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+          className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase text-amber-800">
+            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-amber-700">
               Pending Review
             </span>
-            <div className="size-7 sm:size-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-xs">
+            <div className="size-8 rounded-xl bg-amber-50 border border-amber-100 text-amber-700 flex items-center justify-center">
               <Clock className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-xl sm:text-3xl font-black text-amber-600 tabular-nums">
+          <div className="text-2xl sm:text-3xl font-black text-amber-700 tabular-nums">
             {stats.pending}
           </div>
-          <div className="text-[10px] sm:text-[11px] text-amber-700 mt-1 flex items-center gap-1 font-medium truncate">
+          <div className="text-[11px] text-amber-700 mt-1 flex items-center gap-1.5 font-medium truncate">
             <span className="size-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
-            <span className="truncate">Under hospital triage review</span>
+            <span className="truncate">Clinical triage in progress</span>
           </div>
         </motion.div>
 
         {/* Metric 3: Approved & Confirmed Passes */}
         <motion.div
           variants={sectionItemVariants}
-          whileHover={{ y: -4, scale: 1.015 }}
+          whileHover={{ y: -3 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+          className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase text-emerald-800">
+            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-emerald-800">
               Active Passes
             </span>
-            <div className="size-7 sm:size-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-xs">
+            <div className="size-8 rounded-xl bg-emerald-50 border border-emerald-100 text-[#135940] flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-xl sm:text-3xl font-black text-emerald-600 tabular-nums">
+          <div className="text-2xl sm:text-3xl font-black text-emerald-800 tabular-nums">
             {stats.approved}
           </div>
-          <div className="text-[10px] sm:text-[11px] text-emerald-700 mt-1 flex items-center gap-1 font-medium truncate">
+          <div className="text-[11px] text-emerald-700 mt-1 flex items-center gap-1.5 font-medium truncate">
             <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            <span className="truncate">Suites allocated & confirmed</span>
+            <span className="truncate">Confirmed clinical admissions</span>
           </div>
         </motion.div>
 
         {/* Metric 4: Completed Consultations */}
         <motion.div
           variants={sectionItemVariants}
-          whileHover={{ y: -4, scale: 1.015 }}
+          whileHover={{ y: -3 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+          className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase text-slate-500">
+            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Completed Care
             </span>
-            <div className="size-7 sm:size-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-xs">
-              <Activity className="w-4 h-4" />
+            <div className="size-8 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 flex items-center justify-center">
+              <Check className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-xl sm:text-3xl font-black text-indigo-600 tabular-nums">
+          <div className="text-2xl sm:text-3xl font-black text-slate-800 tabular-nums">
             {stats.completed}
           </div>
-          <div className="text-[10px] sm:text-[11px] text-slate-500 mt-1 flex items-center gap-1 truncate">
-            <span className="size-1.5 rounded-full bg-indigo-500 shrink-0" />
-            <span className="truncate">Consultation notes archived</span>
+          <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5 truncate">
+            <span className="size-1.5 rounded-full bg-slate-400 shrink-0" />
+            <span className="truncate">Consultations archived</span>
           </div>
         </motion.div>
       </div>
@@ -554,61 +550,19 @@ export function MyAppointmentsBento() {
             <span>{sortOrder === 'latest' ? 'Newest First' : 'Earliest First'}</span>
           </motion.button>
 
-          {/* View Mode Switcher: Passbook vs Timeline vs Ledger */}
+          {/* View Mode Switcher: List vs Cards */}
           <div className="flex items-center bg-slate-100 rounded-2xl p-1 border border-slate-200 text-xs w-full lg:w-auto shrink-0 justify-between sm:justify-start">
             <motion.button
               type="button"
-              whileHover={{ scale: 1.06, y: -1 }}
-              whileTap={{ scale: 0.94 }}
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-              onClick={() => setViewMode('passbook')}
+              onClick={() => setViewMode('list')}
               className={`flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer select-none ${
-                viewMode === 'passbook' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
+                viewMode === 'list' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              {viewMode === 'passbook' && (
-                <motion.div
-                  layoutId="active-view-pill"
-                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#135940] to-[#1b7454] shadow-md shadow-[#135940]/25"
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                />
-              )}
-              <QrCode className="w-3.5 h-3.5 relative z-10" />
-              <span className="relative z-10">Passbook</span>
-            </motion.button>
-
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.06, y: -1 }}
-              whileTap={{ scale: 0.94 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-              onClick={() => setViewMode('timeline')}
-              className={`flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer select-none ${
-                viewMode === 'timeline' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {viewMode === 'timeline' && (
-                <motion.div
-                  layoutId="active-view-pill"
-                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#135940] to-[#1b7454] shadow-md shadow-[#135940]/25"
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                />
-              )}
-              <Activity className="w-3.5 h-3.5 relative z-10" />
-              <span className="relative z-10">Timeline</span>
-            </motion.button>
-
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.06, y: -1 }}
-              whileTap={{ scale: 0.94 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-              onClick={() => setViewMode('ledger')}
-              className={`flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer select-none ${
-                viewMode === 'ledger' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {viewMode === 'ledger' && (
+              {viewMode === 'list' && (
                 <motion.div
                   layoutId="active-view-pill"
                   className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#135940] to-[#1b7454] shadow-md shadow-[#135940]/25"
@@ -616,7 +570,28 @@ export function MyAppointmentsBento() {
                 />
               )}
               <List className="w-3.5 h-3.5 relative z-10" />
-              <span className="relative z-10">Ledger</span>
+              <span className="relative z-10">List</span>
+            </motion.button>
+
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+              onClick={() => setViewMode('cards')}
+              className={`flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer select-none ${
+                viewMode === 'cards' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {viewMode === 'cards' && (
+                <motion.div
+                  layoutId="active-view-pill"
+                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#135940] to-[#1b7454] shadow-md shadow-[#135940]/25"
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                />
+              )}
+              <LayoutGrid className="w-3.5 h-3.5 relative z-10" />
+              <span className="relative z-10">Cards</span>
             </motion.button>
           </div>
         </div>
@@ -744,20 +719,249 @@ export function MyAppointmentsBento() {
               </motion.button>
             </div>
           </motion.div>
-        ) : viewMode === 'passbook' ? (
+        ) : viewMode === 'list' ? (
           /* ================================================================
-             VIEW 1: LUXURY MEDICAL BOARDING PASSBOOK (Default)
+             VIEW 1: MODERN EXECUTIVE CLINICAL LIST (Default)
              ================================================================ */
           <motion.div
-            key={`view-passbook-${statusFilter}-${deptFilter}`}
+            key={`view-list-${statusFilter}-${deptFilter}`}
             variants={viewModeTransitionVariants}
             initial="initial"
             animate="animate"
             exit="exit"
-            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch"
+            className="space-y-3"
           >
             {filteredAppointments.map((appt, idx) => {
-              const deptColor = getDepartmentColor(appt.departmentId);
+              const isPending = appt.status === 'pending';
+              const isApproved = appt.status === 'approved' || appt.status === 'upcoming';
+              const isRejected = appt.status === 'rejected';
+              const isCompleted = appt.status === 'completed';
+              const dt = parseAppointmentDateTime(appt.date, appt.time);
+
+              return (
+                <motion.div
+                  key={appt.bookingId}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.03, duration: 0.25 }}
+                  whileHover={{ y: -2 }}
+                  className="group relative p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 hover:shadow-md transition-all duration-200 flex flex-col xl:flex-row xl:items-center justify-between gap-4"
+                >
+                  {/* Left: Date Capsule + Doctor & Clinical Info */}
+                  <div className="flex items-start sm:items-center gap-3.5 sm:gap-5 flex-1 min-w-0">
+                    
+                    {/* Calendar Date Pill */}
+                    <div className="size-16 sm:size-18 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col items-center justify-center shrink-0 text-center font-mono select-none">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider leading-none">
+                        {dt.month}
+                      </span>
+                      <span className="text-xl sm:text-2xl font-black text-slate-900 leading-tight my-0.5">
+                        {dt.dayNum}
+                      </span>
+                      <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider leading-none">
+                        {dt.dayOfWeek}
+                      </span>
+                    </div>
+
+                    {/* Doctor Avatar */}
+                    <div className="relative size-12 sm:size-14 rounded-2xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200 shadow-2xs">
+                      <img
+                        src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
+                        alt={appt.doctorName}
+                        className="w-full h-full object-cover object-[center_25%]"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          if (!target.dataset.fallback) {
+                            target.dataset.fallback = '1';
+                            target.src = `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`;
+                          }
+                        }}
+                      />
+                    </div>
+
+                    {/* Doctor & Appointment Details */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                          {appt.doctorName}
+                        </h4>
+                        <span className="px-2 py-0.5 rounded-md text-[10.5px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200/80">
+                          {appt.departmentName}
+                        </span>
+                        <span className="text-xs font-mono text-slate-400 font-medium">
+                          #{appt.bookingId}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-slate-500">
+                        <span className="flex items-center gap-1 font-semibold text-slate-800">
+                          <Clock className="w-3.5 h-3.5 text-[#135940]" />
+                          <span>{appt.time}</span>
+                        </span>
+                        <span className="text-slate-300">•</span>
+                        <span className="text-slate-600 font-medium">
+                          {appt.specialty}
+                        </span>
+                        <span className="text-slate-300">•</span>
+                        <span className="flex items-center gap-1 text-slate-500">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span>{appt.location || 'Medical Tower 4, Suite 800'}</span>
+                        </span>
+                      </div>
+
+                      {appt.reason && (
+                        <p className="text-[11.5px] text-slate-500 mt-1 line-clamp-1 italic">
+                          &ldquo;{appt.reason}&rdquo;
+                        </p>
+                      )}
+
+                      {isRejected && appt.rejectionReason && (
+                        <div className="mt-1.5 p-2 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-1.5">
+                          <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                          <span>Clinic note: {appt.rejectionReason}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right: Status Pill & Action Buttons */}
+                  <div className="flex flex-wrap sm:flex-nowrap items-center justify-between xl:justify-end gap-3 pt-3 xl:pt-0 border-t xl:border-t-0 border-slate-100 shrink-0">
+                    
+                    {/* Status Badge */}
+                    <div className="shrink-0">
+                      {isPending && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                          <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
+                          Pending Review
+                        </span>
+                      )}
+                      {isApproved && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                          <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          Confirmed Pass
+                        </span>
+                      )}
+                      {isRejected && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200">
+                          <X className="w-3 h-3 text-rose-600" />
+                          Declined
+                        </span>
+                      )}
+                      {isCompleted && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                          <Check className="w-3 h-3 text-slate-500" />
+                          Completed
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-2">
+                      {isAdmin && isPending && (
+                        <>
+                          <motion.button
+                            type="button"
+                            whileHover={{ scale: 1.04 }}
+                            whileTap={{ scale: 0.96 }}
+                            onClick={() => handleApprove(appt.bookingId)}
+                            className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Approve</span>
+                          </motion.button>
+                          <motion.button
+                            type="button"
+                            whileHover={{ scale: 1.04 }}
+                            whileTap={{ scale: 0.96 }}
+                            onClick={() => handleReject(appt.bookingId)}
+                            className="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                            <span>Reject</span>
+                          </motion.button>
+                        </>
+                      )}
+
+                      <motion.button
+                        type="button"
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => setDirectionModalAppt(appt)}
+                        className="px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                        title="Hospital directions"
+                      >
+                        <Compass className="w-3.5 h-3.5 text-[#135940]" />
+                        <span className="hidden sm:inline">Directions</span>
+                      </motion.button>
+
+                      <motion.button
+                        type="button"
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => handleDownloadIcs(appt)}
+                        className="px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                        title="Add to Calendar (.ICS)"
+                      >
+                        <Download className="w-3.5 h-3.5 text-[#135940]" />
+                        <span className="hidden sm:inline">Calendar</span>
+                      </motion.button>
+
+                      {/* Cancel or Delete Action */}
+                      {cancellingId === appt.bookingId ? (
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleConfirmCancel(appt.bookingId)}
+                            className="px-2.5 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold cursor-pointer hover:bg-rose-700"
+                          >
+                            Confirm
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCancellingId(null)}
+                            className="px-2 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium cursor-pointer hover:bg-slate-200"
+                          >
+                            No
+                          </button>
+                        </div>
+                      ) : isPending || isApproved ? (
+                        <button
+                          type="button"
+                          onClick={() => setCancellingId(appt.bookingId)}
+                          className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                          title="Cancel Appointment"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(appt.bookingId)}
+                          className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                          title="Remove Record"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        ) : (
+          /* ================================================================
+             VIEW 2: MINIMALIST ARCHITECTURAL CARDS
+             ================================================================ */
+          <motion.div
+            key={`view-cards-${statusFilter}-${deptFilter}`}
+            variants={viewModeTransitionVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
+          >
+            {filteredAppointments.map((appt, idx) => {
               const isPending = appt.status === 'pending';
               const isApproved = appt.status === 'approved' || appt.status === 'upcoming';
               const isRejected = appt.status === 'rejected';
@@ -766,472 +970,164 @@ export function MyAppointmentsBento() {
               return (
                 <motion.div
                   key={appt.bookingId}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.05 }}
-                  transition={{ delay: (idx % 3) * 0.04, duration: 0.35 }}
-                  whileHover={{ y: -5 }}
-                  className="group relative w-full flex flex-col justify-between rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all duration-300 overflow-hidden"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: (idx % 3) * 0.04, duration: 0.25 }}
+                  whileHover={{ y: -3 }}
+                  className="p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4"
                 >
-                  {/* Top Colored Signature Strip */}
-                  <div
-                    className="h-2 w-full"
-                    style={{
-                      background: `linear-gradient(90deg, ${deptColor.gradientFrom}, ${deptColor.gradientTo})`,
-                    }}
-                  />
-
-                  {/* Main Pass Container */}
-                  <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-5">
-                      {/* Pass Header: Department, Booking ID, Status Badge */}
-                      <div>
-                        <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100/90 mb-3.5">
-                          <span
-                            className="px-2.5 py-0.5 rounded-md text-[10.5px] font-mono font-bold uppercase tracking-wider text-white shadow-2xs"
-                            style={{
-                              background: `linear-gradient(135deg, ${deptColor.gradientFrom}, ${deptColor.gradientTo})`,
-                            }}
-                          >
-                            {appt.departmentName}
-                          </span>
-
-                          {isPending && (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-amber-50 text-amber-800 border border-amber-300">
-                              <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
-                              Pending Review
-                            </span>
-                          )}
-                          {isApproved && (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-emerald-50 text-emerald-800 border border-emerald-300">
-                              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                              Confirmed Pass
-                            </span>
-                          )}
-                          {isRejected && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-rose-50 text-rose-800 border border-rose-200">
-                              <X className="w-3 h-3 text-rose-600" />
-                              Rejected
-                            </span>
-                          )}
-                          {isCompleted && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-slate-100 text-slate-800 border border-slate-200">
-                              Completed
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Doctor Profile Header with Hover Spring Zoom */}
-                        <div className="flex items-center gap-3.5">
-                          <motion.div
-                            whileHover={{ scale: 1.08, rotate: 2 }}
-                            transition={{ type: 'spring', stiffness: 350, damping: 20 }}
-                            className="relative size-14 sm:size-16 rounded-2xl overflow-hidden shrink-0 border-2 bg-slate-100 shadow-sm"
-                            style={{ borderColor: `${deptColor.gradientFrom}50` }}
-                          >
-                            <img
-                              src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
-                              alt={appt.doctorName}
-                              className="w-full h-full object-cover object-[center_25%]"
-                              onError={(e) => {
-                                const target = e.currentTarget;
-                                if (!target.dataset.fallback) {
-                                  target.dataset.fallback = '1';
-                                  target.src = `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`;
-                                }
-                              }}
-                            />
-                          </motion.div>
-
-                          <div className="min-w-0 flex-1">
-                            <h4 className="text-base sm:text-lg font-black text-slate-900 tracking-tight truncate">
-                              {appt.doctorName}
-                            </h4>
-                            <p className="text-xs text-slate-500 truncate font-medium">
-                              {appt.specialty}
-                            </p>
-                            <span className="text-[11px] font-mono font-bold text-slate-400 block mt-0.5">
-                              Pass: {appt.bookingId}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Schedule Ticket Matrix */}
-                      <div className="grid grid-cols-2 gap-2 p-3 rounded-2xl bg-slate-50/80 border border-slate-200/70 text-xs font-mono">
-                        <div>
-                          <span className="text-[10px] text-slate-400 block mb-0.5">CONSULTATION DATE</span>
-                          <span className="font-bold text-slate-900 flex items-center gap-1 truncate">
-                            <CalendarIcon className="w-3 h-3 text-emerald-600 shrink-0" />
-                            {appt.date}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-[10px] text-slate-400 block mb-0.5">TIME WINDOW</span>
-                          <span className="font-bold text-slate-900 flex items-center gap-1 truncate">
-                            <Clock className="w-3 h-3 text-emerald-600 shrink-0" />
-                            {appt.time}
-                          </span>
-                        </div>
-                        <div className="col-span-2 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
-                          <span className="text-slate-500 flex items-center gap-1 truncate">
-                            <MapPin className="w-3 h-3 text-emerald-600 shrink-0" />
-                            Tower 4, Suite 800
-                          </span>
-                          <span className="font-bold text-slate-700 shrink-0">
-                            {appt.insuranceProvider ? 'In-Network' : 'Self-Pay'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Admin Triage Feedback Note (if rejected) */}
-                      {isRejected && appt.rejectionReason && (
-                        <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-start gap-1.5">
-                          <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                          <span>Clinic note: {appt.rejectionReason}</span>
-                        </div>
+                  {/* Card Header: Department badge + Status Badge */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="px-2.5 py-1 rounded-full text-[10.5px] font-mono font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200/80">
+                      {appt.departmentName}
+                    </span>
+                    <div>
+                      {isPending && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                          <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
+                          Pending
+                        </span>
                       )}
-
-                      {/* Perforated Seam Line */}
-                      <div className="relative py-1">
-                        <div className="border-t border-dashed border-slate-300" />
-                        <div className="absolute -left-7 top-1/2 -translate-y-1/2 size-4 rounded-full bg-slate-50 border-r border-slate-200" />
-                        <div className="absolute -right-7 top-1/2 -translate-y-1/2 size-4 rounded-full bg-slate-50 border-l border-slate-200" />
-                      </div>
-
-                      {/* Action Bar with Motion Micro-interactions */}
-                      <div className="space-y-2">
-                        {isAdmin && isPending && (
-                          <div className="grid grid-cols-2 gap-2">
-                            <motion.button
-                              type="button"
-                              whileHover={{ scale: 1.04, y: -1 }}
-                              whileTap={{ scale: 0.96 }}
-                              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                              onClick={() => handleApprove(appt.bookingId)}
-                              className="py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
-                            >
-                              <Check className="w-3.5 h-3.5" />
-                              <span>Approve</span>
-                            </motion.button>
-                            <motion.button
-                              type="button"
-                              whileHover={{ scale: 1.04, y: -1 }}
-                              whileTap={{ scale: 0.96 }}
-                              transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                              onClick={() => handleReject(appt.bookingId)}
-                              className="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                              <span>Reject</span>
-                            </motion.button>
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-2">
-                          <motion.button
-                            type="button"
-                            whileHover={{ scale: 1.02, y: -1 }}
-                            whileTap={{ scale: 0.98 }}
-                            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                            onClick={() => setDirectionModalAppt(appt)}
-                            className="flex-1 py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                          >
-                            <Compass className="w-3.5 h-3.5 text-[#135940]" />
-                            <span>Clinic Map</span>
-                          </motion.button>
-                          <motion.button
-                            type="button"
-                            whileHover={{ scale: 1.08, y: -1, rotate: -3 }}
-                            whileTap={{ scale: 0.94 }}
-                            transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                            onClick={() => handleDownloadIcs(appt)}
-                            className="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-[#135940] text-xs font-bold transition-colors flex items-center justify-center cursor-pointer shadow-2xs"
-                            title="Download Calendar (.ics)"
-                          >
-                            <Download className="w-4 h-4" />
-                          </motion.button>
-                        </div>
-
-                        {/* Cancel / Reschedule footer links */}
-                        <div className="flex items-center justify-between pt-2 text-[11px] text-slate-500 font-medium">
-                          {isApproved || isPending ? (
-                            <>
-                              <motion.button
-                                type="button"
-                                whileHover={{ scale: 1.05, x: 2 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => navigate('/book-appointment')}
-                                className="text-[#135940] hover:underline cursor-pointer flex items-center gap-1 font-semibold"
-                              >
-                                <RotateCcw className="w-3 h-3" />
-                                <span>Reschedule</span>
-                              </motion.button>
-
-                              {cancellingId === appt.bookingId ? (
-                                <div className="flex items-center gap-1.5">
-                                  <span className="text-rose-600 font-bold">Cancel?</span>
-                                  <motion.button
-                                    type="button"
-                                    whileHover={{ scale: 1.08 }}
-                                    whileTap={{ scale: 0.92 }}
-                                    onClick={() => handleConfirmCancel(appt.bookingId)}
-                                    className="px-2 py-0.5 rounded bg-rose-600 text-white font-bold text-[10px] cursor-pointer shadow-2xs"
-                                  >
-                                    Yes
-                                  </motion.button>
-                                  <motion.button
-                                    type="button"
-                                    whileHover={{ scale: 1.08 }}
-                                    whileTap={{ scale: 0.92 }}
-                                    onClick={() => setCancellingId(null)}
-                                    className="text-slate-400 hover:text-slate-700 text-[10px] cursor-pointer"
-                                  >
-                                    No
-                                  </motion.button>
-                                </div>
-                              ) : (
-                                <motion.button
-                                  type="button"
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
-                                  onClick={() => setCancellingId(appt.bookingId)}
-                                  className="text-rose-600 hover:text-rose-700 cursor-pointer font-semibold"
-                                >
-                                  Cancel Pass
-                                </motion.button>
-                              )}
-                            </>
-                          ) : (
-                            <>
-                              <motion.button
-                                type="button"
-                                whileHover={{ scale: 1.05, x: 2 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => navigate('/book-appointment')}
-                                className="text-[#135940] hover:underline cursor-pointer flex items-center gap-1 font-semibold"
-                              >
-                                <PlusCircle className="w-3 h-3" />
-                                <span>Rebook Visit</span>
-                              </motion.button>
-
-                              <motion.button
-                                type="button"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => handleDelete(appt.bookingId)}
-                                className="text-slate-400 hover:text-rose-600 cursor-pointer"
-                              >
-                                Remove Pass
-                              </motion.button>
-                            </>
-                          )}
-                        </div>
+                      {isApproved && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                          <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          Confirmed
+                        </span>
+                      )}
+                      {isRejected && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">
+                          <X className="w-3 h-3 text-rose-600" />
+                          Declined
+                        </span>
+                      )}
+                      {isCompleted && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                          <Check className="w-3 h-3 text-slate-500" />
+                          Completed
+                        </span>
+                      )}
                     </div>
+                  </div>
+
+                  {/* Doctor Row */}
+                  <div className="flex items-center gap-3.5">
+                    <div className="relative size-14 rounded-2xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200 shadow-2xs">
+                      <img
+                        src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
+                        alt={appt.doctorName}
+                        className="w-full h-full object-cover object-[center_25%]"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          if (!target.dataset.fallback) {
+                            target.dataset.fallback = '1';
+                            target.src = `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`;
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-base font-bold text-slate-900 tracking-tight truncate">
+                        {appt.doctorName}
+                      </h4>
+                      <p className="text-xs text-slate-500 truncate font-medium">
+                        {appt.specialty}
+                      </p>
+                      <span className="text-[11px] font-mono text-slate-400 block mt-0.5">
+                        Pass ID: {appt.bookingId}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Schedule & Location Box */}
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5 text-xs font-mono">
+                    <div className="flex items-center justify-between text-slate-700">
+                      <span className="flex items-center gap-1.5">
+                        <CalendarIcon className="w-3.5 h-3.5 text-[#135940]" />
+                        <span className="font-semibold">{appt.date}</span>
+                      </span>
+                      <span className="flex items-center gap-1 text-[#135940] font-bold">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>{appt.time}</span>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-slate-500 text-[11px]">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>{appt.location || 'Medical Tower 4, Suite 800'}</span>
+                    </div>
+                  </div>
+
+                  {appt.reason && (
+                    <p className="text-[11.5px] text-slate-500 italic line-clamp-1">
+                      &ldquo;{appt.reason}&rdquo;
+                    </p>
+                  )}
+
+                  {isRejected && appt.rejectionReason && (
+                    <div className="p-2 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                      <span>{appt.rejectionReason}</span>
+                    </div>
+                  )}
+
+                  {/* Card Footer Actions */}
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setDirectionModalAppt(appt)}
+                        className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Compass className="w-3.5 h-3.5 text-[#135940]" />
+                        <span>Directions</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDownloadIcs(appt)}
+                        className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Download className="w-3.5 h-3.5 text-[#135940]" />
+                        <span>.ICS</span>
+                      </button>
+                    </div>
+
+                    {cancellingId === appt.bookingId ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleConfirmCancel(appt.bookingId)}
+                          className="px-2 py-1 rounded bg-rose-600 text-white text-[11px] font-bold cursor-pointer"
+                        >
+                          Confirm
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCancellingId(null)}
+                          className="px-2 py-1 rounded bg-slate-100 text-slate-600 text-[11px] cursor-pointer"
+                        >
+                          No
+                        </button>
+                      </div>
+                    ) : isPending || isApproved ? (
+                      <button
+                        type="button"
+                        onClick={() => setCancellingId(appt.bookingId)}
+                        className="text-xs text-slate-400 hover:text-rose-600 font-medium cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(appt.bookingId)}
+                        className="text-xs text-slate-400 hover:text-rose-600 font-medium cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    )}
                   </div>
                 </motion.div>
               );
             })}
-          </motion.div>
-        ) : viewMode === 'timeline' ? (
-          /* ================================================================
-             VIEW 2: CLINICAL JOURNEY TIMELINE
-             ================================================================ */
-          <motion.div
-            key="view-timeline"
-            variants={viewModeTransitionVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="relative max-w-3xl mx-auto py-6 space-y-6"
-          >
-            {/* Center Track Line with Animated Glow */}
-            <div className="absolute top-6 bottom-6 left-6 sm:left-8 w-0.5 bg-gradient-to-b from-[#135940] via-emerald-600 to-slate-200" />
-
-            {filteredAppointments.map((appt) => {
-              const deptColor = getDepartmentColor(appt.departmentId);
-
-              return (
-                <div key={appt.bookingId} className="relative flex items-start gap-4 sm:gap-6 pl-2 group">
-                  {/* Timeline Node Icon with Magnetic Spring Hover */}
-                  <motion.div
-                    whileHover={{ scale: 1.25, rotate: 12 }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ type: 'spring', stiffness: 450, damping: 20 }}
-                    className="relative z-10 size-10 sm:size-12 rounded-2xl flex items-center justify-center text-white shadow-md shrink-0 border-2 border-white cursor-pointer"
-                    style={{
-                      background: `linear-gradient(135deg, ${deptColor.gradientFrom}, ${deptColor.gradientTo})`,
-                      boxShadow: `0 4px 14px ${deptColor.gradientFrom}45`,
-                    }}
-                  >
-                    <Stethoscope className="w-5 h-5 text-white" />
-                  </motion.div>
-
-                  {/* Card Content with Slide & Lift Micro-interaction */}
-                  <motion.div
-                    whileHover={{ x: 6, scale: 1.01 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    className="flex-1 p-4 sm:p-5 rounded-3xl backdrop-blur-md border transition-all duration-300"
-                    style={{
-                      background: `linear-gradient(175deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.94) 65%, ${deptColor.gradientFrom}08 100%)`,
-                      borderColor: `${deptColor.gradientFrom}35`,
-                      boxShadow: `0 6px 20px -4px ${deptColor.gradientFrom}18, 0 2px 8px rgba(0,0,0,0.03)`,
-                    }}
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs font-bold text-slate-500">
-                          {appt.date} &bull; {appt.time}
-                        </span>
-                        <span
-                          className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase text-white shadow-2xs"
-                          style={{ backgroundColor: deptColor.gradientFrom }}
-                        >
-                          {appt.departmentName}
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-mono text-slate-400 font-bold">
-                        ID: {appt.bookingId}
-                      </span>
-                    </div>
-
-                    <h4 className="text-base font-black text-slate-900">
-                      {appt.doctorName},{' '}
-                      <span className="text-slate-500 font-medium text-sm">{appt.specialty}</span>
-                    </h4>
-
-                    {appt.reason && (
-                      <p className="text-xs text-slate-600 mt-1 italic">
-                        &ldquo;{appt.reason}&rdquo;
-                      </p>
-                    )}
-
-                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2 text-xs">
-                      <span className="text-slate-500 flex items-center gap-1 font-mono text-[11px]">
-                        <MapPin className="w-3.5 h-3.5 text-[#135940]" />
-                        WeCare Medical Tower 4, Suite 800
-                      </span>
-
-                      <div className="flex items-center gap-2">
-                        <motion.button
-                          type="button"
-                          whileHover={{ scale: 1.05, y: -1 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => setDirectionModalAppt(appt)}
-                          className="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs cursor-pointer shadow-2xs"
-                        >
-                          Directions
-                        </motion.button>
-                        <motion.button
-                          type="button"
-                          whileHover={{ scale: 1.05, y: -1 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handleDownloadIcs(appt)}
-                          className="px-3 py-1.5 rounded-xl bg-emerald-50 text-[#135940] hover:bg-emerald-100 font-bold text-xs cursor-pointer flex items-center gap-1 shadow-2xs"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          <span>.ICS</span>
-                        </motion.button>
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
-              );
-            })}
-          </motion.div>
-        ) : (
-          /* ================================================================
-             VIEW 3: EXECUTIVE HIGH-DENSITY LEDGER
-             ================================================================ */
-          <motion.div
-            key="view-ledger"
-            variants={viewModeTransitionVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="rounded-3xl bg-white border border-slate-200/90 shadow-sm overflow-hidden"
-          >
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50 text-slate-500 font-mono text-[11px] uppercase tracking-wider">
-                    <th className="py-3.5 px-4 font-bold">Pass ID</th>
-                    <th className="py-3.5 px-4 font-bold">Physician & Specialty</th>
-                    <th className="py-3.5 px-4 font-bold">Scheduled Time</th>
-                    <th className="py-3.5 px-4 font-bold">Patient</th>
-                    <th className="py-3.5 px-4 font-bold">Status</th>
-                    <th className="py-3.5 px-4 font-bold text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredAppointments.map((appt) => {
-                    const deptColor = getDepartmentColor(appt.departmentId);
-                    return (
-                      <motion.tr
-                        key={appt.bookingId}
-                        whileHover={{
-                          backgroundColor: 'rgba(248, 250, 252, 0.95)',
-                          scale: 1.002,
-                          transition: { duration: 0.15 },
-                        }}
-                        className="transition-colors group"
-                      >
-                        <td className="py-3.5 px-4 font-mono font-bold text-slate-800">
-                          {appt.bookingId}
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <div className="font-extrabold text-slate-900 group-hover:text-[#135940] transition-colors">
-                            {appt.doctorName}
-                          </div>
-                          <span
-                            className="text-[10px] font-mono font-bold uppercase"
-                            style={{ color: deptColor.gradientFrom }}
-                          >
-                            {appt.departmentName} &bull; {appt.specialty}
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-4 font-mono text-slate-700">
-                          <div className="font-bold">{appt.date}</div>
-                          <div className="text-[11px] text-slate-400">{appt.time}</div>
-                        </td>
-                        <td className="py-3.5 px-4 font-medium text-slate-800">
-                          <div>{appt.patientName}</div>
-                          <div className="text-[11px] text-slate-400">{appt.email}</div>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-slate-100 text-slate-800 border border-slate-200">
-                            {appt.status}
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-4 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <motion.button
-                              type="button"
-                              whileHover={{ scale: 1.15, rotate: -4 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => handleDownloadIcs(appt)}
-                              className="p-1.5 rounded-lg text-slate-600 hover:text-[#135940] hover:bg-emerald-50 cursor-pointer"
-                              title="Download Calendar"
-                            >
-                              <Download className="w-3.5 h-3.5" />
-                            </motion.button>
-                            <motion.button
-                              type="button"
-                              whileHover={{ scale: 1.15, rotate: 4 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => setDirectionModalAppt(appt)}
-                              className="p-1.5 rounded-lg text-slate-600 hover:text-[#135940] hover:bg-emerald-50 cursor-pointer"
-                              title="Floor Directions"
-                            >
-                              <Compass className="w-3.5 h-3.5" />
-                            </motion.button>
-                          </div>
-                        </td>
-                      </motion.tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
