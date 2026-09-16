@@ -52,15 +52,15 @@ export default function AppointmentsPage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-20px" }}
         transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-20 w-full px-4 sm:px-8 md:px-14 py-6 flex flex-col sm:flex-row items-center justify-between text-[11.5px] font-mono text-slate-500 border-t border-slate-200 bg-white"
+        className="relative z-20 w-full px-4 sm:px-8 md:px-14 py-4 sm:py-6 flex flex-col sm:flex-row items-center justify-between text-[11px] sm:text-[11.5px] font-mono text-slate-500 border-t border-slate-200 bg-white gap-2 sm:gap-0 text-center sm:text-left"
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 flex-wrap justify-center sm:justify-start">
           <span>LATITUDE: 37.7749° N</span>
-          <span className="hidden sm:inline text-slate-300">•</span>
+          <span className="text-slate-300">•</span>
           <span>LONGITUDE: 122.4194° W</span>
         </div>
-        <div className="flex items-center gap-3 mt-2 sm:mt-0 font-medium">
-          <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
+        <div className="flex items-center gap-2.5 sm:gap-3 mt-1 sm:mt-0 font-medium text-center sm:text-right">
+          <span className="inline-block w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse shrink-0" />
           <span className="text-slate-700">WE CARE PATIENT SCHEDULE REPOSITORY OPERATIONAL</span>
         </div>
       </motion.footer>

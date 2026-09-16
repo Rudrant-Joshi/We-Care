@@ -358,28 +358,28 @@ export function MyAppointmentsBento() {
       variants={sectionContainerVariants}
       initial="hidden"
       animate="visible"
-      className="relative w-full max-w-[1720px] mx-auto px-3.5 sm:px-8 md:px-14 py-6 md:py-14 font-sans"
+      className="relative w-full max-w-[1720px] mx-auto px-3 sm:px-6 md:px-14 py-4 sm:py-8 md:py-14 font-sans"
     >
       
       {/* ====================================================================
           1. EXECUTIVE PATIENT TELEMETRY HEADER & COUNTDOWN HERO
           ==================================================================== */}
-      <motion.div variants={sectionItemVariants} className="relative mb-8 pb-8 border-b border-slate-200/90">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <motion.div variants={sectionItemVariants} className="relative mb-6 sm:mb-8 pb-6 sm:pb-8 border-b border-slate-200/90">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6">
           {/* Greeting & Identity */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/90 text-[#135940] text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider shadow-2xs">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/90 text-[#135940] text-[9.5px] sm:text-xs font-mono font-bold uppercase tracking-wider shadow-2xs">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#135940] animate-pulse" />
                 {isAdmin ? 'CHIEF CLINICAL LEDGER' : 'VERIFIED PATIENT SCHEDULE'}
               </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-mono font-bold">
+              <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[9.5px] sm:text-[10px] font-mono font-bold">
                 <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 LIVE SYNC
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.1]">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.15] sm:leading-[1.1]">
               {isAdmin ? (
                 <>
                   Hospital Patient{' '}
@@ -405,14 +405,14 @@ export function MyAppointmentsBento() {
           </div>
 
           {/* Quick Actions Strip */}
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3 shrink-0">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3 shrink-0 w-full sm:w-auto">
             <motion.button
               type="button"
               whileHover={{ scale: 1.05, y: -2, boxShadow: '0 14px 28px -4px rgba(19, 89, 64, 0.45)' }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 400, damping: 18 }}
               onClick={() => navigate('/book-appointment')}
-              className="px-6 py-3.5 rounded-2xl text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-[#135940]/25 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
+              className="px-6 py-3.5 rounded-2xl text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-[#135940]/25 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto min-h-[46px]"
               style={{
                 background: 'linear-gradient(135deg, #135940, #1b7454)',
               }}
@@ -434,7 +434,7 @@ export function MyAppointmentsBento() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-40px" }}
-        className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mb-8"
+        className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-5 mb-6 sm:mb-8"
       >
         
         {/* Metric 1: Total Consultations */}
@@ -445,20 +445,20 @@ export function MyAppointmentsBento() {
             scale: 1.02,
             transition: { type: 'spring', stiffness: 400, damping: 20 },
           }}
-          className="group p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow duration-300 flex flex-col justify-between cursor-pointer"
+          className="group p-3 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow duration-300 flex flex-col justify-between cursor-pointer"
         >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
+          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+            <span className="text-[9.5px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Total Visits
             </span>
-            <div className="size-8 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
-              <CalendarCheck2 className="w-4 h-4 text-[#135940]" />
+            <div className="size-7 sm:size-8 rounded-lg sm:rounded-xl bg-slate-50 border border-slate-100 text-slate-700 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6 shrink-0">
+              <CalendarCheck2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#135940]" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">
+          <div className="text-xl sm:text-3xl font-black text-slate-900 tabular-nums">
             {stats.total}
           </div>
-          <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5 font-medium truncate">
+          <div className="text-[10px] sm:text-[11px] text-slate-500 mt-1 flex items-center gap-1.5 font-medium truncate">
             <span className="size-1.5 rounded-full bg-[#135940] shrink-0" />
             <span className="truncate">Patient schedule repository</span>
           </div>
@@ -472,20 +472,20 @@ export function MyAppointmentsBento() {
             scale: 1.02,
             transition: { type: 'spring', stiffness: 400, damping: 20 },
           }}
-          className="group p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow duration-300 flex flex-col justify-between cursor-pointer"
+          className="group p-3 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow duration-300 flex flex-col justify-between cursor-pointer"
         >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-amber-700">
+          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+            <span className="text-[9.5px] sm:text-xs font-mono font-bold uppercase tracking-wider text-amber-700">
               Pending Review
             </span>
-            <div className="size-8 rounded-xl bg-amber-50 border border-amber-100 text-amber-700 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
-              <Clock className="w-4 h-4" />
+            <div className="size-7 sm:size-8 rounded-lg sm:rounded-xl bg-amber-50 border border-amber-100 text-amber-700 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 shrink-0">
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-amber-700 tabular-nums">
+          <div className="text-xl sm:text-3xl font-black text-amber-700 tabular-nums">
             {stats.pending}
           </div>
-          <div className="text-[11px] text-amber-700 mt-1 flex items-center gap-1.5 font-medium truncate">
+          <div className="text-[10px] sm:text-[11px] text-amber-700 mt-1 flex items-center gap-1.5 font-medium truncate">
             <span className="size-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
             <span className="truncate">Clinical triage in progress</span>
           </div>
@@ -499,20 +499,20 @@ export function MyAppointmentsBento() {
             scale: 1.02,
             transition: { type: 'spring', stiffness: 400, damping: 20 },
           }}
-          className="group p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow duration-300 flex flex-col justify-between cursor-pointer"
+          className="group p-3 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow duration-300 flex flex-col justify-between cursor-pointer"
         >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-emerald-800">
+          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+            <span className="text-[9.5px] sm:text-xs font-mono font-bold uppercase tracking-wider text-emerald-800">
               Active Passes
             </span>
-            <div className="size-8 rounded-xl bg-emerald-50 border border-emerald-100 text-[#135940] flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
-              <CheckCircle2 className="w-4 h-4" />
+            <div className="size-7 sm:size-8 rounded-lg sm:rounded-xl bg-emerald-50 border border-emerald-100 text-[#135940] flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6 shrink-0">
+              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-emerald-800 tabular-nums">
+          <div className="text-xl sm:text-3xl font-black text-emerald-800 tabular-nums">
             {stats.approved}
           </div>
-          <div className="text-[11px] text-emerald-700 mt-1 flex items-center gap-1.5 font-medium truncate">
+          <div className="text-[10px] sm:text-[11px] text-emerald-700 mt-1 flex items-center gap-1.5 font-medium truncate">
             <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
             <span className="truncate">Confirmed clinical admissions</span>
           </div>
@@ -526,20 +526,20 @@ export function MyAppointmentsBento() {
             scale: 1.02,
             transition: { type: 'spring', stiffness: 400, damping: 20 },
           }}
-          className="group p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow duration-300 flex flex-col justify-between cursor-pointer"
+          className="group p-3 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-shadow duration-300 flex flex-col justify-between cursor-pointer"
         >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
+          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+            <span className="text-[9.5px] sm:text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Completed Care
             </span>
-            <div className="size-8 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
-              <Check className="w-4 h-4" />
+            <div className="size-7 sm:size-8 rounded-lg sm:rounded-xl bg-slate-50 border border-slate-100 text-slate-700 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 shrink-0">
+              <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-slate-800 tabular-nums">
+          <div className="text-xl sm:text-3xl font-black text-slate-800 tabular-nums">
             {stats.completed}
           </div>
-          <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5 truncate">
+          <div className="text-[10px] sm:text-[11px] text-slate-500 mt-1 flex items-center gap-1.5 truncate">
             <span className="size-1.5 rounded-full bg-slate-400 shrink-0" />
             <span className="truncate">Consultations archived</span>
           </div>
@@ -554,19 +554,19 @@ export function MyAppointmentsBento() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-30px" }}
-        className="p-3.5 sm:p-4 rounded-3xl bg-white border border-slate-200/90 shadow-sm mb-6 space-y-3 sm:space-y-4"
+        className="p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-sm mb-5 sm:mb-6 space-y-3 sm:space-y-4"
       >
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 sm:gap-4">
           
           {/* Search Input with Clear Button */}
-          <div className="relative flex-1 min-w-[240px] group">
+          <div className="relative flex-1 min-w-0 group">
             <Search className="w-4 h-4 text-slate-400 group-hover:text-[#135940] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by doctor, specialty, pass ID, or clinical reason..."
-              className="w-full h-11 pl-10 pr-9 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-base sm:text-sm font-medium hover:bg-slate-100/70 focus:bg-white focus:border-[#135940] focus:ring-4 focus:ring-[#135940]/15 outline-none transition-all"
+              className="w-full h-11 pl-10 pr-9 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 text-base sm:text-sm font-medium hover:bg-slate-100/70 focus:bg-white focus:border-[#135940] focus:ring-4 focus:ring-[#135940]/15 outline-none transition-all"
             />
             {searchQuery && (
               <motion.button
@@ -582,74 +582,77 @@ export function MyAppointmentsBento() {
             )}
           </div>
 
-          {/* Sort Order Toggle */}
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.05, y: -1, borderColor: '#a7f3d0', color: '#135940' }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-            onClick={() => setSortOrder((prev) => (prev === 'latest' ? 'upcoming' : 'latest'))}
-            className="h-11 px-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-700 text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer select-none shrink-0"
-            title="Toggle sort order"
-          >
-            <motion.div
-              animate={{ rotate: sortOrder === 'latest' ? 0 : 180 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-[#135940]" />
-            </motion.div>
-            <span>{sortOrder === 'latest' ? 'Newest First' : 'Earliest First'}</span>
-          </motion.button>
-
-          {/* View Mode Switcher: List vs Cards */}
-          <div className="flex items-center bg-slate-100 rounded-2xl p-1 border border-slate-200 text-xs w-full lg:w-auto shrink-0 justify-between sm:justify-start">
+          {/* Mobile-friendly side-by-side Toolbar: Sort & View Switcher */}
+          <div className="flex items-center gap-2 w-full lg:w-auto shrink-0">
+            {/* Sort Order Toggle */}
             <motion.button
               type="button"
-              whileHover={{ scale: 1.05, y: -1 }}
+              whileHover={{ scale: 1.04, y: -1, borderColor: '#a7f3d0', color: '#135940' }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-              onClick={() => setViewMode('list')}
-              className={`flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer select-none ${
-                viewMode === 'list' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
-              }`}
+              onClick={() => setSortOrder((prev) => (prev === 'latest' ? 'upcoming' : 'latest'))}
+              className="flex-1 lg:flex-initial h-11 px-3 sm:px-3.5 rounded-xl sm:rounded-2xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer select-none shrink-0"
+              title="Toggle sort order"
             >
-              {viewMode === 'list' && (
-                <motion.div
-                  layoutId="active-view-pill"
-                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#135940] to-[#1b7454] shadow-md shadow-[#135940]/25"
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                />
-              )}
-              <List className="w-3.5 h-3.5 relative z-10" />
-              <span className="relative z-10">List</span>
+              <motion.div
+                animate={{ rotate: sortOrder === 'latest' ? 0 : 180 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-[#135940]" />
+              </motion.div>
+              <span className="truncate">{sortOrder === 'latest' ? 'Newest' : 'Earliest'}</span>
             </motion.button>
 
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.05, y: -1 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-              onClick={() => setViewMode('cards')}
-              className={`flex-1 sm:flex-initial relative flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer select-none ${
-                viewMode === 'cards' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {viewMode === 'cards' && (
-                <motion.div
-                  layoutId="active-view-pill"
-                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#135940] to-[#1b7454] shadow-md shadow-[#135940]/25"
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                />
-              )}
-              <LayoutGrid className="w-3.5 h-3.5 relative z-10" />
-              <span className="relative z-10">Cards</span>
-            </motion.button>
+            {/* View Mode Switcher: List vs Cards */}
+            <div className="flex-1 lg:flex-initial flex items-center bg-slate-100 rounded-xl sm:rounded-2xl p-1 border border-slate-200 text-xs shrink-0 justify-between">
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.04, y: -1 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+                onClick={() => setViewMode('list')}
+                className={`flex-1 relative flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg sm:rounded-xl font-bold text-xs transition-colors cursor-pointer select-none ${
+                  viewMode === 'list' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {viewMode === 'list' && (
+                  <motion.div
+                    layoutId="active-view-pill"
+                    className="absolute inset-0 rounded-lg sm:rounded-xl bg-gradient-to-r from-[#135940] to-[#1b7454] shadow-md shadow-[#135940]/25"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+                <List className="w-3.5 h-3.5 relative z-10" />
+                <span className="relative z-10">List</span>
+              </motion.button>
+
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.04, y: -1 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+                onClick={() => setViewMode('cards')}
+                className={`flex-1 relative flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg sm:rounded-xl font-bold text-xs transition-colors cursor-pointer select-none ${
+                  viewMode === 'cards' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {viewMode === 'cards' && (
+                  <motion.div
+                    layoutId="active-view-pill"
+                    className="absolute inset-0 rounded-lg sm:rounded-xl bg-gradient-to-r from-[#135940] to-[#1b7454] shadow-md shadow-[#135940]/25"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+                <LayoutGrid className="w-3.5 h-3.5 relative z-10" />
+                <span className="relative z-10">Cards</span>
+              </motion.button>
+            </div>
           </div>
         </div>
 
         {/* Status Tabs Bar with Native App Pill Slider */}
-        <div className="flex items-center justify-between gap-3 pt-1 border-t border-slate-100 flex-wrap">
-          <div className="flex items-center gap-1 sm:gap-1.5 p-1 rounded-2xl bg-slate-100 border border-slate-200/80 overflow-x-auto scrollbar-none max-w-full">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pt-2 sm:pt-1 border-t border-slate-100">
+          <div className="flex items-center gap-1 sm:gap-1.5 p-1 rounded-xl sm:rounded-2xl bg-slate-100 border border-slate-200/80 overflow-x-auto scrollbar-none max-w-full touch-pan-x">
             {(
               [
                 { id: 'all', label: `All (${stats.total})`, color: '#135940' },
@@ -668,14 +671,14 @@ export function MyAppointmentsBento() {
                   whileTap={{ scale: 0.94 }}
                   transition={{ type: 'spring', stiffness: 450, damping: 20 }}
                   onClick={() => setStatusFilter(tab.id)}
-                  className={`shrink-0 relative px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer select-none ${
+                  className={`shrink-0 relative px-3 py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer select-none ${
                     isActive ? 'text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                   }`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="active-status-tab"
-                      className="absolute inset-0 rounded-xl shadow-md shadow-slate-900/10"
+                      className="absolute inset-0 rounded-lg sm:rounded-xl shadow-md shadow-slate-900/10"
                       style={{ backgroundColor: tab.color }}
                       transition={{ type: 'spring', stiffness: 550, damping: 30 }}
                     />
@@ -687,12 +690,12 @@ export function MyAppointmentsBento() {
           </div>
 
           {/* Department Filter Selector */}
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-            <span className="hidden sm:inline">Specialty:</span>
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 w-full sm:w-auto justify-between sm:justify-end pt-1 sm:pt-0">
+            <span className="shrink-0 text-slate-500">Specialty:</span>
             <select
               value={deptFilter}
               onChange={(e) => setDeptFilter(e.target.value)}
-              className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold outline-none cursor-pointer hover:bg-white transition-colors"
+              className="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold outline-none cursor-pointer hover:bg-white transition-colors"
             >
               <option value="all">All Specialties</option>
               {Object.entries(DEPARTMENT_COLORS).map(([id, conf]) => (
@@ -805,26 +808,26 @@ export function MyAppointmentsBento() {
                     scale: 1.008,
                     transition: { type: 'spring', stiffness: 380, damping: 24 },
                   }}
-                  className="group relative p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 hover:shadow-lg transition-shadow duration-300 flex flex-col xl:flex-row xl:items-center justify-between gap-4 cursor-default"
+                  className="group relative p-3.5 sm:p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 hover:shadow-lg transition-shadow duration-300 flex flex-col xl:flex-row xl:items-center justify-between gap-3 sm:gap-4 cursor-default"
                 >
                   {/* Left: Date Capsule + Doctor & Clinical Info */}
-                  <div className="flex items-start sm:items-center gap-3 sm:gap-5 flex-1 min-w-0">
+                  <div className="flex items-start sm:items-center gap-2.5 sm:gap-5 flex-1 min-w-0">
                     
                     {/* Calendar Date Pill */}
-                    <div className="size-14 sm:size-18 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col items-center justify-center shrink-0 text-center font-mono select-none shadow-2xs transition-transform duration-300 group-hover:scale-105 group-hover:border-slate-300">
-                      <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider leading-none">
+                    <div className="w-12 sm:w-18 h-13 sm:h-18 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col items-center justify-center shrink-0 text-center font-mono select-none shadow-2xs transition-transform duration-300 group-hover:scale-105 group-hover:border-slate-300">
+                      <span className="text-[8.5px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider leading-none">
                         {dt.month}
                       </span>
-                      <span className="text-lg sm:text-2xl font-black text-slate-900 leading-tight my-0.5">
+                      <span className="text-base sm:text-2xl font-black text-slate-900 leading-tight my-0.5">
                         {dt.dayNum}
                       </span>
-                      <span className="text-[8.5px] sm:text-[9px] font-semibold text-slate-400 uppercase tracking-wider leading-none">
+                      <span className="text-[8px] sm:text-[9px] font-semibold text-slate-400 uppercase tracking-wider leading-none">
                         {dt.dayOfWeek}
                       </span>
                     </div>
 
                     {/* Doctor Avatar */}
-                    <div className="relative size-11 sm:size-14 rounded-2xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200 shadow-2xs group-hover:shadow-md transition-all duration-300">
+                    <div className="relative size-11 sm:size-14 rounded-xl sm:rounded-2xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200 shadow-2xs group-hover:shadow-md transition-all duration-300">
                       <img
                         src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
                         alt={appt.doctorName}
@@ -842,24 +845,24 @@ export function MyAppointmentsBento() {
                     {/* Doctor & Appointment Details */}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                        <h4 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight truncate max-w-[170px] sm:max-w-none">
+                        <h4 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight truncate">
                           {appt.doctorName}
                         </h4>
-                        <span className="px-2 py-0.5 rounded-md text-[10px] sm:text-[10.5px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200/80 shrink-0">
+                        <span className="px-1.5 sm:px-2 py-0.5 rounded-md text-[9.5px] sm:text-[10.5px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200/80 shrink-0">
                           {appt.departmentName}
                         </span>
-                        <span className="text-[11px] sm:text-xs font-mono text-slate-400 font-medium shrink-0">
+                        <span className="text-[10px] sm:text-xs font-mono text-slate-400 font-medium shrink-0">
                           #{appt.bookingId}
                         </span>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-x-2.5 sm:gap-x-3 gap-y-1 mt-1 text-xs text-slate-500">
+                      <div className="flex flex-wrap items-center gap-x-2 sm:gap-x-3 gap-y-0.5 mt-1 text-xs text-slate-500">
                         <span className="flex items-center gap-1 font-semibold text-slate-800 shrink-0">
                           <Clock className="w-3.5 h-3.5 text-[#135940]" />
                           <span>{appt.time}</span>
                         </span>
                         <span className="text-slate-300">•</span>
-                        <span className="text-slate-600 font-medium truncate max-w-[140px] sm:max-w-none">
+                        <span className="text-slate-600 font-medium truncate max-w-[130px] sm:max-w-none">
                           {appt.specialty}
                         </span>
                         <span className="text-slate-300 hidden sm:inline">•</span>
@@ -885,38 +888,40 @@ export function MyAppointmentsBento() {
                   </div>
 
                   {/* Right: Status Pill & Action Buttons */}
-                  <div className="flex flex-wrap sm:flex-nowrap items-center justify-between xl:justify-end gap-2.5 sm:gap-3 pt-3 xl:pt-0 border-t xl:border-t-0 border-slate-100 shrink-0 w-full xl:w-auto">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between xl:justify-end gap-2.5 sm:gap-3 pt-3 xl:pt-0 border-t xl:border-t-0 border-slate-100 shrink-0 w-full xl:w-auto">
                     
                     {/* Status Badge */}
-                    <div className="shrink-0 transition-transform duration-200 group-hover:scale-105">
-                      {isPending && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-                          <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
-                          Pending Review
-                        </span>
-                      )}
-                      {isApproved && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                          <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          Confirmed Pass
-                        </span>
-                      )}
-                      {isRejected && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200">
-                          <X className="w-3 h-3 text-rose-600" />
-                          Declined
-                        </span>
-                      )}
-                      {isCompleted && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                          <Check className="w-3 h-3 text-slate-500" />
-                          Completed
-                        </span>
-                      )}
+                    <div className="flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto">
+                      <div className="shrink-0 transition-transform duration-200 group-hover:scale-105">
+                        {isPending && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                            <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
+                            Pending Review
+                          </span>
+                        )}
+                        {isApproved && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                            <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            Confirmed Pass
+                          </span>
+                        )}
+                        {isRejected && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200">
+                            <X className="w-3 h-3 text-rose-600" />
+                            Declined
+                          </span>
+                        )}
+                        {isCompleted && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                            <Check className="w-3 h-3 text-slate-500" />
+                            Completed
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex items-center gap-1.5 sm:gap-2">
+                    <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                       {isAdmin && isPending && (
                         <>
                           <motion.button
@@ -925,7 +930,7 @@ export function MyAppointmentsBento() {
                             whileTap={{ scale: 0.95 }}
                             transition={{ type: 'spring', stiffness: 400, damping: 18 }}
                             onClick={() => handleApprove(appt.bookingId)}
-                            className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs min-h-[36px]"
+                            className="flex-1 sm:flex-initial px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-2xs min-h-[38px]"
                           >
                             <Check className="w-3.5 h-3.5" />
                             <span>Approve</span>
@@ -936,7 +941,7 @@ export function MyAppointmentsBento() {
                             whileTap={{ scale: 0.95 }}
                             transition={{ type: 'spring', stiffness: 400, damping: 18 }}
                             onClick={() => handleReject(appt.bookingId)}
-                            className="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs min-h-[36px]"
+                            className="flex-1 sm:flex-initial px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-2xs min-h-[38px]"
                           >
                             <X className="w-3.5 h-3.5" />
                             <span>Reject</span>
@@ -950,7 +955,7 @@ export function MyAppointmentsBento() {
                         whileTap={{ scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 18 }}
                         onClick={() => setDirectionModalAppt(appt)}
-                        className="px-2.5 sm:px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer min-h-[36px]"
+                        className="flex-1 sm:flex-initial px-2.5 sm:px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer min-h-[38px]"
                         title="Hospital directions"
                       >
                         <Compass className="w-3.5 h-3.5 text-[#135940] transition-transform duration-300 group-hover:rotate-45" />
@@ -963,22 +968,22 @@ export function MyAppointmentsBento() {
                         whileTap={{ scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 18 }}
                         onClick={() => handleDownloadIcs(appt)}
-                        className="px-2.5 sm:px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer min-h-[36px]"
+                        className="flex-1 sm:flex-initial px-2.5 sm:px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer min-h-[38px]"
                         title="Add to Calendar (.ICS)"
                       >
                         <Download className="w-3.5 h-3.5 text-[#135940] transition-transform duration-300 group-hover:-translate-y-0.5" />
-                        <span className="hidden xs:inline sm:inline">Calendar</span>
+                        <span>Calendar</span>
                       </motion.button>
 
                       {/* Cancel or Delete Action */}
                       {cancellingId === appt.bookingId ? (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 shrink-0">
                           <motion.button
                             type="button"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => handleConfirmCancel(appt.bookingId)}
-                            className="px-2.5 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold cursor-pointer hover:bg-rose-700 min-h-[36px]"
+                            className="px-2.5 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold cursor-pointer hover:bg-rose-700 min-h-[38px]"
                           >
                             Confirm
                           </motion.button>
@@ -987,7 +992,7 @@ export function MyAppointmentsBento() {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setCancellingId(null)}
-                            className="px-2 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium cursor-pointer hover:bg-slate-200 min-h-[36px]"
+                            className="px-2 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium cursor-pointer hover:bg-slate-200 min-h-[38px]"
                           >
                             No
                           </motion.button>
@@ -999,7 +1004,7 @@ export function MyAppointmentsBento() {
                           whileTap={{ scale: 0.9 }}
                           transition={{ type: 'spring', stiffness: 450, damping: 18 }}
                           onClick={() => setCancellingId(appt.bookingId)}
-                          className="size-9 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                          className="size-9.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shrink-0"
                           title="Cancel Appointment"
                         >
                           <X className="w-4 h-4" />
@@ -1011,7 +1016,7 @@ export function MyAppointmentsBento() {
                           whileTap={{ scale: 0.9 }}
                           transition={{ type: 'spring', stiffness: 450, damping: 18 }}
                           onClick={() => handleDelete(appt.bookingId)}
-                          className="size-9 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                          className="size-9.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shrink-0"
                           title="Remove Record"
                         >
                           <X className="w-4 h-4" />
@@ -1153,15 +1158,15 @@ export function MyAppointmentsBento() {
                   )}
 
                   {/* Card Footer Actions */}
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
+                  <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-1">
                       <motion.button
                         type="button"
                         whileHover={{ scale: 1.05, y: -1 }}
                         whileTap={{ scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 18 }}
                         onClick={() => setDirectionModalAppt(appt)}
-                        className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
+                        className="flex-1 sm:flex-initial px-2.5 sm:px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors min-h-[38px]"
                       >
                         <Compass className="w-3.5 h-3.5 text-[#135940] transition-transform duration-300 group-hover:rotate-45" />
                         <span>Directions</span>
@@ -1172,7 +1177,7 @@ export function MyAppointmentsBento() {
                         whileTap={{ scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 18 }}
                         onClick={() => handleDownloadIcs(appt)}
-                        className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
+                        className="flex-1 sm:flex-initial px-2.5 sm:px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors min-h-[38px]"
                       >
                         <Download className="w-3.5 h-3.5 text-[#135940] transition-transform duration-300 group-hover:-translate-y-0.5" />
                         <span>.ICS</span>
@@ -1180,13 +1185,13 @@ export function MyAppointmentsBento() {
                     </div>
 
                     {cancellingId === appt.bookingId ? (
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 shrink-0">
                         <motion.button
                           type="button"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleConfirmCancel(appt.bookingId)}
-                          className="px-2 py-1 rounded bg-rose-600 text-white text-[11px] font-bold cursor-pointer hover:bg-rose-700"
+                          className="px-2.5 py-1.5 rounded-lg bg-rose-600 text-white text-[11px] font-bold cursor-pointer hover:bg-rose-700 min-h-[38px]"
                         >
                           Confirm
                         </motion.button>
@@ -1195,7 +1200,7 @@ export function MyAppointmentsBento() {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setCancellingId(null)}
-                          className="px-2 py-1 rounded bg-slate-100 text-slate-600 text-[11px] cursor-pointer hover:bg-slate-200"
+                          className="px-2 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-[11px] cursor-pointer hover:bg-slate-200 min-h-[38px]"
                         >
                           No
                         </motion.button>
@@ -1207,7 +1212,7 @@ export function MyAppointmentsBento() {
                         whileTap={{ scale: 0.92 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                         onClick={() => setCancellingId(appt.bookingId)}
-                        className="text-xs text-slate-400 hover:text-rose-600 font-medium cursor-pointer"
+                        className="px-2.5 py-1.5 text-xs text-slate-400 hover:text-rose-600 font-medium cursor-pointer shrink-0 min-h-[38px] flex items-center justify-center"
                       >
                         Cancel
                       </motion.button>
@@ -1218,7 +1223,7 @@ export function MyAppointmentsBento() {
                         whileTap={{ scale: 0.92 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                         onClick={() => handleDelete(appt.bookingId)}
-                        className="text-xs text-slate-400 hover:text-rose-600 font-medium cursor-pointer"
+                        className="px-2.5 py-1.5 text-xs text-slate-400 hover:text-rose-600 font-medium cursor-pointer shrink-0 min-h-[38px] flex items-center justify-center"
                       >
                         Remove
                       </motion.button>
@@ -1247,18 +1252,18 @@ export function MyAppointmentsBento() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, y: 20 }}
               transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-              className="relative w-full max-w-xl rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-7 shadow-2xl border border-slate-200 overflow-hidden text-left my-auto max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-xl rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-7 shadow-2xl border border-slate-200 overflow-hidden text-left my-auto max-h-[92vh] overflow-y-auto"
             >
-              <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="size-10 rounded-xl bg-emerald-50 text-[#135940] flex items-center justify-center shadow-xs">
-                    <Compass className="w-5 h-5" />
+              <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-100 mb-4">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="size-9 sm:size-10 rounded-xl bg-emerald-50 text-[#135940] flex items-center justify-center shadow-xs shrink-0">
+                    <Compass className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
-                  <div>
-                    <h3 className="text-lg font-black text-slate-900 tracking-tight">
+                  <div className="min-w-0">
+                    <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight truncate">
                       Hospital Wing & Suite Directions
                     </h3>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-500 truncate">
                       WeCare Medical Tower &bull; Pass {directionModalAppt.bookingId}
                     </p>
                   </div>
@@ -1268,20 +1273,20 @@ export function MyAppointmentsBento() {
                   whileHover={{ scale: 1.1, rotate: 90 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setDirectionModalAppt(null)}
-                  className="size-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer"
+                  className="size-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer shrink-0 ml-2"
                 >
                   <X className="w-4 h-4" />
                 </motion.button>
               </div>
 
               {/* Wayfinding Beacon Details */}
-              <div className="space-y-4 text-xs">
-                <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 space-y-1">
-                  <div className="font-bold text-emerald-950 text-sm flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-[#135940]" />
-                    Clinical Tower 4 &bull; 8th Floor Reception
+              <div className="space-y-3.5 sm:space-y-4 text-xs">
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 space-y-1">
+                  <div className="font-bold text-emerald-950 text-xs sm:text-sm flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-[#135940] shrink-0" />
+                    <span>Clinical Tower 4 &bull; 8th Floor Reception</span>
                   </div>
-                  <p className="text-slate-600 leading-relaxed">
+                  <p className="text-slate-600 leading-relaxed text-[11.5px] sm:text-xs">
                     Check in at the 8th Floor concierge desk with Reference Code{' '}
                     <strong className="text-slate-900 font-mono font-bold">{directionModalAppt.bookingId}</strong>.
                     An admission nurse will escort you directly to Suite 800 for your consultation with{' '}
@@ -1289,30 +1294,30 @@ export function MyAppointmentsBento() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 font-mono">
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                     <span className="text-[10px] text-slate-400 block">ELEVATOR BANK</span>
-                    <span className="font-bold text-slate-800">East Tower Elevators (Express 1-4)</span>
+                    <span className="font-bold text-slate-800 text-xs">East Tower Elevators (Express 1-4)</span>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                     <span className="text-[10px] text-slate-400 block">PARKING VALET</span>
-                    <span className="font-bold text-slate-800">Complimentary Plaza Parking Gate B</span>
+                    <span className="font-bold text-slate-800 text-xs">Complimentary Plaza Parking Gate B</span>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex items-start gap-2">
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex items-start gap-2 text-[11px] sm:text-xs">
                   <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                   <span>Please arrive 10 minutes prior to your scheduled consultation window ({directionModalAppt.time}) with your insurance card and photo ID.</span>
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+              <div className="mt-5 sm:mt-6 pt-3 sm:pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                 <motion.button
                   type="button"
                   whileHover={{ scale: 1.04, y: -1 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={() => setDirectionModalAppt(null)}
-                  className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs cursor-pointer shadow-sm"
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs cursor-pointer shadow-sm text-center min-h-[42px] flex items-center justify-center"
                 >
                   Got It, Thanks
                 </motion.button>
@@ -1330,7 +1335,7 @@ export function MyAppointmentsBento() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-900 text-white shadow-2xl text-xs sm:text-sm font-medium border border-slate-700 backdrop-blur-md"
+            className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 z-50 flex items-center justify-between sm:justify-start gap-3 px-4 py-3.5 rounded-2xl bg-slate-900 text-white shadow-2xl text-xs sm:text-sm font-medium border border-slate-700 backdrop-blur-md"
           >
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>{notification}</span>
