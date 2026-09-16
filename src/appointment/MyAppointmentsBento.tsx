@@ -748,23 +748,23 @@ export function MyAppointmentsBento() {
                   className="group relative p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 hover:shadow-md transition-all duration-200 flex flex-col xl:flex-row xl:items-center justify-between gap-4"
                 >
                   {/* Left: Date Capsule + Doctor & Clinical Info */}
-                  <div className="flex items-start sm:items-center gap-3.5 sm:gap-5 flex-1 min-w-0">
+                  <div className="flex items-start sm:items-center gap-3 sm:gap-5 flex-1 min-w-0">
                     
                     {/* Calendar Date Pill */}
-                    <div className="size-16 sm:size-18 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col items-center justify-center shrink-0 text-center font-mono select-none">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider leading-none">
+                    <div className="size-14 sm:size-18 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col items-center justify-center shrink-0 text-center font-mono select-none shadow-2xs">
+                      <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider leading-none">
                         {dt.month}
                       </span>
-                      <span className="text-xl sm:text-2xl font-black text-slate-900 leading-tight my-0.5">
+                      <span className="text-lg sm:text-2xl font-black text-slate-900 leading-tight my-0.5">
                         {dt.dayNum}
                       </span>
-                      <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider leading-none">
+                      <span className="text-[8.5px] sm:text-[9px] font-semibold text-slate-400 uppercase tracking-wider leading-none">
                         {dt.dayOfWeek}
                       </span>
                     </div>
 
                     {/* Doctor Avatar */}
-                    <div className="relative size-12 sm:size-14 rounded-2xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200 shadow-2xs">
+                    <div className="relative size-11 sm:size-14 rounded-2xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200 shadow-2xs">
                       <img
                         src={(appt.doctorImage || '').replace(/^\/doctors\//, '/doctor-images/') || `/doctor-images/${appt.doctorId || 'iron-man'}.jpg`}
                         alt={appt.doctorName}
@@ -781,36 +781,36 @@ export function MyAppointmentsBento() {
 
                     {/* Doctor & Appointment Details */}
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                        <h4 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight truncate max-w-[170px] sm:max-w-none">
                           {appt.doctorName}
                         </h4>
-                        <span className="px-2 py-0.5 rounded-md text-[10.5px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200/80">
+                        <span className="px-2 py-0.5 rounded-md text-[10px] sm:text-[10.5px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200/80 shrink-0">
                           {appt.departmentName}
                         </span>
-                        <span className="text-xs font-mono text-slate-400 font-medium">
+                        <span className="text-[11px] sm:text-xs font-mono text-slate-400 font-medium shrink-0">
                           #{appt.bookingId}
                         </span>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-slate-500">
-                        <span className="flex items-center gap-1 font-semibold text-slate-800">
+                      <div className="flex flex-wrap items-center gap-x-2.5 sm:gap-x-3 gap-y-1 mt-1 text-xs text-slate-500">
+                        <span className="flex items-center gap-1 font-semibold text-slate-800 shrink-0">
                           <Clock className="w-3.5 h-3.5 text-[#135940]" />
                           <span>{appt.time}</span>
                         </span>
                         <span className="text-slate-300">•</span>
-                        <span className="text-slate-600 font-medium">
+                        <span className="text-slate-600 font-medium truncate max-w-[140px] sm:max-w-none">
                           {appt.specialty}
                         </span>
-                        <span className="text-slate-300">•</span>
-                        <span className="flex items-center gap-1 text-slate-500">
+                        <span className="text-slate-300 hidden sm:inline">•</span>
+                        <span className="items-center gap-1 text-slate-500 hidden sm:flex">
                           <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span>{appt.location || 'Medical Tower 4, Suite 800'}</span>
                         </span>
                       </div>
 
                       {appt.reason && (
-                        <p className="text-[11.5px] text-slate-500 mt-1 line-clamp-1 italic">
+                        <p className="text-[11px] sm:text-[11.5px] text-slate-500 mt-1 line-clamp-1 italic">
                           &ldquo;{appt.reason}&rdquo;
                         </p>
                       )}
@@ -825,7 +825,7 @@ export function MyAppointmentsBento() {
                   </div>
 
                   {/* Right: Status Pill & Action Buttons */}
-                  <div className="flex flex-wrap sm:flex-nowrap items-center justify-between xl:justify-end gap-3 pt-3 xl:pt-0 border-t xl:border-t-0 border-slate-100 shrink-0">
+                  <div className="flex flex-wrap sm:flex-nowrap items-center justify-between xl:justify-end gap-2.5 sm:gap-3 pt-3 xl:pt-0 border-t xl:border-t-0 border-slate-100 shrink-0 w-full xl:w-auto">
                     
                     {/* Status Badge */}
                     <div className="shrink-0">
@@ -856,7 +856,7 @@ export function MyAppointmentsBento() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                       {isAdmin && isPending && (
                         <>
                           <motion.button
@@ -864,7 +864,7 @@ export function MyAppointmentsBento() {
                             whileHover={{ scale: 1.04 }}
                             whileTap={{ scale: 0.96 }}
                             onClick={() => handleApprove(appt.bookingId)}
-                            className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                            className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs min-h-[36px]"
                           >
                             <Check className="w-3.5 h-3.5" />
                             <span>Approve</span>
@@ -874,7 +874,7 @@ export function MyAppointmentsBento() {
                             whileHover={{ scale: 1.04 }}
                             whileTap={{ scale: 0.96 }}
                             onClick={() => handleReject(appt.bookingId)}
-                            className="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                            className="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs min-h-[36px]"
                           >
                             <X className="w-3.5 h-3.5" />
                             <span>Reject</span>
@@ -887,11 +887,11 @@ export function MyAppointmentsBento() {
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
                         onClick={() => setDirectionModalAppt(appt)}
-                        className="px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                        className="px-2.5 sm:px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer min-h-[36px]"
                         title="Hospital directions"
                       >
                         <Compass className="w-3.5 h-3.5 text-[#135940]" />
-                        <span className="hidden sm:inline">Directions</span>
+                        <span>Directions</span>
                       </motion.button>
 
                       <motion.button
@@ -899,11 +899,11 @@ export function MyAppointmentsBento() {
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
                         onClick={() => handleDownloadIcs(appt)}
-                        className="px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                        className="px-2.5 sm:px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer min-h-[36px]"
                         title="Add to Calendar (.ICS)"
                       >
                         <Download className="w-3.5 h-3.5 text-[#135940]" />
-                        <span className="hidden sm:inline">Calendar</span>
+                        <span className="hidden xs:inline sm:inline">Calendar</span>
                       </motion.button>
 
                       {/* Cancel or Delete Action */}
@@ -912,14 +912,14 @@ export function MyAppointmentsBento() {
                           <button
                             type="button"
                             onClick={() => handleConfirmCancel(appt.bookingId)}
-                            className="px-2.5 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold cursor-pointer hover:bg-rose-700"
+                            className="px-2.5 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold cursor-pointer hover:bg-rose-700 min-h-[36px]"
                           >
                             Confirm
                           </button>
                           <button
                             type="button"
                             onClick={() => setCancellingId(null)}
-                            className="px-2 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium cursor-pointer hover:bg-slate-200"
+                            className="px-2 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium cursor-pointer hover:bg-slate-200 min-h-[36px]"
                           >
                             No
                           </button>
@@ -928,7 +928,7 @@ export function MyAppointmentsBento() {
                         <button
                           type="button"
                           onClick={() => setCancellingId(appt.bookingId)}
-                          className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                          className="size-9 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shrink-0"
                           title="Cancel Appointment"
                         >
                           <X className="w-4 h-4" />
@@ -937,7 +937,7 @@ export function MyAppointmentsBento() {
                         <button
                           type="button"
                           onClick={() => handleDelete(appt.bookingId)}
-                          className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                          className="size-9 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer flex items-center justify-center shrink-0"
                           title="Remove Record"
                         >
                           <X className="w-4 h-4" />
