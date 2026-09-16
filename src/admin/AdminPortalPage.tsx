@@ -31,7 +31,6 @@ import {
   Mail,
   Phone,
   ArrowRight,
-  User,
   Zap,
 } from 'lucide-react';
 
@@ -2003,37 +2002,6 @@ export default function AdminPortalPage() {
             ) : (
               /* USER ACCOUNTS DIRECTORY LISTING */
               <div className="space-y-5 sm:space-y-6">
-                {/* PATIENT TELEMETRY OVERVIEW CARDS */}
-                <section className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
-                  <div className="rounded-xl sm:rounded-2xl bg-slate-800/60 border border-slate-700/80 p-3 sm:p-4 backdrop-blur-md">
-                    <div className="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
-                      <span>Total Patients</span>
-                      <Users className="w-4 h-4 text-purple-400" />
-                    </div>
-                    <div className="text-xl sm:text-3xl font-black text-white font-mono">{allUsers.length}</div>
-                    <div className="text-[9.5px] sm:text-[10px] text-purple-300 font-mono mt-1">Verified patient accounts</div>
-                  </div>
-
-                  <div className="rounded-xl sm:rounded-2xl bg-slate-800/60 border border-sky-500/30 p-3 sm:p-4 backdrop-blur-md">
-                    <div className="flex items-center justify-between text-sky-400 text-xs font-medium mb-1">
-                      <span>Patients with Appointments</span>
-                      <User className="w-4 h-4 text-sky-400" />
-                    </div>
-                    <div className="text-xl sm:text-3xl font-black text-sky-400 font-mono">
-                      {allUsers.filter((u) => u.appointments.length > 0).length}
-                    </div>
-                    <div className="text-[9.5px] sm:text-[10px] text-sky-300/80 font-mono mt-1">Active consultation records</div>
-                  </div>
-
-                  <div className="rounded-xl sm:rounded-2xl bg-slate-800/60 border border-purple-500/30 p-3 sm:p-4 backdrop-blur-md">
-                    <div className="flex items-center justify-between text-purple-400 text-xs font-medium mb-1">
-                      <span>Total Bookings</span>
-                      <Calendar className="w-4 h-4 text-purple-400" />
-                    </div>
-                    <div className="text-xl sm:text-3xl font-black text-purple-400 font-mono">{appointments.length}</div>
-                    <div className="text-[9.5px] sm:text-[10px] text-purple-300 font-mono mt-1">Cross-patient appointments</div>
-                  </div>
-                </section>
 
                 {/* PATIENT SEARCH & SORTING TOOLBAR */}
                 <section className="rounded-2xl sm:rounded-3xl bg-slate-800/40 border border-slate-700/70 p-3.5 sm:p-5 backdrop-blur-xl flex flex-col gap-3.5">
