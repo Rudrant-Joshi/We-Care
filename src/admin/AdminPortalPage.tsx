@@ -823,7 +823,7 @@ export default function AdminPortalPage() {
               <thead>
                 <tr className="border-b border-slate-700/80 bg-slate-900/80 text-slate-400 font-mono text-[11px] uppercase tracking-wider">
                   <th className="py-3.5 px-4 font-bold">Patient</th>
-                  <th className="py-3.5 px-4 font-bold">Contact & Insurance</th>
+                  <th className="py-3.5 px-4 font-bold">Contact Details</th>
                   <th className="py-3.5 px-4 font-bold">Doctor & Specialty</th>
                   <th className="py-3.5 px-4 font-bold">Scheduled Time</th>
                   <th className="py-3.5 px-4 font-bold">Mode & Room</th>
@@ -868,13 +868,10 @@ export default function AdminPortalPage() {
                       </div>
                     </td>
 
-                    {/* Contact & Insurance */}
+                    {/* Contact Details */}
                     <td className="py-3.5 px-4">
                       <div className="text-slate-200 font-medium">{appt.email}</div>
                       <div className="text-[11px] text-slate-400 font-mono mt-0.5">{appt.phone}</div>
-                      <span className="inline-block mt-1 px-2 py-0.5 rounded-md bg-slate-900/80 border border-slate-700 text-[10px] text-slate-300 font-semibold">
-                        {appt.insuranceProvider || 'Private Pay'}
-                      </span>
                     </td>
 
                     {/* Doctor & Specialty */}
@@ -1041,8 +1038,6 @@ export default function AdminPortalPage() {
                   <div>
                     <div className="flex items-center gap-2 text-[11px] text-purple-300 font-mono">
                       <span>{formatRegistrationTiming(appt)}</span>
-                      <span className="text-slate-600">&bull;</span>
-                      <span className="text-slate-400 truncate">{appt.insuranceProvider || 'Private Pay'}</span>
                     </div>
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400 mt-1.5">
                       <span className="truncate flex items-center gap-1">
@@ -1251,9 +1246,6 @@ export default function AdminPortalPage() {
                         &bull; {appt.phone}
                       </span>
                     )}
-                    <span className="px-1.5 py-0.5 rounded-md bg-slate-950/60 border border-slate-800 text-[9.5px] sm:text-[10px] text-slate-300 font-semibold shrink-0">
-                      {appt.insuranceProvider || 'Private Pay'}
-                    </span>
                   </div>
 
                   {/* Doctor & Location Line */}
