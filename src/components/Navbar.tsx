@@ -236,7 +236,7 @@ export const Navbar = ({ onBookDemoClick: _onBookDemoClick }: NavbarProps) => {
                       ? 'bg-[#135940] shadow-[0_2px_10px_rgba(19,89,64,0.3)]'
                       : 'bg-white shadow-[0_2px_12px_rgba(0,0,0,0.2)]'
                     }`}
-                  transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                  transition={{ type: 'spring', stiffness: 280, damping: 28, mass: 0.8 }}
                 />
               )}
               <span className="relative z-10 flex items-center gap-1.5">

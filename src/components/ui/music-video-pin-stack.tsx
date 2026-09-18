@@ -222,13 +222,28 @@ export function MusicVideoPinStack({
         if (!el) return;
         const on = i === index;
         el.toggleAttribute("data-active", on);
-        el.style.opacity = on ? "1" : "0";
+        // Outgoing: slow fade-out so the crossfade feels cinematic
+        if (!on) {
+          el.style.transition = "opacity 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+          el.style.opacity = "0";
+          el.style.transform = "translateY(-6px)";
+        } else {
+          el.style.transition = "";
+          el.style.transform = "";
+        }
       });
       metaRefs.current.forEach((el, i) => {
         if (!el) return;
         const on = i === index;
         el.toggleAttribute("data-active", on);
-        el.style.opacity = on ? "1" : "0";
+        if (!on) {
+          el.style.transition = "opacity 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+          el.style.opacity = "0";
+          el.style.transform = "translateY(-6px)";
+        } else {
+          el.style.transition = "";
+          el.style.transform = "";
+        }
       });
     };
 
@@ -564,7 +579,7 @@ export function MusicVideoPinStack({
 }
 [data-tsuna-id="music-video-pin-stack"] .mvp-title-item[data-active],
 [data-tsuna-id="music-video-pin-stack"] .mvp-meta-item[data-active] {
-  animation: mvp-flicker 0.075s steps(1) 4 forwards;
+  animation: mvp-fadein 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 [data-tsuna-id="music-video-pin-stack"] .mvp-meta-label,
 [data-tsuna-id="music-video-pin-stack"] .mvp-meta-release {
@@ -652,12 +667,10 @@ export function MusicVideoPinStack({
 [data-tsuna-id="music-video-pin-stack"] .mvp-mobile-controls {
   display: none;
 }
-@keyframes mvp-flicker {
-  0% { opacity: 0; }
-  25% { opacity: 1; }
-  50% { opacity: 0; }
-  75% { opacity: 1; }
-  100% { opacity: 1; }
+@keyframes mvp-fadein {
+  0%   { opacity: 0; transform: translateY(10px); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0); }
 }
 @media (max-width: 1100px) {
   [data-tsuna-id="music-video-pin-stack"] .mvp-stage {
@@ -791,6 +804,7 @@ export function MusicVideoPinStack({
   [data-tsuna-id="music-video-pin-stack"] .mvp-meta-item[data-active] {
     animation: none;
     opacity: 1;
+    transform: none;
   }
   [data-tsuna-id="music-video-pin-stack"] .mvp-item img {
     transition: none;
