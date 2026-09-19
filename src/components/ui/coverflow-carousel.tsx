@@ -33,6 +33,8 @@ export interface CoverflowCarouselProps {
   fade?: number;
   /** Subtle depth blur applied to side cards (in px). */
   blur?: number;
+  /** Maximum number of cards visible on each side of the active center card (default: 2). */
+  maxVisibleCards?: number;
   /** Any CSS length. Everything else is derived from it, so the rake scales. */
   cardWidth?: string;
   /** Space between cards, as a fraction of card width. */
@@ -57,6 +59,7 @@ export function CoverflowCarousel({
   falloff = 0.56,
   fade = 0,
   blur = 3.5,
+  maxVisibleCards = 2,
   cardWidth = "clamp(148px, 22vw, 260px)",
   gap = 0.05,
   loop = true,
@@ -131,17 +134,23 @@ export function CoverflowCarousel({
       card.style.transform =
         `translate3d(calc(-50% + ${offset * pitch}px), 0, ${-depth * width * ramp}px) rotateY(${-tilt}deg)`;
 
-      // A card is teleported across the ring at exactly half a turn out, so it
-      // has to be gone by then or the jump is visible.
+      // Only show up to maxVisibleCards on each side (center + 2 left + 2 right).
+      // The 3rd card (distance >= 2.15) is completely hidden so no partial slice is visible.
+      const rangeFade = Math.max(0, Math.min(1, (maxVisibleCards + 0.15 - distance) / 0.15));
       const edge = loop ? Math.min(1, Math.max(0, count / 2 - distance)) : 1;
-      card.style.opacity = fade > 0 ? String(Math.max(0, 1 - fade * distance) * edge) : String(edge > 0.05 ? 1 : edge);
+      const baseOpacity = fade > 0 ? Math.max(0, 1 - fade * distance) : 1;
+      const finalOpacity = baseOpacity * edge * rangeFade;
+
+      card.style.opacity = String(finalOpacity);
+      card.style.visibility = finalOpacity <= 0.001 ? "hidden" : "visible";
+      card.style.pointerEvents = finalOpacity <= 0.001 ? "none" : "auto";
       card.style.zIndex = String(100 - Math.round(distance));
 
       // Subtle depth-of-field blur on side cards ("not too much blur little bit blur")
-      const blurAmount = blur > 0 && distance >= 0.08 ? Math.min(distance * blur, blur * 1.5) : 0;
+      const blurAmount = blur > 0 && distance >= 0.08 ? Math.min(distance * blur, blur * 1.6) : 0;
       card.style.filter = blurAmount > 0 ? `blur(${blurAmount.toFixed(1)}px)` : "none";
     });
-  }, [blur, count, depth, fade, falloff, gap, loop, rotate]);
+  }, [blur, count, depth, fade, falloff, gap, loop, maxVisibleCards, rotate]);
 
   const settle = React.useCallback(
     (target: number) => {
