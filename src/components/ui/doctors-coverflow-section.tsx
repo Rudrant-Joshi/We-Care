@@ -353,12 +353,12 @@ export function DoctorsCoverflowSection({
               className="space-y-6 transform-gpu will-change-transform"
             >
               {/* 3D Coverflow Carousel — Clean white container */}
-              <div className="relative rounded-3xl bg-white p-2 sm:p-6 overflow-hidden">
+              <div className="relative rounded-3xl bg-white p-1 sm:p-6 overflow-hidden">
 
                 <CoverflowCarousel
                   key={selectedDept}
                   slides={slides}
-                  cardWidth="clamp(150px, 38vw, 280px)"
+                  cardWidth="clamp(195px, 52vw, 300px)"
                   rotate={40}
                   depth={0.7}
                   perspective={3.2}

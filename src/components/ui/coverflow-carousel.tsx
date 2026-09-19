@@ -60,7 +60,7 @@ export function CoverflowCarousel({
   fade = 0,
   blur = 3.5,
   maxVisibleCards = 2,
-  cardWidth = "clamp(148px, 22vw, 260px)",
+  cardWidth = "clamp(195px, 52vw, 300px)",
   gap = 0.05,
   loop = true,
   showCaption = false,
@@ -105,17 +105,18 @@ export function CoverflowCarousel({
     [count],
   );
 
-  /** Responsive pitch: on mobile, side cards are positioned so they never get cut off at screen edges */
+  /** Responsive pitch: on mobile, side cards expand to utilize the full width of the container without clipping */
   const getPitch = React.useCallback(
     (cardWidth: number) => {
       if (!cardWidth) return 0;
       const frameWidth = frameWidthRef.current || frameRef.current?.offsetWidth || cardWidth * 3;
       const isMobile = frameWidth < 640;
       if (!isMobile) return cardWidth * (1 + gap);
-      const maxSafeSideSpan = frameWidth / 2 - 28;
-      const foreshortenedCardHalf = cardWidth * 0.38;
-      const maxMobilePitch = Math.max(cardWidth * 0.42, maxSafeSideSpan - foreshortenedCardHalf);
-      return Math.min(cardWidth * (1 + gap), maxMobilePitch);
+      // Utilize the left and right spaces: outer edge sits cleanly ~12px from container bounds
+      const maxSafeSideSpan = frameWidth / 2 - 12;
+      const foreshortenedCardHalf = cardWidth * 0.30;
+      const optimalMobilePitch = Math.max(cardWidth * 0.50, maxSafeSideSpan - foreshortenedCardHalf);
+      return Math.min(cardWidth * (1 + gap), optimalMobilePitch);
     },
     [gap],
   );
