@@ -56,7 +56,7 @@ export function CoverflowCarousel({
   perspective = 3,
   falloff = 0.56,
   fade = 0,
-  blur = 1.5,
+  blur = 3.5,
   cardWidth = "clamp(148px, 22vw, 260px)",
   gap = 0.05,
   loop = true,
