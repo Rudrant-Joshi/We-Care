@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+}
+
 @layer base {
   html,
   body {
@@ -105,6 +116,14 @@
 }
 
 :root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --border: #e2e8f0;
+  --ring: #135940;
   --theme-primary: #135940;
   --theme-primary-hover: #1b7454;
   --theme-primary-dark: #0e4230;

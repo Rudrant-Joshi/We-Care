@@ -8,7 +8,7 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { Navbar } from "../components/Navbar";
-import { DoctorsBento } from "../components/ui/doctors-bento";
+import { DoctorsCoverflowSection } from "../components/ui/doctors-coverflow-section";
 import Demo from "@/components/ui/demo";
 
 export default function DoctorsPage() {
@@ -63,7 +63,7 @@ export default function DoctorsPage() {
         />
       </motion.section>
 
-      {/* Main Dedicated Doctors Bento Section with Scroll Reveal */}
+      {/* Section 2: Dedicated Doctors 3D Coverflow Carousel Section with Scroll Reveal */}
       <motion.div
         id="doctors-roster"
         initial={{ opacity: 0, y: 35 }}
@@ -72,7 +72,7 @@ export default function DoctorsPage() {
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-20 flex-1 scroll-mt-28"
       >
-        <DoctorsBento onBookConsultation={handleBookAppointment} />
+        <DoctorsCoverflowSection onBookConsultation={handleBookAppointment} />
       </motion.div>
 
       {/* Light Clean Footer matching Slate-50 background */}
