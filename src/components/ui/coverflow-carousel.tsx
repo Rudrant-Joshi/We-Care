@@ -82,6 +82,7 @@ export function CoverflowCarousel({
       swallow a keypress that lands mid-flight, before the round-off moves. */
   const targetRef = React.useRef(0);
   const widthRef = React.useRef(0);
+  const frameWidthRef = React.useRef(0);
   const rafRef = React.useRef<number | null>(null);
   const dragRef = React.useRef<{
     id: number;
@@ -104,12 +105,31 @@ export function CoverflowCarousel({
     [count],
   );
 
+  /** Responsive pitch: on mobile, side cards are positioned so they never get cut off at screen edges */
+  const getPitch = React.useCallback(
+    (cardWidth: number) => {
+      if (!cardWidth) return 0;
+      const frameWidth = frameWidthRef.current || frameRef.current?.offsetWidth || cardWidth * 3;
+      const isMobile = frameWidth < 640;
+      if (!isMobile) return cardWidth * (1 + gap);
+      const maxSafeSideSpan = frameWidth / 2 - 28;
+      const foreshortenedCardHalf = cardWidth * 0.38;
+      const maxMobilePitch = Math.max(cardWidth * 0.42, maxSafeSideSpan - foreshortenedCardHalf);
+      return Math.min(cardWidth * (1 + gap), maxMobilePitch);
+    },
+    [gap],
+  );
+
   // Paint straight to the DOM. Sixty state updates a second would re-render
   // every card for numbers React never needs to see.
   const paint = React.useCallback(() => {
     const width = widthRef.current;
     if (!width) return;
-    const pitch = width * (1 + gap);
+    const pitch = getPitch(width);
+    const frameWidth = frameWidthRef.current || frameRef.current?.offsetWidth || width * 3;
+    const isMobile = frameWidth < 640;
+    // On mobile phone screens, show 1 card on each side so cards never get cut off at edges
+    const effectiveMaxVisible = isMobile ? 1 : (maxVisibleCards ?? 2);
     const pos = posRef.current;
 
     cardRefs.current.forEach((card, index) => {
@@ -134,9 +154,8 @@ export function CoverflowCarousel({
       card.style.transform =
         `translate3d(calc(-50% + ${offset * pitch}px), 0, ${-depth * width * ramp}px) rotateY(${-tilt}deg)`;
 
-      // Only show up to maxVisibleCards on each side (center + 2 left + 2 right).
-      // The 3rd card (distance >= 2.15) is completely hidden so no partial slice is visible.
-      const rangeFade = Math.max(0, Math.min(1, (maxVisibleCards + 0.15 - distance) / 0.15));
+      // Smooth cutoff fade so cards beyond effectiveMaxVisible are cleanly hidden with no edge clipping
+      const rangeFade = Math.max(0, Math.min(1, (effectiveMaxVisible + 0.15 - distance) / 0.15));
       const edge = loop ? Math.min(1, Math.max(0, count / 2 - distance)) : 1;
       const baseOpacity = fade > 0 ? Math.max(0, 1 - fade * distance) : 1;
       const finalOpacity = baseOpacity * edge * rangeFade;
@@ -150,7 +169,7 @@ export function CoverflowCarousel({
       const blurAmount = blur > 0 && distance >= 0.08 ? Math.min(distance * blur, blur * 1.6) : 0;
       card.style.filter = blurAmount > 0 ? `blur(${blurAmount.toFixed(1)}px)` : "none";
     });
-  }, [blur, count, depth, fade, falloff, gap, loop, maxVisibleCards, rotate]);
+  }, [blur, count, depth, fade, falloff, getPitch, loop, maxVisibleCards, rotate]);
 
   const settle = React.useCallback(
     (target: number) => {
@@ -248,7 +267,7 @@ export function CoverflowCarousel({
       hasMovedRef.current = true;
     }
 
-    const pitch = widthRef.current * (1 + gap);
+    const pitch = getPitch(widthRef.current);
     if (!pitch) return;
 
     const now = performance.now();
@@ -282,6 +301,7 @@ export function CoverflowCarousel({
     if (!frame) return;
 
     const measure = () => {
+      frameWidthRef.current = frame.offsetWidth;
       const card = cardRefs.current[0];
       if (!card) return;
       widthRef.current = card.offsetWidth;

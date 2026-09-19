@@ -358,7 +358,7 @@ export function DoctorsCoverflowSection({
                 <CoverflowCarousel
                   key={selectedDept}
                   slides={slides}
-                  cardWidth="clamp(190px, 24vw, 300px)"
+                  cardWidth="clamp(150px, 38vw, 280px)"
                   rotate={40}
                   depth={0.7}
                   perspective={3.2}
