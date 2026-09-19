@@ -214,6 +214,7 @@ export default function AdminPortalPage() {
   const newVisitType: VisitType = 'in-person';
   const [newReason, setNewReason] = useState('');
   const [authAccountsRevision, setAuthAccountsRevision] = useState(0);
+  const [firestoreUsers, setFirestoreUsers] = useState<Map<string, any>>(new Map());
 
   // Load appointments and sync user directory
   const refreshAppointments = () => {
@@ -297,7 +298,61 @@ export default function AdminPortalPage() {
       // Graceful fallback
     }
 
-    // 3. Multi-tab and window listeners
+    // 3. Real-time Cloud Firestore Listener for Users directory
+    let unsubscribeUsers: (() => void) | null = null;
+    try {
+      unsubscribeUsers = onSnapshot(
+        collection(db, 'users'),
+        (snapshot) => {
+          const userMap = new Map<string, any>();
+          const deletedEmails = new Set(getDeletedUserEmails().map((e) => e.toLowerCase().trim()));
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const email = (data?.email || '').toLowerCase().trim();
+            if (data?.isDeleted === true || (email && deletedEmails.has(email))) {
+              return;
+            }
+            userMap.set(docSnap.id, { id: docSnap.id, ...data });
+            if (email) {
+              userMap.set(email, { id: docSnap.id, ...data });
+            }
+          });
+          setFirestoreUsers(userMap);
+        },
+        (error) => {
+          console.warn('[Admin Portal] Users live subscription notice:', error.message);
+        }
+      );
+    } catch {}
+
+    // 4. Real-time Cloud Firestore Listener for Deleted Users tombstone
+    let unsubscribeDeleted: (() => void) | null = null;
+    try {
+      unsubscribeDeleted = onSnapshot(
+        collection(db, 'deleted_users'),
+        (snapshot) => {
+          const localDeleted = getDeletedUserEmails();
+          let changed = false;
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const email = (data?.email || docSnap.id || '').toLowerCase().trim();
+            if (email && !localDeleted.includes(email)) {
+              localDeleted.push(email);
+              changed = true;
+            }
+          });
+          if (changed) {
+            localStorage.setItem('wecare_deleted_users_v1', JSON.stringify(localDeleted));
+            setAuthAccountsRevision((r) => r + 1);
+          }
+        },
+        (error) => {
+          console.warn('[Admin Portal] Deleted users subscription notice:', error.message);
+        }
+      );
+    } catch {}
+
+    // 5. Multi-tab and window listeners
     window.addEventListener('wecare_appointments_changed', refreshAppointments);
     window.addEventListener('wecare_auth_state_changed', refreshAppointments);
     window.addEventListener('storage', refreshAppointments);
@@ -305,6 +360,8 @@ export default function AdminPortalPage() {
 
     return () => {
       if (unsubscribeFirestore) unsubscribeFirestore();
+      if (unsubscribeUsers) unsubscribeUsers();
+      if (unsubscribeDeleted) unsubscribeDeleted();
       window.removeEventListener('wecare_appointments_changed', refreshAppointments);
       window.removeEventListener('wecare_auth_state_changed', refreshAppointments);
       window.removeEventListener('storage', refreshAppointments);
@@ -451,6 +508,56 @@ export default function AdminPortalPage() {
       }
     });
 
+    // 2.5 Live Cloud Firestore Users (instantly updates when database users are modified/created/deleted)
+    firestoreUsers.forEach((fsUser, key) => {
+      const email = (fsUser.email || '').toLowerCase().trim();
+      if (!email || deletedUserEmails.has(email) || fsUser.isDeleted) return;
+      if (fsUser.role && fsUser.role !== 'patient') return;
+
+      let createdTs = 0;
+      if (fsUser.createdAt) {
+        const parsed = new Date(fsUser.createdAt).getTime();
+        if (!isNaN(parsed) && parsed > 0) createdTs = parsed;
+      }
+      if (!createdTs) createdTs = Date.now() - 3600000;
+
+      const existing = userMap.get(email);
+      if (existing) {
+        existing.id = fsUser.id || existing.id;
+        existing.name = fsUser.name || existing.name;
+        existing.phone = fsUser.phone || existing.phone;
+        existing.role = 'patient';
+        existing.avatar = fsUser.avatar || existing.avatar;
+        existing.badgeNumber = fsUser.badgeNumber || existing.badgeNumber;
+        existing.isRegistered = true;
+        if (createdTs > 0 && (!existing.createdAtTimestamp || createdTs < existing.createdAtTimestamp)) {
+          existing.createdAtTimestamp = createdTs;
+        }
+      } else {
+        userMap.set(email, {
+          id: fsUser.id || key,
+          name: fsUser.name || email.split('@')[0],
+          email: fsUser.email,
+          phone: fsUser.phone,
+          role: 'patient',
+          avatar: fsUser.avatar,
+          badgeNumber: fsUser.badgeNumber || `WC-${(fsUser.id || key).slice(0, 4).toUpperCase()}-PT`,
+          createdAt: fsUser.createdAt
+            ? new Date(fsUser.createdAt).toLocaleDateString([], {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })
+            : 'Registered Patient',
+          createdAtTimestamp: createdTs,
+          latestActivityTimestamp: createdTs,
+          latestActivityLabel: formatUserActivityRelative(createdTs, 'account'),
+          isRegistered: true,
+          appointments: [],
+        });
+      }
+    });
+
     // 3. Map all appointments to user accounts
     appointments.forEach((appt) => {
       const email = (appt.email || '').toLowerCase().trim();
@@ -524,7 +631,7 @@ export default function AdminPortalPage() {
         }
         return a.name.localeCompare(b.name);
       });
-  }, [appointments, authAccountsRevision]);
+  }, [appointments, authAccountsRevision, firestoreUsers]);
 
   // Filter and sort patients based on search query and userSortOrder
   const filteredUsers = useMemo(() => {
@@ -591,8 +698,8 @@ export default function AdminPortalPage() {
 
     if (!window.confirm(confirmMessage)) return;
 
-    // 1. Blacklist / record user account as deleted
-    recordDeletedUser(userToDelete.email);
+    // 1. Blacklist / record user account as deleted & remove from Cloud Firestore
+    recordDeletedUser(userToDelete.email, userToDelete.id);
 
     // 2. Delete all appointments linked to this user from local storage & Cloud Firestore
     const remaining = await deleteAppointmentsForUser(
@@ -611,6 +718,17 @@ export default function AdminPortalPage() {
     setAuthAccountsRevision((r) => r + 1);
     showToast(`Deleted patient "${userToDelete.name}" and removed all ${apptCount} associated appointment(s).`);
   };
+
+  // Automatically close user detail view if the selected patient was deleted from the database
+  useEffect(() => {
+    if (!selectedUser) return;
+    const selectedEmail = selectedUser.email.toLowerCase().trim();
+    const deletedEmails = getDeletedUserEmails().map((e) => e.toLowerCase().trim());
+    if (deletedEmails.includes(selectedEmail)) {
+      setSelectedUser(null);
+      showToast('Patient record was removed from the database.');
+    }
+  }, [selectedUser, authAccountsRevision, firestoreUsers]);
 
   // Handle Quick Login
   const handleGateLogin = async (e?: React.FormEvent) => {

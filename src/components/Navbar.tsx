@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { User as UserIcon, LogOut, ShieldAlert } from 'lucide-react';
 import type { NavItem } from '../types';
-import { useAuth } from '../auth';
-import { getUserAppointments, getStoredAppointments } from '../appointment/storage';
+import { useAuth, getDeletedUserEmails } from '../auth';
+import { getUserAppointments, getStoredAppointments, isMockAppointment } from '../appointment/storage';
+import { db } from '../lib/firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
 
 interface NavbarProps {
   onBookDemoClick?: () => void;
@@ -47,7 +49,7 @@ export const Navbar = ({ onBookDemoClick: _onBookDemoClick }: NavbarProps) => {
     currentUser?.role === 'admin' ||
     currentUser?.email?.toLowerCase() === 'rudrant.joshi@gmail.com';
 
-  // Keep live appointment count synced (shows all hospital bookings for admin, personal for patient)
+  // Keep live appointment count synced across devices and real-time database
   useEffect(() => {
     const syncCount = () => {
       try {
@@ -61,10 +63,45 @@ export const Navbar = ({ onBookDemoClick: _onBookDemoClick }: NavbarProps) => {
     };
 
     syncCount();
+
+    // Live Cloud Firestore listener for real-time appointment updates
+    let unsubscribeFirestore: (() => void) | null = null;
+    try {
+      unsubscribeFirestore = onSnapshot(
+        collection(db, 'appointments'),
+        (snapshot) => {
+          const deletedEmails = new Set(getDeletedUserEmails().map((e) => e.toLowerCase().trim()));
+          let validCount = 0;
+          const currentEmail = currentUser?.email?.toLowerCase().trim();
+
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const apptEmail = (data?.email || '').toLowerCase().trim();
+            if (apptEmail && deletedEmails.has(apptEmail)) return;
+            if (data?.bookingId && !isMockAppointment(data.bookingId)) {
+              if (isAdmin) {
+                validCount++;
+              } else if (currentEmail && apptEmail === currentEmail) {
+                validCount++;
+              }
+            }
+          });
+
+          setApptCount(validCount);
+        },
+        () => {
+          syncCount();
+        }
+      );
+    } catch {
+      syncCount();
+    }
+
     window.addEventListener('wecare_appointments_changed', syncCount);
     window.addEventListener('wecare_auth_state_changed', syncCount);
     window.addEventListener('storage', syncCount);
     return () => {
+      if (unsubscribeFirestore) unsubscribeFirestore();
       window.removeEventListener('wecare_appointments_changed', syncCount);
       window.removeEventListener('wecare_auth_state_changed', syncCount);
       window.removeEventListener('storage', syncCount);
