@@ -213,20 +213,13 @@ export function MyAppointmentsBento() {
               remoteList.push(data);
             }
           });
-          const local = getStoredAppointments().filter((l) => {
-            if (isMockAppointment(l.bookingId)) return false;
-            const lEmail = (l.email || '').toLowerCase().trim();
-            if (lEmail && deletedEmails.has(lEmail)) return false;
-            return true;
-          });
-          const remoteIds = new Set(remoteList.map((r) => r.bookingId));
-          const merged = [...remoteList, ...local.filter((l) => !remoteIds.has(l.bookingId))];
-          localStorage.setItem('wecare_user_appointments_v2', JSON.stringify(merged));
+          const sorted = sortAppointmentsDescending(remoteList);
+          localStorage.setItem('wecare_user_appointments_v2', JSON.stringify(sorted));
 
           if (isAdmin) {
-            setAppointments(sortAppointmentsDescending(merged));
+            setAppointments(sorted);
           } else {
-            const userList = merged.filter(
+            const userList = sorted.filter(
               (a) =>
                 currentUser?.email &&
                 a.email?.toLowerCase().trim() === currentUser.email.toLowerCase().trim()
@@ -234,7 +227,8 @@ export function MyAppointmentsBento() {
             setAppointments(sortAppointmentsDescending(userList));
           }
         } else {
-          loadAppointments();
+          setAppointments([]);
+          localStorage.setItem('wecare_user_appointments_v2', JSON.stringify([]));
         }
       });
     } catch {

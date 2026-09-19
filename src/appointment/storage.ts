@@ -456,52 +456,14 @@ export async function syncAppointmentsFromFirestore(): Promise<StoredAppointment
         }
       }
 
-      const remoteIds = new Set(remoteList.map((r) => r.bookingId));
-      const cleanLocal = local.filter((l) => {
-        if (isMockAppointment(l.bookingId)) return false;
-        const lEmail = (l.email || '').toLowerCase().trim();
-        if (lEmail && deletedEmails.has(lEmail)) return false;
-        return true;
-      });
-      const merged = sortAppointmentsDescending([
-        ...remoteList,
-        ...cleanLocal.filter((l) => !remoteIds.has(l.bookingId)),
-      ]);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      const sorted = sortAppointmentsDescending(remoteList);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
       window.dispatchEvent(new Event('wecare_appointments_changed'));
-
-      // Backfill any real local patient bookings to Firestore (strictly excluding deleted users)
-      for (const loc of cleanLocal) {
-        const locEmail = (loc.email || '').toLowerCase().trim();
-        if (
-          !remoteIds.has(loc.bookingId) &&
-          !isMockAppointment(loc.bookingId) &&
-          (!locEmail || !deletedEmails.has(locEmail))
-        ) {
-          setDoc(doc(db, 'appointments', loc.bookingId), {
-            ...loc,
-            syncedAt: new Date().toISOString(),
-          }).catch(() => {});
-        }
-      }
-      return merged;
-    } else if (local.length > 0) {
-      // If Firestore is empty, backfill only real patient appointments into Cloud Firestore (excluding deleted users)
-      const cleanLocal = sortAppointmentsDescending(
-        local.filter((l) => {
-          if (isMockAppointment(l.bookingId)) return false;
-          const lEmail = (l.email || '').toLowerCase().trim();
-          if (lEmail && deletedEmails.has(lEmail)) return false;
-          return true;
-        })
-      );
-      for (const loc of cleanLocal) {
-        setDoc(doc(db, 'appointments', loc.bookingId), {
-          ...loc,
-          syncedAt: new Date().toISOString(),
-        }).catch(() => {});
-      }
-      return cleanLocal;
+      return sorted;
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+      window.dispatchEvent(new Event('wecare_appointments_changed'));
+      return [];
     }
   } catch (err: any) {
     console.warn('[Firebase Firestore] Remote sync notice:', err.message);

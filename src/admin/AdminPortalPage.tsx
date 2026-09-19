@@ -36,8 +36,6 @@ import {
 
 import {
   useAuth,
-  DEMO_USERS,
-  getRegisteredAccounts,
   recordDeletedUser,
   getDeletedUserEmails,
 } from '../auth/AuthContext';
@@ -271,23 +269,12 @@ export default function AdminPortalPage() {
                 remoteList.push(data);
               }
             });
-            const local = getStoredAppointments();
-            const remoteIds = new Set(remoteList.map((r) => r.bookingId));
-            const cleanLocal = local.filter((l) => {
-              if (isMockAppointment(l.bookingId)) return false;
-              const lEmail = (l.email || '').toLowerCase().trim();
-              if (lEmail && deletedEmails.has(lEmail)) return false;
-              return true;
-            });
-            const merged = sortAppointmentsDescending([
-              ...remoteList,
-              ...cleanLocal.filter((l) => !remoteIds.has(l.bookingId)),
-            ]);
-            setAppointments(merged);
-            localStorage.setItem('wecare_user_appointments_v2', JSON.stringify(merged));
+            const sorted = sortAppointmentsDescending(remoteList);
+            setAppointments(sorted);
+            localStorage.setItem('wecare_user_appointments_v2', JSON.stringify(sorted));
           } else {
-            const local = sortAppointmentsDescending(getStoredAppointments());
-            setAppointments(local);
+            setAppointments([]);
+            localStorage.setItem('wecare_user_appointments_v2', JSON.stringify([]));
           }
         },
         (error) => {
@@ -435,80 +422,7 @@ export default function AdminPortalPage() {
       getDeletedUserEmails().map((e) => e.toLowerCase().trim())
     );
 
-    // 1. Seed demo accounts (PATIENTS ONLY - no doctors, no admins, no other)
-    Object.values(DEMO_USERS).forEach((demo) => {
-      if (demo.role !== 'patient') return;
-      const email = demo.email.toLowerCase().trim();
-      if (deletedUserEmails.has(email)) return;
-      const baselineCreated = new Date('2025-06-01T00:00:00Z').getTime();
-
-      userMap.set(email, {
-        id: demo.id,
-        name: demo.name,
-        email: demo.email,
-        phone: demo.phone,
-        role: 'patient',
-        avatar: demo.avatar,
-        badgeNumber: demo.badgeNumber,
-        createdAt: demo.memberSince ? `Member since ${demo.memberSince}` : 'Patient Client',
-        createdAtTimestamp: baselineCreated,
-        latestActivityTimestamp: baselineCreated,
-        latestActivityLabel: demo.memberSince ? `Member since ${demo.memberSince}` : 'Patient Client',
-        isRegistered: true,
-        appointments: [],
-      });
-    });
-
-    // 2. Add locally registered user accounts (PATIENTS ONLY)
-    const registered = getRegisteredAccounts();
-    registered.forEach((acc) => {
-      if (acc.role && acc.role !== 'patient') return;
-      const email = acc.email.toLowerCase().trim();
-      if (deletedUserEmails.has(email)) return;
-      let createdTs = 0;
-      if (acc.createdAt) {
-        const parsed = new Date(acc.createdAt).getTime();
-        if (!isNaN(parsed) && parsed > 0) createdTs = parsed;
-      }
-      if (!createdTs) createdTs = Date.now() - 3600000;
-
-      const existing = userMap.get(email);
-      if (existing) {
-        existing.name = acc.name || existing.name;
-        existing.role = 'patient';
-        existing.isRegistered = true;
-        existing.createdAtTimestamp = createdTs;
-        if (acc.createdAt) {
-          existing.createdAt = new Date(acc.createdAt).toLocaleDateString([], {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-          });
-        }
-      } else {
-        userMap.set(email, {
-          id: acc.id,
-          name: acc.name,
-          email: acc.email,
-          role: 'patient',
-          badgeNumber: `WC-${acc.id.slice(0, 4).toUpperCase()}-PT`,
-          createdAt: acc.createdAt
-            ? new Date(acc.createdAt).toLocaleDateString([], {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              })
-            : 'Registered Patient',
-          createdAtTimestamp: createdTs,
-          latestActivityTimestamp: createdTs,
-          latestActivityLabel: formatUserActivityRelative(createdTs, 'account'),
-          isRegistered: true,
-          appointments: [],
-        });
-      }
-    });
-
-    // 2.5 Live Cloud Firestore Users (instantly updates when database users are modified/created/deleted)
+    // 1. Live Cloud Firestore Registered Users (synchronized live across all devices)
     firestoreUsers.forEach((fsUser, key) => {
       const email = (fsUser.email || '').toLowerCase().trim();
       if (!email || deletedUserEmails.has(email) || fsUser.isDeleted) return;
