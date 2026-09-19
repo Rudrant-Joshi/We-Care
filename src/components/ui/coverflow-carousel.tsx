@@ -32,6 +32,8 @@ export interface CoverflowCarouselProps {
   /** Opacity lost per step from the centre. */
   fade?: number;
   /** Any CSS length. Everything else is derived from it, so the rake scales. */
+  /** Subtle depth blur applied to side cards (in px). */
+  blur?: number;
   cardWidth?: string;
   /** Space between cards, as a fraction of card width. */
   gap?: number;
@@ -54,6 +56,7 @@ export function CoverflowCarousel({
   perspective = 3,
   falloff = 0.56,
   fade = 0,
+  blur = 1.5,
   cardWidth = "clamp(148px, 22vw, 260px)",
   gap = 0.05,
   loop = true,
@@ -130,8 +133,12 @@ export function CoverflowCarousel({
       const edge = loop ? Math.min(1, Math.max(0, count / 2 - distance)) : 1;
       card.style.opacity = fade > 0 ? String(Math.max(0, 1 - fade * distance) * edge) : String(edge > 0.05 ? 1 : edge);
       card.style.zIndex = String(100 - Math.round(distance));
+
+      // Subtle depth-of-field blur on side cards ("not too much blur little bit blur")
+      const blurAmount = blur > 0 && distance >= 0.08 ? Math.min(distance * blur, blur * 1.5) : 0;
+      card.style.filter = blurAmount > 0 ? `blur(${blurAmount.toFixed(1)}px)` : "none";
     });
-  }, [count, depth, fade, falloff, gap, loop, rotate]);
+  }, [blur, count, depth, fade, falloff, gap, loop, rotate]);
 
   const settle = React.useCallback(
     (target: number) => {
@@ -319,7 +326,7 @@ export function CoverflowCarousel({
                   }
                 }}
                 className={cn(
-                  "absolute left-1/2 top-0 aspect-square overflow-hidden rounded-2xl bg-muted shadow-xl will-change-transform cursor-pointer border border-slate-200/60 transition-shadow hover:shadow-2xl",
+                  "absolute left-1/2 top-0 aspect-square overflow-hidden rounded-2xl bg-muted shadow-xl will-change-transform cursor-pointer border border-slate-200/60 transition-[filter,shadow] duration-200 hover:!filter-none hover:shadow-2xl",
                   cardClassName,
                 )}
                 style={{ width: "var(--cf-card)" }}

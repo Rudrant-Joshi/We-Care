@@ -363,6 +363,7 @@ export function DoctorsCoverflowSection({
                   depth={0.7}
                   perspective={3.2}
                   fade={0}
+                  blur={1.5}
                   loop={slides.length > 3}
                   showCaption={true}
                   showNavigation={true}
