@@ -31,9 +31,9 @@ export interface CoverflowCarouselProps {
   falloff?: number;
   /** Opacity lost per step from the centre. */
   fade?: number;
-  /** Any CSS length. Everything else is derived from it, so the rake scales. */
   /** Subtle depth blur applied to side cards (in px). */
   blur?: number;
+  /** Any CSS length. Everything else is derived from it, so the rake scales. */
   cardWidth?: string;
   /** Space between cards, as a fraction of card width. */
   gap?: number;
@@ -90,6 +90,10 @@ export function CoverflowCarousel({
   const hasMovedRef = React.useRef(false);
 
   const [selected, setSelected] = React.useState(0);
+  const selectedRef = React.useRef(selected);
+  React.useEffect(() => {
+    selectedRef.current = selected;
+  }, [selected]);
 
   /** Nearest whole card, folded back into 0..count-1. */
   const indexAt = React.useCallback(
@@ -141,45 +145,52 @@ export function CoverflowCarousel({
 
   const settle = React.useCallback(
     (target: number) => {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-      targetRef.current = target;
-      const nextIdx = indexAt(target);
-      setSelected(nextIdx);
-      onSelect?.(nextIdx);
-
-      const startPos = posRef.current;
-      const distance = target - startPos;
-      if (Math.abs(distance) < 0.0005) {
-        posRef.current = target;
-        paint();
-        return;
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
       }
-
-      // Time-based smooth easing: fast, responsive takeoff and butter-soft deceleration
-      const startTime = performance.now();
-      const duration = Math.min(340, Math.max(220, Math.abs(distance) * 180));
+      targetRef.current = target;
+      let lastTime = performance.now();
 
       const step = (now: number) => {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        // Quintic ease-out: 1 - (1 - t)^3.6
-        const ease = 1 - Math.pow(1 - progress, 3.6);
-        
-        posRef.current = startPos + distance * ease;
+        const remaining = targetRef.current - posRef.current;
+        if (Math.abs(remaining) < 0.0008) {
+          posRef.current = targetRef.current;
+          paint();
+          const finalIdx = indexAt(targetRef.current);
+          if (finalIdx !== selectedRef.current) {
+            selectedRef.current = finalIdx;
+            setSelected(finalIdx);
+            onSelect?.(finalIdx);
+          }
+          rafRef.current = null;
+          return;
+        }
+
+        // Frame-rate independent smooth exponential ease-out:
+        // Slower, visible, butter-smooth card transition (~550ms perceptible travel)
+        const dt = Math.min((now - lastTime) / 1000, 0.05);
+        lastTime = now;
+        const decayRate = 5.0; // 5.0 gives ~550ms elegant glide
+        const alpha = 1 - Math.exp(-decayRate * dt);
+
+        posRef.current += remaining * alpha;
         paint();
 
-        if (progress < 1) {
-          rafRef.current = requestAnimationFrame(step);
-        } else {
-          posRef.current = target;
-          paint();
-          rafRef.current = null;
+        // Harmoniously update selected doctor as card glides past midpoint
+        const currentIdx = indexAt(posRef.current);
+        if (currentIdx !== selectedRef.current) {
+          selectedRef.current = currentIdx;
+          setSelected(currentIdx);
+          onSelect?.(currentIdx);
         }
+
+        rafRef.current = requestAnimationFrame(step);
       };
+
       rafRef.current = requestAnimationFrame(step);
     },
-    [indexAt, paint],
+    [indexAt, onSelect, paint],
   );
 
   const clamp = React.useCallback(
@@ -341,7 +352,7 @@ export function CoverflowCarousel({
                   }
                 }}
                 className={cn(
-                  "absolute left-1/2 top-0 aspect-square overflow-hidden rounded-2xl bg-muted shadow-xl will-change-transform cursor-pointer border border-slate-200/60 transition-shadow duration-300 hover:shadow-2xl",
+                  "absolute left-1/2 top-0 aspect-square overflow-hidden rounded-2xl bg-muted shadow-xl will-change-transform cursor-pointer border border-slate-200/60 transition-shadow hover:shadow-2xl",
                   cardClassName,
                 )}
                 style={{
@@ -391,7 +402,8 @@ export function CoverflowCarousel({
 
       {showCaption && active?.title && (
         <div
-          className="mt-3 flex flex-col items-center px-6 transition-all duration-200"
+          key={selected}
+          className="mt-3 flex flex-col items-center px-6 duration-300 animate-in fade-in"
         >
           {/* Full Detail button placed just below the card and above the name of the Doctor */}
           <button
