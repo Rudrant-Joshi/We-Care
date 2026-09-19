@@ -125,8 +125,7 @@ export function CoverflowCarousel({
       const tilt = Math.min(rotate * ramp, 82) * Math.sign(offset);
 
       card.style.transform =
-        `translateX(calc(-50% + ${offset * pitch}px)) ` +
-        `translateZ(${-depth * width * ramp}px) rotateY(${-tilt}deg)`;
+        `translate3d(calc(-50% + ${offset * pitch}px), 0, ${-depth * width * ramp}px) rotateY(${-tilt}deg)`;
 
       // A card is teleported across the ring at exactly half a turn out, so it
       // has to be gone by then or the jump is visible.
@@ -148,19 +147,35 @@ export function CoverflowCarousel({
       setSelected(nextIdx);
       onSelect?.(nextIdx);
 
-      const step = () => {
-        const remaining = target - posRef.current;
-        if (Math.abs(remaining) < 0.0004) {
+      const startPos = posRef.current;
+      const distance = target - startPos;
+      if (Math.abs(distance) < 0.0005) {
+        posRef.current = target;
+        paint();
+        return;
+      }
+
+      // Time-based smooth easing: fast, responsive takeoff and butter-soft deceleration
+      const startTime = performance.now();
+      const duration = Math.min(340, Math.max(220, Math.abs(distance) * 180));
+
+      const step = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Quintic ease-out: 1 - (1 - t)^3.6
+        const ease = 1 - Math.pow(1 - progress, 3.6);
+        
+        posRef.current = startPos + distance * ease;
+        paint();
+
+        if (progress < 1) {
+          rafRef.current = requestAnimationFrame(step);
+        } else {
           posRef.current = target;
           paint();
           rafRef.current = null;
-          return;
         }
-        // ponytail: exponential ease-out, not a spring. Swap in a spring only
-        // if the settle needs overshoot.
-        posRef.current += remaining * 0.16;
-        paint();
-        rafRef.current = requestAnimationFrame(step);
       };
       rafRef.current = requestAnimationFrame(step);
     },
@@ -326,10 +341,14 @@ export function CoverflowCarousel({
                   }
                 }}
                 className={cn(
-                  "absolute left-1/2 top-0 aspect-square overflow-hidden rounded-2xl bg-muted shadow-xl will-change-transform cursor-pointer border border-slate-200/60 transition-[filter,shadow] duration-200 hover:!filter-none hover:shadow-2xl",
+                  "absolute left-1/2 top-0 aspect-square overflow-hidden rounded-2xl bg-muted shadow-xl will-change-transform cursor-pointer border border-slate-200/60 transition-shadow duration-300 hover:shadow-2xl",
                   cardClassName,
                 )}
-                style={{ width: "var(--cf-card)" }}
+                style={{
+                  width: "var(--cf-card)",
+                  backfaceVisibility: "hidden",
+                  WebkitBackfaceVisibility: "hidden",
+                }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -372,8 +391,7 @@ export function CoverflowCarousel({
 
       {showCaption && active?.title && (
         <div
-          key={selected}
-          className="mt-3 flex flex-col items-center px-6 duration-300 animate-in fade-in"
+          className="mt-3 flex flex-col items-center px-6 transition-all duration-200"
         >
           {/* Full Detail button placed just below the card and above the name of the Doctor */}
           <button
