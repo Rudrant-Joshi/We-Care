@@ -153,19 +153,20 @@ export function getStoredAppointments(): StoredAppointment[] {
  * Returns an empty array if the user has not booked any appointments yet.
  */
 export function getUserAppointments(user: { email?: string; id?: string; uid?: string } | null): StoredAppointment[] {
-  if (!user || !user.email) {
+  if (!user) {
     return [];
   }
   const all = getStoredAppointments();
-  const userEmail = user.email.toLowerCase().trim();
+  const userEmail = (user.email || '').toLowerCase().trim();
   const userId = user.id || user.uid;
 
   const filtered = all.filter((appt) => {
-    const apptEmail = appt.email ? appt.email.toLowerCase().trim() : '';
-    const matchEmail = apptEmail === userEmail;
-    const matchUserId = userId ? appt.userId === userId : false;
+    if (!appt || !appt.bookingId || isMockAppointment(appt.bookingId)) return false;
+    const apptEmail = (appt.email || '').toLowerCase().trim();
+    const matchEmail = userEmail ? apptEmail === userEmail : false;
+    const matchUserId = userId ? (appt.userId === userId || appt.userId === user.id || appt.userId === user.uid) : false;
 
-    return (matchEmail || matchUserId) && !isMockAppointment(appt.bookingId);
+    return matchEmail || matchUserId;
   });
 
   return sortAppointmentsDescending(filtered);
@@ -176,8 +177,11 @@ export function saveAppointment(appointment: StoredAppointment): void {
   try {
     const now = Date.now();
     const cleanReason = hasUserProvidedReason(appointment.reason) ? (appointment.reason || '').trim() : '';
+    const cleanEmail = (appointment.email || '').toLowerCase().trim();
     const enrichedAppt: StoredAppointment = {
       ...appointment,
+      email: cleanEmail,
+      userId: appointment.userId || '',
       reason: cleanReason,
       timestamp: appointment.timestamp || now,
       createdAtIso: appointment.createdAtIso || new Date(now).toISOString(),
@@ -433,8 +437,8 @@ export async function syncAppointmentsFromFirestore(): Promise<StoredAppointment
     const local = getStoredAppointments();
     const deletedEmails = new Set(getDeletedUserEmails().map((e) => e.toLowerCase().trim()));
 
+    const remoteList: StoredAppointment[] = [];
     if (!snap.empty) {
-      const remoteList: StoredAppointment[] = [];
       for (const d of snap.docs) {
         const data = d.data() as StoredAppointment;
         const apptEmail = (data?.email || '').toLowerCase().trim();
@@ -455,16 +459,31 @@ export async function syncAppointmentsFromFirestore(): Promise<StoredAppointment
           remoteList.push(data);
         }
       }
-
-      const sorted = sortAppointmentsDescending(remoteList);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
-      window.dispatchEvent(new Event('wecare_appointments_changed'));
-      return sorted;
-    } else {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
-      window.dispatchEvent(new Event('wecare_appointments_changed'));
-      return [];
     }
+
+    // Merge remote items with any valid unsynced local patient appointments
+    const remoteIds = new Set(remoteList.map((r) => r.bookingId));
+    const cleanLocal = local.filter((l) => {
+      if (!l || !l.bookingId || isMockAppointment(l.bookingId)) return false;
+      const lEmail = (l.email || '').toLowerCase().trim();
+      if (lEmail && deletedEmails.has(lEmail)) return false;
+      return true;
+    });
+
+    const unsyncedLocal = cleanLocal.filter((l) => !remoteIds.has(l.bookingId));
+    const merged = sortAppointmentsDescending([...remoteList, ...unsyncedLocal]);
+
+    // Backfill real unsynced local bookings to Firestore in background
+    for (const unsynced of unsyncedLocal) {
+      setDoc(doc(db, 'appointments', unsynced.bookingId), {
+        ...unsynced,
+        syncedAt: new Date().toISOString(),
+      }).catch(() => {});
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+    window.dispatchEvent(new Event('wecare_appointments_changed'));
+    return merged;
   } catch (err: any) {
     console.warn('[Firebase Firestore] Remote sync notice:', err.message);
   }

@@ -70,24 +70,42 @@ export const Navbar = ({ onBookDemoClick: _onBookDemoClick }: NavbarProps) => {
       unsubscribeFirestore = onSnapshot(
         collection(db, 'appointments'),
         (snapshot) => {
+          const remoteList: any[] = [];
           const deletedEmails = new Set(getDeletedUserEmails().map((e) => e.toLowerCase().trim()));
-          let validCount = 0;
-          const currentEmail = currentUser?.email?.toLowerCase().trim();
 
           snapshot.forEach((docSnap) => {
             const data = docSnap.data();
             const apptEmail = (data?.email || '').toLowerCase().trim();
-            if (apptEmail && deletedEmails.has(apptEmail)) return;
-            if (data?.bookingId && !isMockAppointment(data.bookingId)) {
-              if (isAdmin) {
-                validCount++;
-              } else if (currentEmail && apptEmail === currentEmail) {
-                validCount++;
-              }
+            if (
+              data?.bookingId &&
+              !isMockAppointment(data.bookingId) &&
+              (!apptEmail || !deletedEmails.has(apptEmail))
+            ) {
+              remoteList.push(data);
             }
           });
 
-          setApptCount(validCount);
+          // Non-destructive merge with local unsynced bookings
+          const local = getStoredAppointments().filter(
+            (l) => !isMockAppointment(l.bookingId) && (!l.email || !deletedEmails.has(l.email.toLowerCase().trim()))
+          );
+          const remoteIds = new Set(remoteList.map((r) => r.bookingId));
+          const unsyncedLocal = local.filter((l) => !remoteIds.has(l.bookingId));
+          const merged = [...remoteList, ...unsyncedLocal];
+
+          const currentEmail = (currentUser?.email || '').toLowerCase().trim();
+          const currentUserId = currentUser?.id || currentUser?.uid;
+
+          if (isAdmin) {
+            setApptCount(merged.length);
+          } else {
+            const userCount = merged.filter((a) => {
+              const matchEmail = currentEmail ? (a.email || '').toLowerCase().trim() === currentEmail : false;
+              const matchUserId = currentUserId ? (a.userId === currentUserId || a.userId === currentUser?.id || a.userId === currentUser?.uid) : false;
+              return matchEmail || matchUserId;
+            }).length;
+            setApptCount(userCount);
+          }
         },
         () => {
           syncCount();

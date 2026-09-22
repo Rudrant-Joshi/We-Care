@@ -509,7 +509,7 @@ export function AppointmentBento() {
       const randomCode = `WC-${new Date().getFullYear()}-${now.toString().slice(-4)}${Math.floor(10 + Math.random() * 90)}`;
       const bookingData: ConfirmedAppointment = {
         bookingId: randomCode,
-        userId: currentUser?.id,
+        userId: currentUser?.id || currentUser?.uid,
         createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         createdAtIso: new Date(now).toISOString(),
         timestamp: now,
@@ -526,9 +526,9 @@ export function AppointmentBento() {
         date: selectedDate,
         time: selectedTime,
         visitType,
-        patientName,
-        email,
-        phone,
+        patientName: patientName.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
         insuranceProvider: insurance,
         reason: reason ? reason.trim() : '',
         status: 'pending',

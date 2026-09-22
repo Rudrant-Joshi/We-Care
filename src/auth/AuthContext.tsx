@@ -157,6 +157,23 @@ export function recordDeletedUser(email: string, userId?: string): void {
   }
 }
 
+export function clearDeletedUser(email: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const clean = email.toLowerCase().trim();
+    if (!clean) return;
+    const deleted = getDeletedUserEmails();
+    const updated = deleted.filter((e) => e.toLowerCase().trim() !== clean);
+    if (updated.length !== deleted.length) {
+      localStorage.setItem(DELETED_USERS_KEY, JSON.stringify(updated));
+    }
+    // Remove tombstone document from Cloud Firestore deleted_users
+    deleteDoc(doc(db, 'deleted_users', clean)).catch(() => {});
+  } catch (err) {
+    console.warn('Failed to clear deleted user tombstone:', err);
+  }
+}
+
 /**
  * Ensures an active user has a corresponding document in Firestore 'users' collection,
  * allowing live database updates and direct deletion from Firebase Console.
@@ -165,9 +182,8 @@ export async function syncUserToFirestore(user: User): Promise<void> {
   if (!user || !user.id) return;
   try {
     const cleanEmail = (user.email || '').toLowerCase().trim();
-    const deletedList = getDeletedUserEmails();
-    if (cleanEmail && deletedList.includes(cleanEmail)) {
-      return; // Do not recreate deleted user
+    if (cleanEmail) {
+      clearDeletedUser(cleanEmail);
     }
     const userDocRef = doc(db, 'users', user.id);
     await setDoc(
@@ -376,7 +392,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const activeUser = currentUserRef.current;
           if (activeUser?.email) {
             const myEmail = activeUser.email.toLowerCase().trim();
-            if (remoteDeleted.includes(myEmail) || localDeleted.includes(myEmail)) {
+            // Only trigger if remote server explicitly tombstoned this user
+            if (remoteDeleted.includes(myEmail)) {
               if (!isLoggingOutRef.current) {
                 isLoggingOutRef.current = true;
                 setAuthNotice('Your user account was removed from the database. You have been automatically signed out.');
@@ -414,8 +431,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         (docSnap) => {
           const latestUser = currentUserRef.current;
           if (!docSnap.exists() || docSnap.data()?.isDeleted === true) {
-            // If the document was deleted from Firestore (or flagged isDeleted)
-            if (hasEverExisted || (latestUser && latestUser.isFirebase)) {
+            // ONLY log out if the document previously existed in this session and was deleted,
+            // OR if docSnap exists and explicitly has isDeleted === true:
+            if ((hasEverExisted && !docSnap.exists()) || docSnap.data()?.isDeleted === true) {
               if (!isLoggingOutRef.current) {
                 isLoggingOutRef.current = true;
                 setAuthNotice('Your user profile was deleted from the database. You have been signed out.');
@@ -423,6 +441,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   isLoggingOutRef.current = false;
                 });
               }
+            } else if (!hasEverExisted && latestUser) {
+              // Document doesn't exist yet in Firestore (initial load or async sync) - ensure it
+              syncUserToFirestore(latestUser).catch(() => {});
             }
           } else {
             hasEverExisted = true;
@@ -475,15 +496,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 3. Heartbeat check on Firebase Auth instance
   useEffect(() => {
     const checkFirebaseAuth = async () => {
-      const fbUser = auth.currentUser;
-      if (fbUser) {
+      const activeUser = currentUserRef.current;
+      // ONLY check reload if active user is a Firebase authenticated user
+      if (activeUser?.isFirebase && auth.currentUser && auth.currentUser.uid === activeUser.id) {
         try {
-          await fbUser.reload();
+          await auth.currentUser.reload();
         } catch (err: any) {
+          // Only sign out on definitive account removal, not transient network errors
           if (
             err?.code === 'auth/user-not-found' ||
-            err?.code === 'auth/user-disabled' ||
-            err?.code === 'auth/invalid-user-token'
+            err?.code === 'auth/user-disabled'
           ) {
             setAuthNotice('Your account credentials were removed from the database.');
             logout();
@@ -551,16 +573,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         persistUser(userObj);
       } else {
-        // If current user is a Firebase user and now signed out, clear
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            if (parsed?.isFirebase) {
+        // Only clear if current session in state/localStorage was explicitly a Firebase user
+        const activeUser = currentUserRef.current;
+        if (activeUser?.isFirebase) {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) {
+            try {
+              const parsed = JSON.parse(saved);
+              if (parsed?.isFirebase) {
+                persistUser(null);
+              }
+            } catch {
               persistUser(null);
             }
-          } catch {
-            persistUser(null);
           }
         }
       }
@@ -582,6 +607,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
+    clearDeletedUser(cleanEmail);
 
     const inputHash = await hashPassword(password);
 
@@ -700,6 +726,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const role = userData.role || 'patient';
     const cleanEmail = userData.email.trim().toLowerCase();
     const cleanName = userData.name.trim();
+    clearDeletedUser(cleanEmail);
 
     // Generate stable local user ID with secure password hash (never store plaintext password)
     const localId = `usr-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
@@ -774,6 +801,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const cred = await signInWithPopup(auth, googleProvider);
       const fbUser = cred.user;
 
+      if (fbUser.email) {
+        clearDeletedUser(fbUser.email);
+      }
+
       const isAdmin = fbUser.email?.toLowerCase() === 'rudrant.joshi@gmail.com';
       const role: UserRole = isAdmin ? 'admin' : 'patient';
 
@@ -823,6 +854,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const demoLogin = (role: UserRole) => {
     const demo = DEMO_USERS[role];
+    if (demo.email) {
+      clearDeletedUser(demo.email);
+    }
     persistUser(demo);
   };
 

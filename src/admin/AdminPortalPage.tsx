@@ -251,31 +251,34 @@ export default function AdminPortalPage() {
       unsubscribeFirestore = onSnapshot(
         collection(db, 'appointments'),
         (snapshot) => {
-          if (!snapshot.empty) {
-            const remoteList: StoredAppointment[] = [];
-            const deletedEmails = new Set(getDeletedUserEmails().map((e) => e.toLowerCase().trim()));
-            snapshot.forEach((docSnap) => {
-              const data = docSnap.data() as StoredAppointment;
-              const apptEmail = (data?.email || '').toLowerCase().trim();
-              if (
-                isMockAppointment(data?.bookingId) ||
-                isMockAppointment(docSnap.id) ||
-                (apptEmail && deletedEmails.has(apptEmail))
-              ) {
-                deleteDoc(doc(db, 'appointments', docSnap.id)).catch(() => {});
-                return;
-              }
-              if (data && data.bookingId) {
-                remoteList.push(data);
-              }
-            });
-            const sorted = sortAppointmentsDescending(remoteList);
-            setAppointments(sorted);
-            localStorage.setItem('wecare_user_appointments_v2', JSON.stringify(sorted));
-          } else {
-            setAppointments([]);
-            localStorage.setItem('wecare_user_appointments_v2', JSON.stringify([]));
-          }
+          const remoteList: StoredAppointment[] = [];
+          const deletedEmails = new Set(getDeletedUserEmails().map((e) => e.toLowerCase().trim()));
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data() as StoredAppointment;
+            const apptEmail = (data?.email || '').toLowerCase().trim();
+            if (
+              isMockAppointment(data?.bookingId) ||
+              isMockAppointment(docSnap.id) ||
+              (apptEmail && deletedEmails.has(apptEmail))
+            ) {
+              deleteDoc(doc(db, 'appointments', docSnap.id)).catch(() => {});
+              return;
+            }
+            if (data && data.bookingId) {
+              remoteList.push(data);
+            }
+          });
+
+          // Non-destructive merge: preserve any local unsynced patient bookings
+          const local = getStoredAppointments().filter(
+            (l) => !isMockAppointment(l.bookingId) && (!l.email || !deletedEmails.has(l.email.toLowerCase().trim()))
+          );
+          const remoteIds = new Set(remoteList.map((r) => r.bookingId));
+          const unsyncedLocal = local.filter((l) => !remoteIds.has(l.bookingId));
+          const merged = sortAppointmentsDescending([...remoteList, ...unsyncedLocal]);
+
+          setAppointments(merged);
+          localStorage.setItem('wecare_user_appointments_v2', JSON.stringify(merged));
         },
         (error) => {
           console.warn('[Admin Portal] Firestore live subscription notice:', error.message);
@@ -480,9 +483,19 @@ export default function AdminPortalPage() {
       const apptTs = getAppointmentCreationTimestamp(appt);
 
       let user = userMap.get(email);
+      // Fallback matching by userId if not found by email
+      if (!user && appt.userId) {
+        for (const u of userMap.values()) {
+          if (u.id === appt.userId) {
+            user = u;
+            break;
+          }
+        }
+      }
+
       if (!user) {
         user = {
-          id: `usr-pat-${appt.bookingId}`,
+          id: appt.userId || `usr-pat-${appt.bookingId}`,
           name: appt.patientName || email.split('@')[0],
           email: appt.email,
           phone: appt.phone,

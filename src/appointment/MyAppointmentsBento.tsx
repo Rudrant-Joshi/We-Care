@@ -171,6 +171,23 @@ export function MyAppointmentsBento() {
   const [notification, setNotification] = useState<string | null>(null);
 
   // Sync / Load helper
+  const filterUserAppointments = useCallback(
+    (list: StoredAppointment[]) => {
+      if (isAdmin) return sortAppointmentsDescending(list);
+      const userEmail = (currentUser?.email || '').toLowerCase().trim();
+      const userId = currentUser?.id || currentUser?.uid;
+      const filtered = list.filter((a) => {
+        if (!a || !a.bookingId || isMockAppointment(a.bookingId)) return false;
+        const apptEmail = (a.email || '').toLowerCase().trim();
+        const matchEmail = userEmail ? apptEmail === userEmail : false;
+        const matchUserId = userId ? (a.userId === userId || a.userId === currentUser?.id || a.userId === currentUser?.uid) : false;
+        return matchEmail || matchUserId;
+      });
+      return sortAppointmentsDescending(filtered);
+    },
+    [currentUser, isAdmin]
+  );
+
   const loadAppointments = useCallback(() => {
     const list = isAdmin
       ? getStoredAppointments().filter((a) => !isMockAppointment(a.bookingId))
@@ -185,50 +202,44 @@ export function MyAppointmentsBento() {
       if (isAdmin) {
         setAppointments(sortAppointmentsDescending(cleanList.length > 0 ? cleanList : getStoredAppointments()));
       } else {
-        const userList = cleanList.filter(
-          (a) =>
-            currentUser?.email &&
-            a.email?.toLowerCase().trim() === currentUser.email.toLowerCase().trim()
-        );
-        setAppointments(sortAppointmentsDescending(userList.length > 0 ? userList : getUserAppointments(currentUser)));
+        const userList = filterUserAppointments(cleanList.length > 0 ? cleanList : getStoredAppointments());
+        setAppointments(userList.length > 0 ? userList : getUserAppointments(currentUser));
       }
     });
 
     let unsubscribeFirestore: (() => void) | null = null;
     try {
       unsubscribeFirestore = onSnapshot(collection(db, 'appointments'), (snapshot) => {
-        if (!snapshot.empty) {
-          const remoteList: StoredAppointment[] = [];
-          const deletedEmails = new Set(getDeletedUserEmails().map((e) => e.toLowerCase().trim()));
-          snapshot.forEach((docSnap) => {
-            const data = docSnap.data() as StoredAppointment;
-            const apptEmail = (data?.email || '').toLowerCase().trim();
-            if (
-              data &&
-              data.bookingId &&
-              !isMockAppointment(data.bookingId) &&
-              !isMockAppointment(docSnap.id) &&
-              (!apptEmail || !deletedEmails.has(apptEmail))
-            ) {
-              remoteList.push(data);
-            }
-          });
-          const sorted = sortAppointmentsDescending(remoteList);
-          localStorage.setItem('wecare_user_appointments_v2', JSON.stringify(sorted));
-
-          if (isAdmin) {
-            setAppointments(sorted);
-          } else {
-            const userList = sorted.filter(
-              (a) =>
-                currentUser?.email &&
-                a.email?.toLowerCase().trim() === currentUser.email.toLowerCase().trim()
-            );
-            setAppointments(sortAppointmentsDescending(userList));
+        const remoteList: StoredAppointment[] = [];
+        const deletedEmails = new Set(getDeletedUserEmails().map((e) => e.toLowerCase().trim()));
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data() as StoredAppointment;
+          const apptEmail = (data?.email || '').toLowerCase().trim();
+          if (
+            data &&
+            data.bookingId &&
+            !isMockAppointment(data.bookingId) &&
+            !isMockAppointment(docSnap.id) &&
+            (!apptEmail || !deletedEmails.has(apptEmail))
+          ) {
+            remoteList.push(data);
           }
+        });
+
+        // Non-destructive merge: preserve any local unsynced patient bookings
+        const local = getStoredAppointments().filter(
+          (l) => !isMockAppointment(l.bookingId) && (!l.email || !deletedEmails.has(l.email.toLowerCase().trim()))
+        );
+        const remoteIds = new Set(remoteList.map((r) => r.bookingId));
+        const unsyncedLocal = local.filter((l) => !remoteIds.has(l.bookingId));
+        const merged = sortAppointmentsDescending([...remoteList, ...unsyncedLocal]);
+
+        localStorage.setItem('wecare_user_appointments_v2', JSON.stringify(merged));
+
+        if (isAdmin) {
+          setAppointments(merged);
         } else {
-          setAppointments([]);
-          localStorage.setItem('wecare_user_appointments_v2', JSON.stringify([]));
+          setAppointments(filterUserAppointments(merged));
         }
       });
     } catch {
@@ -248,7 +259,7 @@ export function MyAppointmentsBento() {
       window.removeEventListener('storage', handleSync);
       window.removeEventListener('focus', handleSync);
     };
-  }, [currentUser, isAdmin, loadAppointments]);
+  }, [currentUser, isAdmin, loadAppointments, filterUserAppointments]);
 
   // Compute live summary statistics
   const stats = useMemo(() => {
