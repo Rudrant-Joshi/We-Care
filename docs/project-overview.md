@@ -135,9 +135,11 @@ BUILDRent/
 │   ├── project-overview.md
 │   └── api-documentation.md
 │
-├── .gitignore
-├── README.md
-└── package.json
+├── config/
+│   ├── .gitignore
+│   └── package.json
+│
+└── README.md
 ```
 
 ---
