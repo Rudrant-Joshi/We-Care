@@ -1,0 +1,28 @@
+{
+  "name": "wecare-backend",
+  "version": "1.0.0",
+  "description": "WeCare Health Platform — RESTful API Backend Service",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node tests/api.test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "express",
+    "rest-api",
+    "healthcare",
+    "wecare",
+    "appointments",
+    "equipment"
+  ],
+  "author": "Rudrant Joshi",
+  "license": "Apache-2.0"
+}

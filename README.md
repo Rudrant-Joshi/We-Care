@@ -1,82 +1,183 @@
 # WeCare Health 🏥✨
 
-> **Advanced Clinical Care & Medical Specialists Platform**  
-> A next-generation healthcare platform featuring intelligent specialist routing, dynamic department exploration, doctor bento showcases, patient appointment scheduling, and chief administrator console.
+> **Advanced Clinical Care, Specialist Directory & Medical Equipment Platform**  
+> Complete fullstack platform organized according to clean MVC (Model-View-Controller) architecture.
 
 ---
 
-## 🌟 Key Features
+## 📁 Project Directory Structure
 
-- **Doctor Directory Bento Grid**:
-  - Interactive doctor cards with square portrait ratios and clean aesthetics.
-  - Doctor Details Modal with comprehensive biography, specialties, accreditations, clinic locations, and direct booking integration.
-  - Real-time rating and specialty filters.
-
-- **Department & Clinical Hub**:
-  - Deep-dive into medical specialties including Cardiology, Neurology, Orthopedics, Pediatrics, Oncology, and Emergency Care.
-  - Interactive ward details, clinical facilities, and specialist routing.
-
-- **Seamless Appointment Booking**:
-  - Step-by-step booking flow with specialist selection, date & time slot picking, and instant confirmation.
-  - Patient telemetry and appointment management dashboard.
-
-- **Chief Admin Command Console**:
-  - Full visibility into hospital bookings, status updates, doctor assignments, and operational metrics.
-
-- **Modern Visual Design & Fluid Interactions**:
-  - Powered by Framer Motion micro-animations, liquid glassmorphism, responsive Tailwind CSS styling, and accessible UI controls.
+```
+BUILDRent/
+│
+├── frontend/
+│   │
+│   ├── public/
+│   │
+│   ├── src/
+│   │   ├── models/
+│   │   │   ├── equipmentModel.js
+│   │   │   ├── equipmentModel.ts
+│   │   │   ├── appointmentModel.ts
+│   │   │   ├── userModel.ts
+│   │   │   └── types.ts
+│   │   │
+│   │   ├── views/
+│   │   │   ├── pages/
+│   │   │   │   ├── Home.jsx
+│   │   │   │   ├── Login.jsx
+│   │   │   │   ├── Register.jsx
+│   │   │   │   ├── Equipment.jsx
+│   │   │   │   ├── EquipmentDetails.jsx
+│   │   │   │   ├── Booking.jsx
+│   │   │   │   ├── Dashboard.jsx
+│   │   │   │   ├── About.tsx
+│   │   │   │   ├── Departments.tsx
+│   │   │   │   ├── Doctors.tsx
+│   │   │   │   └── Appointments.tsx
+│   │   │   │
+│   │   │   └── components/
+│   │   │       ├── Navbar.jsx
+│   │   │       ├── Footer.jsx
+│   │   │       ├── EquipmentCard.jsx
+│   │   │       ├── Sidebar.jsx
+│   │   │       └── ui/
+│   │   │
+│   │   ├── controllers/
+│   │   │   ├── authController.js
+│   │   │   ├── equipmentController.js
+│   │   │   └── bookingController.js
+│   │   │
+│   │   ├── services/
+│   │   │   ├── api.js
+│   │   │   ├── authService.js
+│   │   │   ├── equipmentService.js
+│   │   │   └── bookingService.js
+│   │   │
+│   │   ├── routes/
+│   │   │   └── AppRoutes.jsx
+│   │   │
+│   │   ├── assets/
+│   │   ├── styles/
+│   │   │   └── index.css
+│   │   ├── hooks/
+│   │   │   ├── useTypewriter.ts
+│   │   │   ├── useAuth.ts
+│   │   │   ├── useAppointments.ts
+│   │   │   └── useEquipment.ts
+│   │   ├── context/
+│   │   │   └── AuthContext.tsx
+│   │   ├── utils/
+│   │   │   ├── utils.ts
+│   │   │   ├── department-colors.ts
+│   │   │   └── firebase.ts
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   │
+│   ├── .env
+│   ├── package.json
+│   └── vite.config.js
+│
+├── backend/
+│   │
+│   ├── src/
+│   │   ├── config/
+│   │   │   └── database.js
+│   │   │
+│   │   ├── models/
+│   │   │   ├── User.js
+│   │   │   ├── Equipment.js
+│   │   │   ├── Booking.js
+│   │   │   └── Review.js
+│   │   │
+│   │   ├── views/
+│   │   │   └── README.md
+│   │   │
+│   │   ├── controllers/
+│   │   │   ├── authController.js
+│   │   │   ├── equipmentController.js
+│   │   │   ├── bookingController.js
+│   │   │   └── userController.js
+│   │   │
+│   │   ├── routes/
+│   │   │   ├── authRoutes.js
+│   │   │   ├── equipmentRoutes.js
+│   │   │   ├── bookingRoutes.js
+│   │   │   └── userRoutes.js
+│   │   │
+│   │   ├── middleware/
+│   │   │   ├── authMiddleware.js
+│   │   │   ├── errorMiddleware.js
+│   │   │   └── uploadMiddleware.js
+│   │   │
+│   │   ├── services/
+│   │   │   ├── authService.js
+│   │   │   ├── equipmentService.js
+│   │   │   └── bookingService.js
+│   │   │
+│   │   ├── utils/
+│   │   │   ├── logger.js
+│   │   │   └── helpers.js
+│   │   ├── validators/
+│   │   │   ├── authValidator.js
+│   │   │   ├── bookingValidator.js
+│   │   │   └── equipmentValidator.js
+│   │   ├── app.js
+│   │   └── server.js
+│   │
+│   ├── uploads/
+│   ├── tests/
+│   │   └── api.test.js
+│   ├── .env
+│   └── package.json
+│
+├── docs/
+│   ├── project-overview.md
+│   └── api-documentation.md
+│
+├── .gitignore
+├── README.md
+└── package.json
+```
 
 ---
 
-## 🚀 Tech Stack
+## ⚡ Getting Started
 
-- **Frontend Core**: [React 19](https://react.dev/), [TypeScript](https://www.typescriptlang.org/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-- **Motion & Animations**: [Framer Motion](https://motion.dev/) / `motion`
-- **Routing**: [React Router v7](https://reactrouter.com/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Backend / Services**: Firebase integration & client-side local sync
+### 1. Run Everything from Root
+Install and run both frontend and backend concurrently:
+```bash
+npm run dev
+```
 
----
+### 2. Frontend Only
+```bash
+cd frontend
+npm run dev
+# Running on http://localhost:5173
+```
 
-## 🛠️ Getting Started
+To build production bundle:
+```bash
+cd frontend
+npm run build
+```
 
-### Prerequisites
-- [Node.js](https://nodejs.org/) (version 18+ recommended)
-- [npm](https://www.npmjs.com/) or [pnpm](https://pnpm.io/)
+### 3. Backend Only
+```bash
+cd backend
+npm run dev
+# Running on http://localhost:5000
+```
 
-### Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Rudrant-Joshi/We-Care.git
-   cd We-Care
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:5173](http://localhost:5173) in your browser.
-
-4. **Build for production:**
-   ```bash
-   npm run build
-   ```
-
-5. **Preview production build:**
-   ```bash
-   npm run preview
-   ```
+To execute backend automated API test suite:
+```bash
+cd backend
+npm test
+```
 
 ---
 
-## 📄 License
-
-This project is licensed under the Apache-2.0 License.
+## 📑 Documentation
+- **Architecture & System Design**: See [docs/project-overview.md](docs/project-overview.md)
+- **REST API Reference**: See [docs/api-documentation.md](docs/api-documentation.md)
