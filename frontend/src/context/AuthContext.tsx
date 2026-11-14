@@ -3,6 +3,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   updateProfile,
   sendPasswordResetEmail,
@@ -21,6 +23,7 @@ export interface AuthContextType {
   login: (email: string, password: string, role?: UserRole) => Promise<{ success: boolean; error?: string }>;
   register: (userData: RegisterPayload) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogleRedirect: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   demoLogin: (role: UserRole) => void;
@@ -594,6 +597,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
+  // Check for Google redirect sign-in result (works seamlessly if browser blocks popups)
+  useEffect(() => {
+    getRedirectResult(auth)
+      .then(async (cred) => {
+        if (cred && cred.user) {
+          const fbUser = cred.user;
+          if (fbUser.email) {
+            clearDeletedUser(fbUser.email);
+          }
+          const isAdmin = fbUser.email?.toLowerCase() === 'rudrant.joshi@gmail.com';
+          const role: UserRole = isAdmin ? 'admin' : 'patient';
+          const userObj: User = {
+            id: fbUser.uid,
+            uid: fbUser.uid,
+            name: isAdmin
+              ? 'Rudrant Joshi (Chief Admin)'
+              : fbUser.displayName || fbUser.email?.split('@')[0] || 'WeCare Patient',
+            email: fbUser.email || '',
+            phone: fbUser.phoneNumber || undefined,
+            role: role,
+            avatar: fbUser.photoURL || undefined,
+            badgeNumber: isAdmin ? 'WC-CHIEF-ADMIN' : `WC-${fbUser.uid.slice(0, 4).toUpperCase()}-PT`,
+            memberSince: new Date().getFullYear().toString(),
+            isFirebase: true,
+          };
+          try {
+            await setDoc(doc(db, 'users', fbUser.uid), {
+              name: userObj.name,
+              email: userObj.email,
+              role: role,
+              avatar: userObj.avatar,
+              lastLogin: new Date().toISOString(),
+            }, { merge: true });
+          } catch {}
+          persistUser(userObj);
+        }
+      })
+      .catch((err) => {
+        console.warn('Firebase getRedirectResult note:', err);
+      });
+  }, []);
+
   const login = async (
     email: string,
     password: string,
@@ -839,6 +884,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loginWithGoogleRedirect = async (): Promise<void> => {
+    try {
+      await signInWithRedirect(auth, googleProvider);
+    } catch (err: any) {
+      console.error('Firebase Google redirect error:', err);
+      throw err;
+    }
+  };
+
   const resetPassword = async (email: string): Promise<{ success: boolean; error?: string }> => {
     if (!email || !email.includes('@')) {
       return { success: false, error: 'Please enter a valid email address to receive password reset instructions.' };
@@ -880,6 +934,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         loginWithGoogle,
+        loginWithGoogleRedirect,
         resetPassword,
         logout,
         demoLogin,

@@ -60,7 +60,7 @@ export default function AuthSectionOne({
     setTimeout(() => setCopiedDomain(false), 2000);
   };
 
-  const { login, register, loginWithGoogle, resetPassword } = useAuth();
+  const { login, register, loginWithGoogle, loginWithGoogleRedirect, resetPassword } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,6 +197,18 @@ export default function AuthSectionOne({
     } catch (err: any) {
       setErrorMsg(err.message || "Google authentication failed.");
     } finally {
+      setIsGoogleSubmitting(false);
+    }
+  };
+
+  const handleGoogleRedirect = async () => {
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    setIsGoogleSubmitting(true);
+    try {
+      await loginWithGoogleRedirect();
+    } catch (err: any) {
+      setErrorMsg(err.message || "Could not launch Google redirect sign-in.");
       setIsGoogleSubmitting(false);
     }
   };
@@ -414,6 +426,7 @@ export default function AuthSectionOne({
             <AnimatePresence mode="wait">
               {errorMsg && (() => {
                 const isDomainError = errorMsg.includes("Domain unauthorized") || errorMsg.includes("unauthorized-domain");
+                const isPopupBlocked = errorMsg.toLowerCase().includes("popup was blocked") || errorMsg.toLowerCase().includes("popup-blocked") || errorMsg.toLowerCase().includes("allow popups");
                 const isIp = typeof window !== "undefined" && window.location.hostname === "127.0.0.1";
                 const currentHostname = typeof window !== "undefined" ? window.location.hostname : "we-care-app-rouge.vercel.app";
 
@@ -425,7 +438,7 @@ export default function AuthSectionOne({
                     exit={{ opacity: 0, y: -8, scale: 0.98 }}
                     transition={{ duration: 0.2 }}
                     className={`mb-3.5 rounded-2xl p-3.5 flex flex-col gap-2.5 text-xs font-medium border ${
-                      isDomainError
+                      isDomainError || isPopupBlocked
                         ? "bg-amber-50/90 border-amber-300 text-amber-950 shadow-xs"
                         : "bg-red-50 border-red-200 text-red-700"
                     }`}
@@ -433,16 +446,58 @@ export default function AuthSectionOne({
                     <div className="flex items-start gap-2.5">
                       <AlertCircle
                         className={`w-4 h-4 shrink-0 mt-0.5 ${
-                          isDomainError ? "text-amber-600" : "text-red-500"
+                          isDomainError || isPopupBlocked ? "text-amber-600" : "text-red-500"
                         }`}
                       />
                       <div className="flex-1 space-y-1">
-                        <div className={`font-bold text-xs ${isDomainError ? "text-amber-900" : "text-red-800"}`}>
-                          {isDomainError ? "Firebase Authorized Domain Setup Required" : "Authentication Notice"}
+                        <div className={`font-bold text-xs ${isDomainError || isPopupBlocked ? "text-amber-900" : "text-red-800"}`}>
+                          {isDomainError
+                            ? "Firebase Authorized Domain Setup Required"
+                            : isPopupBlocked
+                            ? "Browser Blocked Google Sign-In Window"
+                            : "Authentication Notice"}
                         </div>
                         <div className="text-[11.5px] leading-relaxed text-slate-700">{errorMsg}</div>
                       </div>
                     </div>
+
+                    {isPopupBlocked && (
+                      <div className="mt-1 pt-2.5 border-t border-amber-300/60 flex flex-col gap-2.5">
+                        <div className="p-2.5 rounded-xl bg-white border border-amber-200 text-[11.5px] text-slate-700 space-y-1.5 shadow-2xs">
+                          <div className="font-bold text-amber-950 flex items-center gap-1.5">
+                            <span>How to unblock popups in your browser:</span>
+                          </div>
+                          <div className="space-y-1 pl-1">
+                            <div>1. Look at the <strong>right side of your address bar</strong> (URL bar) at the top of your browser.</div>
+                            <div>2. Click the <strong>Pop-up blocked icon</strong> (🚫 or small window with red badge).</div>
+                            <div>3. Select <strong>&quot;Always allow pop-ups and redirects from http://localhost:5173&quot;</strong>.</div>
+                            <div>4. Click <strong>Done</strong>, then click <strong>Try Popup Again</strong> below.</div>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <button
+                            type="button"
+                            onClick={handleGoogleRedirect}
+                            className="flex-1 py-2 px-3 rounded-xl bg-[#135940] hover:bg-[#1b7454] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            <span>Continue with Full-Page Redirect</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleGoogleSignIn}
+                            className="py-2 px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-bold text-xs flex items-center justify-center gap-1 transition-all shadow-xs cursor-pointer"
+                          >
+                            <span>Try Popup Again</span>
+                          </button>
+                        </div>
+
+                        <div className="text-[11px] text-slate-600 bg-emerald-50 border border-emerald-200/80 p-2 rounded-lg">
+                          💡 <strong>Immediate Alternative:</strong> You can also sign in or register with <strong>Email & Password</strong> right below without requiring popups!
+                        </div>
+                      </div>
+                    )}
 
                     {isDomainError && (
                       <div className="mt-1 pt-2.5 border-t border-amber-300/60 flex flex-col gap-2">

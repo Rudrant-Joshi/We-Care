@@ -18,7 +18,7 @@ export function LoginForm({
   onSwitchToRegister,
   onSuccess,
 }: LoginFormProps) {
-  const { login, demoLogin, loginWithGoogle } = useAuth();
+  const { login, demoLogin, loginWithGoogle, loginWithGoogleRedirect } = useAuth();
   const config = ROLE_CONFIGS[activeRole];
 
   const [email, setEmail] = useState('');
@@ -75,6 +75,17 @@ export function LoginForm({
     } catch (err: any) {
       setErrorMessage(err.message || 'Google sign-in failed.');
     } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleRedirect = async () => {
+    setErrorMessage(null);
+    setIsLoading(true);
+    try {
+      await loginWithGoogleRedirect();
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Google redirect sign-in failed.');
       setIsLoading(false);
     }
   };
@@ -146,6 +157,7 @@ export function LoginForm({
       <AnimatePresence>
         {errorMessage && (() => {
           const isDomainError = errorMessage.includes('Domain unauthorized') || errorMessage.includes('unauthorized-domain');
+          const isPopupBlocked = errorMessage.toLowerCase().includes('popup was blocked') || errorMessage.toLowerCase().includes('popup-blocked') || errorMessage.toLowerCase().includes('allow popups');
           const currentHostname = typeof window !== 'undefined' ? window.location.hostname : 'we-care-app-rouge.vercel.app';
 
           return (
@@ -154,20 +166,54 @@ export function LoginForm({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               className={`mb-4 p-3.5 rounded-xl border text-xs flex flex-col gap-2.5 ${
-                isDomainError
+                isDomainError || isPopupBlocked
                   ? 'bg-amber-500/15 border-amber-500/40 text-amber-100 shadow-md'
                   : 'bg-red-500/15 border-red-500/30 text-red-200'
               }`}
             >
               <div className="flex items-start gap-2.5">
-                <AlertCircle className={`w-4 h-4 shrink-0 mt-0.5 ${isDomainError ? 'text-amber-400' : 'text-red-400'}`} />
+                <AlertCircle className={`w-4 h-4 shrink-0 mt-0.5 ${isDomainError || isPopupBlocked ? 'text-amber-400' : 'text-red-400'}`} />
                 <div className="flex-1 space-y-1">
-                  <div className={`font-bold text-xs ${isDomainError ? 'text-amber-300' : 'text-red-300'}`}>
-                    {isDomainError ? 'Firebase Authorized Domain Setup Required' : 'Authentication Notice'}
+                  <div className={`font-bold text-xs ${isDomainError || isPopupBlocked ? 'text-amber-300' : 'text-red-300'}`}>
+                    {isDomainError
+                      ? 'Firebase Authorized Domain Setup Required'
+                      : isPopupBlocked
+                      ? 'Browser Blocked Google Sign-In Window'
+                      : 'Authentication Notice'}
                   </div>
                   <div className="leading-relaxed opacity-90">{errorMessage}</div>
                 </div>
               </div>
+
+              {isPopupBlocked && (
+                <div className="pt-2 border-t border-amber-500/30 flex flex-col gap-2">
+                  <div className="p-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-[11px] text-slate-300 space-y-1">
+                    <div className="font-bold text-amber-300">How to allow popups in your browser:</div>
+                    <div className="space-y-0.5 pl-1">
+                      <div>1. Look at the <strong>right side of your address (URL) bar</strong></div>
+                      <div>2. Click the <strong>Pop-up blocked icon</strong> (🚫 or window with red mark)</div>
+                      <div>3. Select <strong>&quot;Always allow pop-ups from http://localhost:5173&quot;</strong> & click <strong>Done</strong></div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={handleGoogleRedirect}
+                      className="flex-1 py-2 px-3 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Full-Page Redirect</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleGoogleSignIn}
+                      className="py-2 px-3 rounded-lg bg-white/10 hover:bg-white/15 text-slate-200 font-bold text-xs flex items-center justify-center gap-1 transition-all cursor-pointer"
+                    >
+                      <span>Try Popup Again</span>
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {isDomainError && (
                 <div className="pt-2 border-t border-amber-500/30 flex flex-col gap-2">
