@@ -141,6 +141,10 @@ export default function AuthSectionOne({
             }
           );
         }, 350);
+      } else {
+        setTimeout(() => {
+          window.location.href = isAdmin ? '/admin' : _redirectUrl || '/appointments';
+        }, 350);
       }
     } catch (err: any) {
       setErrorMsg(err.message || "An unexpected error occurred.");
@@ -185,6 +189,10 @@ export default function AuthSectionOne({
 
       if (onSuccess) {
         setTimeout(() => onSuccess(googleUser), 350);
+      } else {
+        setTimeout(() => {
+          window.location.href = isGoogleAdmin ? '/admin' : _redirectUrl || '/appointments';
+        }, 350);
       }
     } catch (err: any) {
       setErrorMsg(err.message || "Google authentication failed.");
