@@ -125,6 +125,9 @@ BUILDRent/
 │   │   ├── app.js
 │   │   └── server.js
 │   │
+│   ├── config/
+│   │   ├── .gitignore
+│   │   └── package.json
 │   ├── uploads/
 │   ├── tests/
 │   │   └── api.test.js
@@ -134,10 +137,6 @@ BUILDRent/
 ├── docs/
 │   ├── project-overview.md
 │   └── api-documentation.md
-│
-├── config/
-│   ├── .gitignore
-│   └── package.json
 │
 └── README.md
 ```
