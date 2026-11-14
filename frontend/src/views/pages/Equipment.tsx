@@ -5,7 +5,7 @@ import EquipmentCard from '../components/EquipmentCard';
 import EquipmentDetails from './EquipmentDetails';
 import { useEquipment } from '../../hooks/useEquipment';
 import type { Equipment as EquipmentType } from '../../models/equipmentModel';
-import { Search, Filter, Wrench, ShieldCheck, Cpu } from 'lucide-react';
+import { Search, Wrench, Cpu } from 'lucide-react';
 
 export default function Equipment() {
   const { equipment, loading } = useEquipment();
@@ -32,25 +32,27 @@ export default function Equipment() {
   }, [equipment, selectedCategory, search]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-between selection:bg-emerald-500/30">
-      <Navbar />
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between selection:bg-emerald-500/20 font-sans">
+      <div className="bg-white/95 backdrop-blur-md w-full relative z-40 border-b border-slate-200/90 shadow-xs">
+        <Navbar />
+      </div>
 
-      <main className="flex-1 pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+      <main className="flex-1 pt-12 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         {/* Hero Section */}
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
-            <Cpu className="w-3.5 h-3.5" /> High-Precision Clinical Apparatus
+        <div className="text-center max-w-3xl mx-auto space-y-4 mb-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#135940] text-xs font-bold uppercase tracking-wider shadow-2xs">
+            <Cpu className="w-3.5 h-3.5 text-[#135940]" /> High-Precision Clinical Apparatus
           </div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
-            Specialized Medical <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Equipment</span>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900">
+            Specialized Medical <span className="bg-gradient-to-r from-[#135940] via-[#1b7454] to-emerald-600 bg-clip-text text-transparent">Equipment</span>
           </h1>
-          <p className="text-base text-slate-400 leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
             Explore and reserve advanced surgical suites, 3.0T MRI neuroimaging arrays, and telemetry-guided diagnostic machinery across all hospital wards.
           </p>
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 mb-10 flex flex-col md:flex-row items-center gap-4 justify-between shadow-xl">
+        <div className="bg-white/90 backdrop-blur-xl border border-slate-200/90 rounded-2xl p-4 mb-10 flex flex-col md:flex-row items-center gap-4 justify-between shadow-sm">
           {/* Search */}
           <div className="relative w-full md:w-96">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -59,7 +61,7 @@ export default function Equipment() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search equipment, MRI, robotic OR..."
-              className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#135940] focus:ring-2 focus:ring-[#135940]/10 transition-all"
             />
           </div>
 
@@ -68,11 +70,12 @@ export default function Equipment() {
             {categories.map((cat) => (
               <button
                 key={cat}
+                type="button"
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   selectedCategory === cat
-                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
-                    : 'bg-slate-800/80 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                    ? 'bg-[#135940] text-white shadow-md shadow-[#135940]/25'
+                    : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 border border-slate-200/60'
                 }`}
               >
                 {cat === 'all' ? 'All Apparatus' : cat}
@@ -85,13 +88,13 @@ export default function Equipment() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((n) => (
-              <div key={n} className="h-80 rounded-2xl bg-slate-900/50 animate-pulse border border-slate-800" />
+              <div key={n} className="h-80 rounded-2xl bg-white border border-slate-200 animate-pulse shadow-xs" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-20 bg-slate-900/40 rounded-3xl border border-slate-800">
-            <Wrench className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-slate-300">No equipment found</h3>
+          <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-xs">
+            <Wrench className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-slate-800">No equipment found</h3>
             <p className="text-xs text-slate-500 mt-1">Try refining your keyword query or category selection.</p>
           </div>
         ) : (
