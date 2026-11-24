@@ -77,7 +77,6 @@ BUILDRent/
 │   │   ├── main.tsx
 │   │   └── vite-env.d.ts
 │   │
-│   ├── .env
 │   ├── package.json
 │   └── vite.config.ts
 │
@@ -129,13 +128,9 @@ BUILDRent/
 │   │   ├── app.js
 │   │   └── server.js
 │   │
-│   ├── config/
-│   │   ├── .gitignore
-│   │   └── package.json
 │   ├── uploads/
 │   ├── tests/
 │   │   └── api.test.js
-│   ├── .env
 │   └── package.json
 │
 ├── docs/
