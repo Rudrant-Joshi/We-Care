@@ -7,12 +7,12 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import authRoutes from './routes/authRoutes.js';
-import equipmentRoutes from './routes/equipmentRoutes.js';
-import bookingRoutes from './routes/bookingRoutes.js';
-import userRoutes from './routes/userRoutes.js';
+import authRoutes from './routes/auth.route.js';
+import equipmentRoutes from './routes/equipment.route.js';
+import bookingRoutes from './routes/booking.route.js';
+import userRoutes from './routes/user.route.js';
 
-import { notFoundHandler, globalErrorHandler } from './middleware/errorMiddleware.js';
+import { notFoundHandler, globalErrorHandler } from './middleware/error.middleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

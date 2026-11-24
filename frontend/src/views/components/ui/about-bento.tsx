@@ -30,7 +30,7 @@ import {
   FileCheck2,
   Users,
 } from "lucide-react";
-import { DEPARTMENT_COLORS } from "../../../utils/department-colors";
+import { DEPARTMENT_COLORS } from "../../../utils/department-colors.util";
 
 interface AboutBentoProps {
   onBookConsultation?: () => void;

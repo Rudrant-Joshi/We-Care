@@ -20,7 +20,7 @@ import {
   Check,
   ExternalLink,
 } from "lucide-react";
-import { useAuth } from "../../../context/AuthContext";
+import { useAuth } from "../../../context/auth.context";
 
 export interface AuthSectionOneProps {
   initialMode?: "register" | "login";

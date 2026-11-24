@@ -5,9 +5,9 @@
 
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { TopScrollProgress } from './views/components/TopScrollProgress';
-import { AppRoutes, ScrollToTop } from './routes/AppRoutes';
+import { AuthProvider } from './context/auth.context';
+import { TopScrollProgress } from './views/components/top-scroll-progress.component';
+import { AppRoutes, ScrollToTop } from './routes/app.routes';
 
 export default function App() {
   return (

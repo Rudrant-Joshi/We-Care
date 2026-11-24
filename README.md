@@ -11,117 +11,121 @@
 BUILDRent/
 │
 ├── frontend/
-│   │
 │   ├── public/
-│   │
 │   ├── src/
 │   │   ├── models/
-│   │   │   ├── equipmentModel.js
-│   │   │   ├── equipmentModel.ts
-│   │   │   ├── appointmentModel.ts
-│   │   │   ├── userModel.ts
-│   │   │   └── types.ts
+│   │   │   ├── appointment.model.ts
+│   │   │   ├── equipment.model.ts
+│   │   │   ├── types.model.ts
+│   │   │   ├── user.model.ts
+│   │   │   └── index.ts
 │   │   │
 │   │   ├── views/
 │   │   │   ├── pages/
-│   │   │   │   ├── Home.jsx
-│   │   │   │   ├── Login.jsx
-│   │   │   │   ├── Register.jsx
-│   │   │   │   ├── Equipment.jsx
-│   │   │   │   ├── EquipmentDetails.jsx
-│   │   │   │   ├── Booking.jsx
-│   │   │   │   ├── Dashboard.jsx
-│   │   │   │   ├── About.tsx
-│   │   │   │   ├── Departments.tsx
-│   │   │   │   ├── Doctors.tsx
-│   │   │   │   └── Appointments.tsx
+│   │   │   │   ├── home.page.tsx
+│   │   │   │   ├── about.page.tsx
+│   │   │   │   ├── departments.page.tsx
+│   │   │   │   ├── doctors.page.tsx
+│   │   │   │   ├── appointments.page.tsx
+│   │   │   │   ├── booking.page.tsx
+│   │   │   │   ├── equipment.page.tsx
+│   │   │   │   ├── equipment-details.page.tsx
+│   │   │   │   ├── login.page.tsx
+│   │   │   │   ├── register.page.tsx
+│   │   │   │   └── dashboard.page.tsx
 │   │   │   │
 │   │   │   └── components/
-│   │   │       ├── Navbar.jsx
-│   │   │       ├── Footer.jsx
-│   │   │       ├── EquipmentCard.jsx
-│   │   │       ├── Sidebar.jsx
+│   │   │       ├── navbar.component.tsx
+│   │   │       ├── footer.component.tsx
+│   │   │       ├── equipment-card.component.tsx
+│   │   │       ├── sidebar.component.tsx
+│   │   │       ├── top-scroll-progress.component.tsx
+│   │   │       ├── appointment/
+│   │   │       │   ├── appointment-bento.component.tsx
+│   │   │       │   └── my-appointments-bento.component.tsx
 │   │   │       └── ui/
 │   │   │
 │   │   ├── controllers/
-│   │   │   ├── authController.js
-│   │   │   ├── equipmentController.js
-│   │   │   └── bookingController.js
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── booking.controller.ts
+│   │   │   ├── equipment.controller.ts
+│   │   │   └── index.ts
 │   │   │
 │   │   ├── services/
-│   │   │   ├── api.js
-│   │   │   ├── authService.js
-│   │   │   ├── equipmentService.js
-│   │   │   └── bookingService.js
+│   │   │   ├── api.service.ts
+│   │   │   ├── auth.service.ts
+│   │   │   ├── booking.service.ts
+│   │   │   ├── equipment.service.ts
+│   │   │   └── firebase.service.ts
 │   │   │
 │   │   ├── routes/
-│   │   │   └── AppRoutes.jsx
+│   │   │   └── app.routes.tsx
 │   │   │
-│   │   ├── assets/
+│   │   ├── hooks/
+│   │   │   └── use-equipment.hook.ts
+│   │   │
+│   │   ├── context/
+│   │   │   └── auth.context.tsx
+│   │   │
+│   │   ├── utils/
+│   │   │   ├── department-colors.util.ts
+│   │   │   └── utils.util.ts
+│   │   │
 │   │   ├── styles/
 │   │   │   └── index.css
-│   │   ├── hooks/
-│   │   │   ├── useTypewriter.ts
-│   │   │   ├── useAuth.ts
-│   │   │   ├── useAppointments.ts
-│   │   │   └── useEquipment.ts
-│   │   ├── context/
-│   │   │   └── AuthContext.tsx
-│   │   ├── utils/
-│   │   │   ├── utils.ts
-│   │   │   ├── department-colors.ts
-│   │   │   └── firebase.ts
-│   │   ├── App.jsx
-│   │   └── main.jsx
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   └── vite-env.d.ts
 │   │
 │   ├── .env
 │   ├── package.json
-│   └── vite.config.js
+│   └── vite.config.ts
 │
 ├── backend/
-│   │
 │   ├── src/
 │   │   ├── config/
-│   │   │   └── database.js
+│   │   │   └── database.config.js
 │   │   │
 │   │   ├── models/
-│   │   │   ├── User.js
-│   │   │   ├── Equipment.js
-│   │   │   ├── Booking.js
-│   │   │   └── Review.js
+│   │   │   ├── booking.model.js
+│   │   │   ├── equipment.model.js
+│   │   │   ├── review.model.js
+│   │   │   └── user.model.js
 │   │   │
 │   │   ├── views/
 │   │   │   └── README.md
 │   │   │
 │   │   ├── controllers/
-│   │   │   ├── authController.js
-│   │   │   ├── equipmentController.js
-│   │   │   ├── bookingController.js
-│   │   │   └── userController.js
+│   │   │   ├── auth.controller.js
+│   │   │   ├── booking.controller.js
+│   │   │   ├── equipment.controller.js
+│   │   │   └── user.controller.js
 │   │   │
 │   │   ├── routes/
-│   │   │   ├── authRoutes.js
-│   │   │   ├── equipmentRoutes.js
-│   │   │   ├── bookingRoutes.js
-│   │   │   └── userRoutes.js
+│   │   │   ├── auth.route.js
+│   │   │   ├── booking.route.js
+│   │   │   ├── equipment.route.js
+│   │   │   └── user.route.js
 │   │   │
 │   │   ├── middleware/
-│   │   │   ├── authMiddleware.js
-│   │   │   ├── errorMiddleware.js
-│   │   │   └── uploadMiddleware.js
+│   │   │   ├── auth.middleware.js
+│   │   │   ├── error.middleware.js
+│   │   │   └── upload.middleware.js
 │   │   │
 │   │   ├── services/
-│   │   │   ├── authService.js
-│   │   │   ├── equipmentService.js
-│   │   │   └── bookingService.js
+│   │   │   ├── auth.service.js
+│   │   │   ├── booking.service.js
+│   │   │   └── equipment.service.js
 │   │   │
 │   │   ├── utils/
-│   │   │   ├── logger.js
-│   │   │   └── helpers.js
+│   │   │   ├── helpers.util.js
+│   │   │   └── logger.util.js
+│   │   │
 │   │   ├── validators/
-│   │   │   ├── authValidator.js
-│   │   │   ├── bookingValidator.js
-│   │   │   └── equipmentValidator.js
+│   │   │   ├── auth.validator.js
+│   │   │   ├── booking.validator.js
+│   │   │   └── equipment.validator.js
+│   │   │
 │   │   ├── app.js
 │   │   └── server.js
 │   │

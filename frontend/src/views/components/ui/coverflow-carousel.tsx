@@ -3,7 +3,7 @@
 import * as React from "react";
 import { ChevronLeft, ChevronRight, Eye, UserCheck } from "lucide-react";
 
-import { cn } from "../../../utils/utils";
+import { cn } from "../../../utils/utils.util";
 
 const useIsoLayoutEffect =
   typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "../../../utils/utils";
+import { cn } from "../../../utils/utils.util";
 
 /* ── the corridor ────────────────────────────────────────────────
  * Two rails of cards ride from far behind the screen toward the

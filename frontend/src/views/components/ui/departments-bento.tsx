@@ -25,7 +25,7 @@ import {
   BriefcaseMedical,
   type LucideIcon,
 } from "lucide-react";
-import { DEPARTMENT_COLORS, type DepartmentColorToken } from "../../../utils/department-colors";
+import { DEPARTMENT_COLORS, type DepartmentColorToken } from "../../../utils/department-colors.util";
 
 interface DepartmentsBentoProps {
   onBookConsultation?: () => void;
